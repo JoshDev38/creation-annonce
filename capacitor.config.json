@@ -1,6 +1,6 @@
 {
-  "appId": "app.mokaa",
-  "appName": "Mokaa",
+  "appId": "app.malow",
+  "appName": "Malow",
   "webDir": "dist",
   "android": {
     "backgroundColor": "#FBF6EE"

@@ -1,4 +1,4 @@
-# Mokaa – Créez votre annonce
+# Malow – Créez votre annonce
 
 Application web (pensée pour le mobile) qui transforme la photo d’un objet en annonce prête à publier.
 
@@ -43,9 +43,9 @@ ce que le navigateur ne permet pas sur beaucoup de téléphones.
 
 - **Récupérer l’APK sans rien installer** : à chaque envoi sur GitHub, l’onglet *Actions* du dépôt
   construit l’appli (« Appli Android »). Ouvrez la dernière exécution et téléchargez
-  `mokaa-apk`, puis installez `app-debug.apk` sur le téléphone (autorisez les sources inconnues).
+  `malow-apk`, puis installez `app-debug.apk` sur le téléphone (autorisez les sources inconnues).
 - **Avec Android Studio** : `npm run build && npx cap sync android && npx cap open android`.
 - Après chaque modification du code web : `npm run build && npx cap sync android`.
 
-L’identifiant de l’appli (`app.mokaa`) est défini dans `capacitor.config.json` et `android/app/build.gradle` :
+L’identifiant de l’appli (`app.malow`) est défini dans `capacitor.config.json` et `android/app/build.gradle` :
 une fois l’appli publiée sur le Play Store, il ne peut plus changer.

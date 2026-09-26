@@ -1,4 +1,4 @@
-package app.mokaa;
+package app.malow;
 
 import com.getcapacitor.BridgeActivity;
 
