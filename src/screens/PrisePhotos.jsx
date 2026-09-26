@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { IconBack, IconCamera, IconChevron, IconFlash, IconGallery, IconPlus } from '../components/Icons.jsx'
-import { reduireCanvas } from '../lib/stockage.js'
+import { reduireCanvas, reduirePhoto } from '../lib/stockage.js'
 
 export const MAX_PHOTOS = 8
 
@@ -48,7 +48,7 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
         await video.current.play().catch(() => {})
 
         const caps = p.getCapabilities?.() || {}
-        setFlashDispo(Boolean(caps.torch))
+        detecterFlash(p)
         if (caps.zoom && caps.zoom.min <= 0.5) {
           setZooms([0.5, 1])
           setZoomMateriel(true)
@@ -72,17 +72,61 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
     }
   }, [])
 
+  // Beaucoup d'Android n'annoncent la lampe (torch) qu'un instant après
+  // l'ouverture de la caméra : on revérifie plusieurs fois.
+  const modeFlash = useRef(null) // 'torch' | 'capture' | null
+  const capture = useRef(null)
+
+  async function detecterFlash(p) {
+    for (const attente of [0, 300, 800, 1500]) {
+      if (attente) await new Promise((r) => setTimeout(r, attente))
+      if (piste.current !== p) return
+      if (p.getCapabilities?.().torch) {
+        modeFlash.current = 'torch'
+        setFlashDispo(true)
+        return
+      }
+    }
+    // Sinon : vrai flash au moment de la photo (Chrome Android).
+    if ('ImageCapture' in window) {
+      try {
+        const ic = new window.ImageCapture(p)
+        const pc = await ic.getPhotoCapabilities()
+        if (pc.fillLightMode?.includes('flash')) {
+          capture.current = ic
+          modeFlash.current = 'capture'
+          setFlashDispo(true)
+        }
+      } catch {
+        /* pas de flash */
+      }
+    }
+  }
+
   const basculerFlash = async () => {
-    if (!flashDispo) {
-      notifier('Flash non disponible sur cet appareil')
+    const p = piste.current
+    const allume = !flash
+    // Dernière chance si la détection n'a encore rien trouvé.
+    if (!modeFlash.current && p?.getCapabilities?.().torch) modeFlash.current = 'torch'
+    if (!modeFlash.current) {
+      notifier('Flash indisponible sur ce téléphone depuis le navigateur')
       return
     }
-    try {
-      await piste.current.applyConstraints({ advanced: [{ torch: !flash }] })
-      setFlash(!flash)
-    } catch {
-      notifier('Impossible d’allumer le flash')
+    if (modeFlash.current === 'torch') {
+      try {
+        await p.applyConstraints({ advanced: [{ torch: allume }] })
+      } catch {
+        try {
+          await p.applyConstraints({ torch: allume })
+        } catch {
+          notifier('Impossible d’allumer le flash')
+          return
+        }
+      }
     }
+    setFlashDispo(true)
+    setFlash(allume)
+    if (modeFlash.current === 'capture' && allume) notifier('Le flash se déclenchera à la prise de la photo')
   }
 
   const choisirZoom = async (z) => {
@@ -96,10 +140,20 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
     }
   }
 
-  const declencher = () => {
+  const declencher = async () => {
     if (plein) {
       notifier(`${MAX_PHOTOS} photos maximum`)
       return
+    }
+    if (flash && modeFlash.current === 'capture' && capture.current) {
+      try {
+        const blob = await capture.current.takePhoto({ fillLightMode: 'flash' })
+        onChange([...photos, await reduirePhoto(blob)])
+        navigator.vibrate?.(30)
+        return
+      } catch {
+        /* on retombe sur la capture de l'aperçu */
+      }
     }
     const v = video.current
     if (!v?.videoWidth) return
@@ -148,15 +202,6 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
           </div>
         )}
 
-        {etat !== 'erreur' && (
-          <>
-            <div className="grille" aria-hidden="true" />
-            <span className="coin coin-hg" />
-            <span className="coin coin-hd" />
-            <span className="coin coin-bg" />
-            <span className="coin coin-bd" />
-          </>
-        )}
         {eclair && <div className="eclair" aria-hidden="true" />}
 
         <header className="camera-haut">
@@ -212,16 +257,10 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
             ),
           )}
         </ul>
-        <div className="vignettes-legende">
-          <span>
-            {photos.length}/{MAX_PHOTOS}
-          </span>
-          <span>{MAX_PHOTOS} photos max</span>
-        </div>
 
         <div className="commandes">
           <button className="bouton-galerie" onClick={onGalerie} disabled={plein}>
-            <IconGallery width={40} height={40} />
+            <IconGallery width={30} height={30} />
             Galerie
           </button>
           <button
