@@ -1,4 +1,4 @@
-package app.secondevie.annonces;
+package app.mokaa;
 
 import com.getcapacitor.BridgeActivity;
 

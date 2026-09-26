@@ -1,6 +1,6 @@
 {
-  "appId": "app.secondevie.annonces",
-  "appName": "Seconde Vie",
+  "appId": "app.mokaa",
+  "appName": "Mokaa",
   "webDir": "dist",
   "android": {
     "backgroundColor": "#FBF6EE"

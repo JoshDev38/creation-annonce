@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "app.secondevie.annonces"
+    namespace = "app.mokaa"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "app.secondevie.annonces"
+        applicationId "app.mokaa"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
