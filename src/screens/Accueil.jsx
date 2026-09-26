@@ -45,9 +45,9 @@ export default function Accueil({ onPhoto, onGalerie }) {
         <p className="mot-carton" aria-hidden="true">
           <span className="trait trait-g1" />
           <span className="trait trait-g2" />
-          À vendre ?
+          Vos objets peuvent encore
           <br />
-          C’est déjà presque fait !
+          faire des heureux
           <span className="trait trait-d1" />
           <span className="trait trait-d2" />
           <span className="coeur">♡</span>
