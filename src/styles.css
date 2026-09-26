@@ -580,6 +580,40 @@ img {
   white-space: nowrap;
 }
 
+.compteur-groupe {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bouton-info {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(251, 246, 238, 0.85);
+  border: 2px solid #b6d5ea;
+  color: #1f4f78;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.bouton-info.ouvert {
+  background: #b6d5ea;
+}
+
+.camera-flash.recherche {
+  animation: pulsation-flash 0.9s ease-in-out infinite;
+}
+
+@keyframes pulsation-flash {
+  50% { opacity: 0.4; }
+}
+
 .camera-flash {
   justify-self: end;
   display: grid;
@@ -601,6 +635,7 @@ img {
 }
 
 .bulle-conseil {
+  animation: toast 0.2s ease;
   position: absolute;
   top: calc(max(14px, env(safe-area-inset-top)) + 54px);
   left: 50%;
