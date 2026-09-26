@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { App as AppNative } from '@capacitor/app'
 import TabBar from './components/TabBar.jsx'
 import Accueil from './screens/Accueil.jsx'
 import PrisePhotos, { MAX_PHOTOS } from './screens/PrisePhotos.jsx'
@@ -10,6 +11,8 @@ import MesAnnonces from './screens/MesAnnonces.jsx'
 import Conseils from './screens/Conseils.jsx'
 import Profil from './screens/Profil.jsx'
 import { genererAnnonce } from './lib/generateur.js'
+import { analyserAvecIA } from './lib/analyseIA.js'
+import { estAppliNative } from './lib/cameraNative.js'
 import { allegerPhoto, enregistrerAnnonce, reduirePhoto } from './lib/stockage.js'
 
 const AVEC_ONGLETS = ['accueil', 'partage', 'annonces', 'conseils', 'profil']
@@ -21,6 +24,8 @@ export default function App() {
   const [annonce, setAnnonce] = useState(null)
   const [toast, setToast] = useState(null)
   const [origine, setOrigine] = useState('detail')
+  const [resultat, setResultat] = useState(null)
+  const analyseEnCours = useRef(0)
   const champPhoto = useRef(null)
   const champGalerie = useRef(null)
 
@@ -53,10 +58,24 @@ export default function App() {
 
   const lancerAnalyse = (texte) => {
     setInfos(texte)
+    setResultat(null)
     setEcran('analyse')
+    const numero = ++analyseEnCours.current
+    analyserAvecIA(photos, texte)
+      .then((r) => ({ ...r, source: 'ia' }))
+      .catch((e) => {
+        console.warn('Analyse IA indisponible :', e.message)
+        return { ...genererAnnonce(texte), source: 'local' }
+      })
+      .then((r) => {
+        if (numero === analyseEnCours.current) setResultat(r)
+      })
   }
 
   const analyseTerminee = () => {
+    if (!resultat) return
+    const { source, ...contenu } = resultat
+    if (source === 'local') notifier('Analyse IA indisponible : annonce créée à partir de vos informations')
     setOrigine('detail')
     setAnnonce({
       id: crypto.randomUUID?.() || String(Date.now()),
@@ -64,7 +83,7 @@ export default function App() {
       photo: photos[0] || null,
       photos,
       infos,
-      ...genererAnnonce(infos),
+      ...contenu,
     })
     setEcran('resultat')
   }
@@ -95,6 +114,31 @@ export default function App() {
     setEcran('resultat')
   }
 
+  // Bouton retour d'Android (appli installée) : écran précédent, ou fermeture sur l'accueil.
+  const retour = useRef(null)
+  retour.current = () => {
+    const precedent = {
+      photos: 'accueil',
+      detail: 'photos',
+      resultat: origine,
+      partage: 'resultat',
+      annonces: 'accueil',
+      conseils: 'accueil',
+      profil: 'accueil',
+    }
+    if (ecran === 'accueil') AppNative.exitApp()
+    else if (ecran === 'analyse') return // on laisse l'analyse se terminer
+    else setEcran(precedent[ecran] || 'accueil')
+  }
+
+  useEffect(() => {
+    if (!estAppliNative()) return
+    const ecoute = AppNative.addListener('backButton', () => retour.current())
+    return () => {
+      ecoute.then((h) => h.remove())
+    }
+  }, [])
+
   let contenu
   switch (ecran) {
     case 'photos':
@@ -120,7 +164,7 @@ export default function App() {
       )
       break
     case 'analyse':
-      contenu = <Analyse onFini={analyseTerminee} />
+      contenu = <Analyse pret={Boolean(resultat)} onFini={analyseTerminee} />
       break
     case 'resultat':
       contenu = (

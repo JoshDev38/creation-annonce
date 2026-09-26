@@ -21,13 +21,17 @@ La dictée vocale utilise la reconnaissance vocale du navigateur (Chrome, Safari
 
 ## Comment l’annonce est générée
 
-`src/lib/generateur.js` construit le titre, la description, le prix conseillé et les mots-clés
-à partir des informations dictées ou écrites (catégorie, taille, marque, état, couleurs, matières…).
-Tout se passe dans le navigateur, sans serveur.
+L’analyse est faite par Claude (Anthropic) via la fonction serveur `api/analyser.js`, hébergée sur Vercel :
+l’appli envoie les photos (réduites à 1024 px) et les infos dictées ou écrites, Claude renvoie le titre,
+la description, les trois prix et les mots-clés.
 
-Pour une vraie reconnaissance de la photo par une IA, il suffit de remplacer `genererAnnonce`
-par un appel à une API (via un petit serveur pour protéger la clé) qui renvoie le même objet :
-`{ titre, description, prix: { conseille, rapide, haut }, tags }`.
+- **Clé d’API** : créez-la sur https://console.anthropic.com, puis ajoutez-la dans Vercel
+  (*Settings → Environment Variables*) sous le nom `ANTHROPIC_API_KEY`, et redéployez.
+  Elle reste sur le serveur : elle n’est jamais envoyée au téléphone.
+- **Modèle** : `claude-opus-5`, effort `medium`, avec repli automatique (`fallbacks: "default"`)
+  si le modèle refuse une demande.
+- **Secours** : sans clé, sans réseau ou en cas d’erreur, l’appli utilise le générateur local
+  `src/lib/generateur.js` (annonce construite à partir des infos du vendeur) et prévient l’utilisateur.
 
 ## Palette
 

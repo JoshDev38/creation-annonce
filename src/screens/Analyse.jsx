@@ -8,19 +8,21 @@ const ETAPES = [
   { Icone: IconDoc, texte: 'Je prépare votre annonce…' },
 ]
 
-const DUREE_ETAPE = 750
+const DUREE_ETAPE = 1200
 
-export default function Analyse({ onFini }) {
+// Les premières étapes avancent seules ; la dernière attend que l'annonce soit prête.
+export default function Analyse({ pret, onFini }) {
   const [faites, setFaites] = useState(0)
 
   useEffect(() => {
-    if (faites < ETAPES.length) {
-      const t = setTimeout(() => setFaites((n) => n + 1), DUREE_ETAPE)
+    if (faites < ETAPES.length - 1 || (faites === ETAPES.length - 1 && pret)) {
+      const t = setTimeout(() => setFaites((n) => n + 1), faites === ETAPES.length - 1 ? 300 : DUREE_ETAPE)
       return () => clearTimeout(t)
     }
+    if (faites < ETAPES.length) return
     const t = setTimeout(onFini, 400)
     return () => clearTimeout(t)
-  }, [faites, onFini])
+  }, [faites, pret, onFini])
 
   return (
     <main className="page page-analyse">

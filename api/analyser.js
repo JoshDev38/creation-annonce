@@ -1,0 +1,134 @@
+// Fonction serveur Vercel : POST /api/analyser
+// Reçoit les photos (JPEG en base64) et les infos dictées/écrites,
+// demande l'annonce à Claude et la renvoie au format attendu par l'appli.
+// La clé ANTHROPIC_API_KEY reste côté serveur (variable d'environnement Vercel).
+import Anthropic from '@anthropic-ai/sdk'
+
+export const config = { maxDuration: 60 }
+
+const MAX_PHOTOS = 8
+const ORIGINES = [
+  'https://malow.app',
+  'https://www.malow.app',
+  'https://creation-annonce.vercel.app',
+  'https://localhost', // appli Android (Capacitor)
+  'capacitor://localhost', // appli iOS (Capacitor)
+  'http://localhost:5173',
+  'http://localhost:4173',
+]
+
+const SCHEMA = {
+  type: 'object',
+  properties: {
+    titre: { type: 'string', description: 'Titre court et vendeur, 70 caractères maximum' },
+    description: { type: 'string', description: 'Description de 3 à 6 phrases' },
+    prix_conseille: { type: 'integer', description: 'Prix conseillé en euros' },
+    prix_rapide: { type: 'integer', description: 'Prix pour vendre en quelques jours' },
+    prix_haut: { type: 'integer', description: 'Prix haut, pour un acheteur patient' },
+    tags: { type: 'array', items: { type: 'string' }, description: '5 à 8 mots-clés' },
+  },
+  required: ['titre', 'description', 'prix_conseille', 'prix_rapide', 'prix_haut', 'tags'],
+  additionalProperties: false,
+}
+
+const SYSTEME = `Tu rédiges des annonces de vente d'objets d'occasion pour des particuliers en France \
+(Vinted, Leboncoin, Facebook Marketplace).
+
+À partir des photos et des informations du vendeur :
+- Identifie l'objet : type, public (enfant, femme, homme…), marque, taille, couleur, matière, détails utiles.
+- N'invente rien : une marque ou une taille n'apparaît que si elle est visible sur les photos \
+(étiquette, logo) ou donnée par le vendeur. En cas de doute, ne la mentionne pas.
+- Évalue l'état d'après les photos et les infos, et mentionne honnêtement les défauts visibles ou signalés.
+- Les informations du vendeur priment sur ce que tu crois voir.
+
+Rédaction, en français :
+- Titre : court, avec les mots que les acheteurs tapent (type d'objet, marque, taille, état).
+- Description : 3 à 6 phrases simples et chaleureuses, sans emoji ni majuscules inutiles. \
+Termine par une phrase sur l'envoi ou la remise en main propre.
+- Mots-clés : 5 à 8, courts, sans « # ».
+
+Prix : réaliste pour le marché de l'occasion en France, en euros entiers. \
+prix_rapide < prix_conseille < prix_haut.`
+
+function autoriserOrigine(req, res) {
+  const origine = req.headers.origin
+  if (origine && ORIGINES.includes(origine)) {
+    res.setHeader('Access-Control-Allow-Origin', origine)
+    res.setHeader('Vary', 'Origin')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  }
+  return !origine || ORIGINES.includes(origine)
+}
+
+export default async function handler(req, res) {
+  const origineOk = autoriserOrigine(req, res)
+  if (req.method === 'OPTIONS') return res.status(204).end()
+  if (req.method !== 'POST') return res.status(405).json({ erreur: 'Méthode non autorisée' })
+  if (!origineOk) return res.status(403).json({ erreur: 'Origine non autorisée' })
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ erreur: 'Analyse IA non configurée' })
+  }
+
+  const { photos = [], infos = '' } = req.body || {}
+  if (!Array.isArray(photos) || photos.length === 0 || photos.length > MAX_PHOTOS) {
+    return res.status(400).json({ erreur: `Envoyez entre 1 et ${MAX_PHOTOS} photos` })
+  }
+  const images = []
+  for (const photo of photos) {
+    const m = typeof photo === 'string' && photo.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/)
+    if (!m) return res.status(400).json({ erreur: 'Format de photo invalide' })
+    images.push({ type: 'image', source: { type: 'base64', media_type: m[1], data: m[2] } })
+  }
+
+  const client = new Anthropic()
+  try {
+    const reponse = await client.beta.messages.create({
+      model: 'claude-opus-5',
+      max_tokens: 16000,
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+      output_config: {
+        effort: 'medium',
+        format: { type: 'json_schema', schema: SCHEMA },
+      },
+      system: SYSTEME,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            ...images,
+            {
+              type: 'text',
+              text: infos.trim()
+                ? `Informations du vendeur : ${String(infos).slice(0, 2000)}`
+                : "Le vendeur n'a pas donné d'informations : appuie-toi sur les photos.",
+            },
+          ],
+        },
+      ],
+    })
+
+    if (reponse.stop_reason === 'refusal') {
+      return res.status(422).json({ erreur: 'L’IA n’a pas pu analyser ces photos' })
+    }
+    const texte = reponse.content.find((b) => b.type === 'text')?.text
+    const a = JSON.parse(texte)
+    return res.status(200).json({
+      titre: a.titre,
+      description: a.description,
+      prix: { conseille: a.prix_conseille, rapide: a.prix_rapide, haut: a.prix_haut },
+      tags: a.tags,
+    })
+  } catch (e) {
+    if (e instanceof Anthropic.RateLimitError) {
+      return res.status(429).json({ erreur: 'Trop de demandes, réessayez dans un instant' })
+    }
+    if (e instanceof Anthropic.APIError) {
+      console.error('Erreur API Claude', e.status, e.message)
+      return res.status(502).json({ erreur: 'Service d’analyse indisponible' })
+    }
+    console.error('Erreur analyse', e)
+    return res.status(500).json({ erreur: 'Erreur pendant l’analyse' })
+  }
+}
