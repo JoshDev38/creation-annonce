@@ -8,9 +8,9 @@ export default function Illustration() {
         alt="Un carton rempli d’objets à qui donner une seconde vie : ourson en peluche, livres, lampe et plaid"
       />
       <p className="etiquette-manuscrite">
-        Des objets d’aujourd’hui,
+        Vos objets peuvent encore
         <br />
-        une seconde vie demain ♡
+        faire des heureux ♡
       </p>
     </div>
   )
