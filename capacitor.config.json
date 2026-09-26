@@ -1,0 +1,8 @@
+{
+  "appId": "app.secondevie.annonces",
+  "appName": "Seconde Vie",
+  "webDir": "dist",
+  "android": {
+    "backgroundColor": "#FBF6EE"
+  }
+}

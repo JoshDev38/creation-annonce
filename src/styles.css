@@ -505,6 +505,16 @@ img {
 
 /* ---------- Prise de photos (caméra) ---------- */
 
+/* Appli installée : l'aperçu natif est derrière la page, qu'on rend transparente. */
+html.camera-native,
+html.camera-native body,
+html.camera-native .app,
+html.camera-native .ecran,
+html.camera-native .camera,
+html.camera-native .viseur {
+  background: transparent !important;
+}
+
 .camera {
   flex: 1;
   display: flex;

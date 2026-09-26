@@ -71,9 +71,9 @@ export async function reduirePhoto(fichier, tailleMax = 1200) {
 }
 
 // Version plus légère pour la sauvegarde sur l'appareil (le stockage est limité).
-export async function allegerPhoto(dataUrl, tailleMax = 640) {
+export async function allegerPhoto(dataUrl, tailleMax = 640, qualite = 0.72) {
   const img = await chargerImage(dataUrl)
-  return redimensionner(img, img.naturalWidth, img.naturalHeight, tailleMax, 0.72)
+  return redimensionner(img, img.naturalWidth, img.naturalHeight, tailleMax, qualite)
 }
 
 export async function copierTexte(texte) {

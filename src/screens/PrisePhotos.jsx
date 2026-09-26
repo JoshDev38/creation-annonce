@@ -1,12 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { IconBack, IconCamera, IconChevron, IconFlash, IconGallery, IconPlus } from '../components/Icons.jsx'
-import { reduireCanvas, reduirePhoto } from '../lib/stockage.js'
+import { allegerPhoto, reduireCanvas, reduirePhoto } from '../lib/stockage.js'
+import {
+  arreterCameraNative,
+  capturerNatif,
+  demarrerCameraNative,
+  estAppliNative,
+  reglerFlashNatif,
+} from '../lib/cameraNative.js'
 
 export const MAX_PHOTOS = 8
 
 // Écran « appareil photo » : aperçu en direct, jusqu'à 8 photos, flash et zoom
 // quand le téléphone le permet. Sans accès à la caméra (refus, ordinateur sans
 // webcam…), on se rabat sur l'appareil photo natif du téléphone.
+const NATIF = estAppliNative()
 const CLE_CAMERA = 'seconde-vie:camera'
 const pause = (ms) => new Promise((r) => setTimeout(r, ms))
 const ARRIERE = /back|rear|arri|environment|environnement/i
@@ -121,6 +129,25 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
 
   useEffect(() => {
     actif.current = true
+    if (NATIF) {
+      // Appli installée : caméra native, avec accès au flash.
+      ;(async () => {
+        try {
+          const mode = await demarrerCameraNative()
+          if (!actif.current) return
+          modeFlash.current = mode
+          setFlashDispo(Boolean(mode))
+          setZooms([]) // zoom en pinçant l'écran
+          setEtat('pret')
+        } catch {
+          if (actif.current) setEtat('erreur')
+        }
+      })()
+      return () => {
+        actif.current = false
+        arreterCameraNative()
+      }
+    }
     ;(async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setEtat('erreur')
@@ -186,6 +213,20 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
   const basculerFlash = async () => {
     if (rechercheFlash) return
     const allume = !flash
+    if (NATIF) {
+      if (!modeFlash.current) {
+        notifier('Ce téléphone n’a pas de flash')
+        return
+      }
+      try {
+        await reglerFlashNatif(modeFlash.current, allume)
+        setFlash(allume)
+        if (modeFlash.current === 'capture' && allume) notifier('Le flash se déclenchera à la prise de la photo')
+      } catch {
+        notifier('Impossible d’allumer le flash')
+      }
+      return
+    }
     let p = piste.current
     if (!p) return
 
@@ -238,6 +279,18 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
       notifier(`${MAX_PHOTOS} photos maximum`)
       return
     }
+    if (NATIF) {
+      try {
+        const photo = await allegerPhoto(await capturerNatif(), 1200, 0.85)
+        onChange([...photos, photo])
+        setEclair(true)
+        setTimeout(() => setEclair(false), 180)
+        navigator.vibrate?.(30)
+      } catch {
+        notifier('La photo n’a pas pu être prise')
+      }
+      return
+    }
     if (flash && modeFlash.current === 'capture' && capture.current) {
       try {
         const blob = await capture.current.takePhoto({ fillLightMode: 'flash' })
@@ -273,7 +326,7 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
   return (
     <main className="camera">
       <div className="viseur">
-        {etat !== 'erreur' ? (
+        {NATIF && etat !== 'erreur' ? null : etat !== 'erreur' ? (
           <video
             ref={video}
             playsInline

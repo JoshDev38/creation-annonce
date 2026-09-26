@@ -34,3 +34,18 @@ par un appel à une API (via un petit serveur pour protéger la clé) qui renvoi
 | Bleu pastel | Chocolat au lait | Beige rosé | Crème |
 |---|---|---|---|
 | `#A8CBE0` | `#7A4532` | `#D9BFAF` | `#FBF6EE` |
+
+## Appli Android
+
+Le dossier `android/` contient l’appli Android (Capacitor). Dans l’appli installée, la caméra
+passe par le module natif (`@capacitor-community/camera-preview`), qui a accès au flash —
+ce que le navigateur ne permet pas sur beaucoup de téléphones.
+
+- **Récupérer l’APK sans rien installer** : à chaque envoi sur GitHub, l’onglet *Actions* du dépôt
+  construit l’appli (« Appli Android »). Ouvrez la dernière exécution et téléchargez
+  `seconde-vie-apk`, puis installez `app-debug.apk` sur le téléphone (autorisez les sources inconnues).
+- **Avec Android Studio** : `npm run build && npx cap sync android && npx cap open android`.
+- Après chaque modification du code web : `npm run build && npx cap sync android`.
+
+L’identifiant de l’appli (`app.secondevie.annonces`) se change dans `capacitor.config.json`
+avant la première publication sur le Play Store.
