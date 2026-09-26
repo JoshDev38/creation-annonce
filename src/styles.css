@@ -328,21 +328,19 @@ img {
 
 .illustration {
   position: relative;
-  border-radius: var(--rayon);
-  background: linear-gradient(180deg, #f6ede3 0%, #f1e4d6 100%);
-  padding: 14px 10px 0;
-  overflow: hidden;
 }
 
-.illustration svg {
+.illustration img {
   width: 100%;
-  height: auto;
-  display: block;
+  aspect-ratio: 361 / 269;
+  object-fit: cover;
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
 }
 
 .etiquette-manuscrite {
   position: relative;
-  margin: -14px auto 14px;
+  margin: -26px auto 0;
   width: fit-content;
   padding: 8px 18px;
   background: #f3dfd3;
