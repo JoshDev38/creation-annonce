@@ -305,19 +305,24 @@ img {
 /* ---------- Accueil ---------- */
 
 .page-accueil {
+  --zoom: 1.15; /* largeur de la photo par rapport à l'écran */
   gap: 0;
-  padding-bottom: 0;
-  padding-left: 0;
-  padding-right: 0;
-  background:
-    radial-gradient(120% 60% at 85% 0%, #fffaf2 0%, transparent 60%),
-    linear-gradient(180deg, #fbf4ea 0%, #f6ebdd 55%, #eedcc6 100%);
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fbf3ea 0%, #f1e5da 100%);
+}
+
+.accueil-haut {
+  position: relative;
+  z-index: 1;
+  margin-bottom: auto;
+  padding: max(26px, env(safe-area-inset-top)) 12px 0;
 }
 
 .accroche {
   display: flex;
   flex-direction: column;
-  margin: auto 16px 0;
+  margin: 0 4px;
   font-family: var(--serif);
   font-weight: 400;
   font-size: clamp(31px, 9.4vw, 40px);
@@ -332,7 +337,7 @@ img {
 }
 
 .accroche-sous {
-  margin: 12px 16px 0;
+  margin: 12px 0 0;
   font-size: clamp(19px, 5.4vw, 22px);
   line-height: 1.2;
   text-align: center;
@@ -341,7 +346,7 @@ img {
 
 .atouts {
   list-style: none;
-  margin: clamp(18px, 3vh, 34px) 12px 0;
+  margin: clamp(16px, 3vh, 30px) 0 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -364,40 +369,104 @@ img {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: rgba(214, 231, 242, 0.85);
+  background: rgba(214, 231, 242, 0.88);
   color: #5e2a19;
 }
 
+/* La photo est plus large que l'écran (115 %) et décalée pour centrer le carton.
+   Son haut (le mur) passe sous les textes grâce à la marge négative.
+   Les marges en % se calculent sur la largeur de l'écran. */
 .scene {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  margin-top: auto;
-  padding-top: 4px;
+  flex: none;
+  width: calc(100% * var(--zoom));
+  /* le haut (mur) passe sous les textes ; le carton reste centré */
+  margin: calc(-31.3% * var(--zoom)) 0 0 max(calc(100% - 100% * var(--zoom)), calc(51% - 54.8% * var(--zoom)));
+  container-type: inline-size;
 }
 
 .scene img {
   display: block;
-  flex: 1 0 auto;
   width: 100%;
   height: auto;
-  max-height: calc(min(100vw, 440px) * 0.64);
-  object-fit: cover;
-  object-position: center bottom;
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%);
-  mask-image: linear-gradient(180deg, transparent 0%, #000 22%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 12%);
 }
 
+.mot-carton {
+  position: absolute;
+  left: 54.5%;
+  top: 68%;
+  margin: 0;
+  transform: translate(-50%, -50%) rotate(-7deg);
+  font-family: var(--manuscrite);
+  font-weight: 700;
+  font-size: 7.2cqw;
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+  color: #5e2a19;
+}
+
+.mot-carton .coeur {
+  display: block;
+  font-weight: 500;
+  font-size: 0.9em;
+  line-height: 1;
+  transform: rotate(7deg);
+}
+
+.trait {
+  position: absolute;
+  width: 0.7em;
+  height: 0.09em;
+  border-radius: 1em;
+  background: currentColor;
+}
+
+.trait-g1 { left: -0.7em; top: 0.9em; transform: rotate(25deg); }
+.trait-g2 { left: -0.9em; top: 1.7em; transform: rotate(-25deg); }
+.trait-d1 { right: -1em; top: 0.95em; transform: rotate(-20deg); }
+.trait-d2 { right: -0.75em; top: 1.75em; transform: rotate(50deg); }
+
 .scene-actions {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  margin-top: -26px;
-  padding: 0 34px 14px;
-  position: relative;
-  background: linear-gradient(180deg, transparent 0 26px, #e9d6bf 26px);
+  gap: 4px;
+  margin-top: calc(-18.6% * var(--zoom) - 34px);
+  padding: 0 34px 10px;
+}
+
+/* Petits téléphones (iPhone SE…) : tout doit tenir sans défiler. */
+@media (max-height: 720px) {
+  .page-accueil {
+    --zoom: 1;
+  }
+  .accueil-haut {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+  .accroche {
+    font-size: 29px;
+  }
+  .accroche-sous {
+    margin-top: 8px;
+    font-size: 18px;
+  }
+  .atouts {
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  .rond-atout {
+    width: 56px;
+    height: 56px;
+  }
+  .rond-atout svg {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 .bouton-photo {
@@ -409,7 +478,7 @@ img {
   min-height: 66px;
   border-radius: 999px;
   background: #7fadcb;
-  border: 3px solid rgba(255, 255, 255, 0.9);
+  border: 3px solid rgba(255, 255, 255, 0.92);
   color: #fff;
   font-size: 22px;
   font-weight: 500;
@@ -427,8 +496,11 @@ img {
 
 .lien-galerie {
   font-size: 14px;
-  color: #4a3a2e;
-  padding: 6px;
+  font-weight: 500;
+  color: #3b2a20;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 250, 243, 0.7);
 }
 
 /* ---------- Photo prise ---------- */
@@ -941,6 +1013,7 @@ img {
 .tabbar {
   position: sticky;
   bottom: 0;
+  z-index: 5;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
