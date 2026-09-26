@@ -60,3 +60,4 @@ export const IconPeopleFilled = (props) => (
     </g>
   </svg>
 )
+export const IconGallery = make(<><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9.5" r="1.8" /><path d="m3.5 18 5.5-5.5 4 4 2.5-2.5 5 5" /></>)

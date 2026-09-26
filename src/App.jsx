@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import TabBar from './components/TabBar.jsx'
 import Accueil from './screens/Accueil.jsx'
-import PhotoPrise from './screens/PhotoPrise.jsx'
+import PrisePhotos, { MAX_PHOTOS } from './screens/PrisePhotos.jsx'
 import Detail from './screens/Detail.jsx'
 import Analyse from './screens/Analyse.jsx'
 import Resultat from './screens/Resultat.jsx'
@@ -10,13 +10,13 @@ import MesAnnonces from './screens/MesAnnonces.jsx'
 import Conseils from './screens/Conseils.jsx'
 import Profil from './screens/Profil.jsx'
 import { genererAnnonce } from './lib/generateur.js'
-import { enregistrerAnnonce, reduirePhoto } from './lib/stockage.js'
+import { allegerPhoto, enregistrerAnnonce, reduirePhoto } from './lib/stockage.js'
 
 const AVEC_ONGLETS = ['accueil', 'partage', 'annonces', 'conseils', 'profil']
 
 export default function App() {
   const [ecran, setEcran] = useState('accueil')
-  const [photo, setPhoto] = useState(null)
+  const [photos, setPhotos] = useState([])
   const [infos, setInfos] = useState('')
   const [annonce, setAnnonce] = useState(null)
   const [toast, setToast] = useState(null)
@@ -30,19 +30,25 @@ export default function App() {
     notifier.timer = setTimeout(() => setToast(null), 2200)
   }
 
-  const prendrePhoto = () => champPhoto.current?.click()
+  const ouvrirCamera = () => setEcran('photos')
+  const cameraNative = () => champPhoto.current?.click()
   const choisirGalerie = () => champGalerie.current?.click()
 
-  const photoChoisie = async (e) => {
-    const fichier = e.target.files?.[0]
+  const photosChoisies = async (e) => {
+    const fichiers = Array.from(e.target.files || [])
     e.target.value = ''
-    if (!fichier) return
-    try {
-      setPhoto(await reduirePhoto(fichier))
-      setEcran('photo')
-    } catch {
-      notifier('Impossible de lire cette photo')
+    if (!fichiers.length) return
+    const place = MAX_PHOTOS - photos.length
+    if (place <= 0) {
+      notifier(`${MAX_PHOTOS} photos maximum`)
+      return
     }
+    if (fichiers.length > place) notifier(`${MAX_PHOTOS} photos maximum : seules ${place} ont été ajoutées`)
+    const lues = await Promise.all(fichiers.slice(0, place).map((f) => reduirePhoto(f).catch(() => null)))
+    const valides = lues.filter(Boolean)
+    if (valides.length < lues.length) notifier('Certaines photos n’ont pas pu être lues')
+    setPhotos((actuelles) => [...actuelles, ...valides].slice(0, MAX_PHOTOS))
+    setEcran('photos')
   }
 
   const lancerAnalyse = (texte) => {
@@ -55,29 +61,35 @@ export default function App() {
     setAnnonce({
       id: crypto.randomUUID?.() || String(Date.now()),
       date: new Date().toISOString(),
-      photo,
+      photo: photos[0] || null,
+      photos,
       infos,
       ...genererAnnonce(infos),
     })
     setEcran('resultat')
   }
 
-  const sauvegarder = (a = annonce) => {
-    const ok = enregistrerAnnonce(a)
+  const sauvegarder = async (a = annonce) => {
+    let legeres = []
+    try {
+      legeres = await Promise.all((a.photos || []).map((p) => allegerPhoto(p)))
+    } catch {
+      legeres = a.photos || []
+    }
+    const ok = enregistrerAnnonce({ ...a, photo: legeres[0] || null, photos: legeres })
     notifier(ok ? 'Annonce sauvegardée' : 'Stockage plein : supprimez une annonce')
   }
 
   const nouvelleAnnonce = () => {
-    setPhoto(null)
+    setPhotos([])
     setInfos('')
     setAnnonce(null)
-    setEcran('accueil')
-    prendrePhoto()
+    setEcran('photos')
   }
 
   const ouvrirAnnonce = (a) => {
     setAnnonce(a)
-    setPhoto(a.photo)
+    setPhotos(a.photos || (a.photo ? [a.photo] : []))
     setInfos(a.infos || '')
     setOrigine('annonces')
     setEcran('resultat')
@@ -85,13 +97,16 @@ export default function App() {
 
   let contenu
   switch (ecran) {
-    case 'photo':
+    case 'photos':
       contenu = (
-        <PhotoPrise
-          photo={photo}
+        <PrisePhotos
+          photos={photos}
+          onChange={setPhotos}
           onRetour={() => setEcran('accueil')}
           onContinuer={() => setEcran('detail')}
-          onReprendre={prendrePhoto}
+          onGalerie={choisirGalerie}
+          onCameraNative={cameraNative}
+          notifier={notifier}
         />
       )
       break
@@ -99,7 +114,7 @@ export default function App() {
       contenu = (
         <Detail
           valeurInitiale={infos}
-          onRetour={() => setEcran('photo')}
+          onRetour={() => setEcran('photos')}
           onValider={lancerAnalyse}
         />
       )
@@ -139,7 +154,7 @@ export default function App() {
       contenu = <Profil />
       break
     default:
-      contenu = <Accueil onPhoto={prendrePhoto} onGalerie={choisirGalerie} />
+      contenu = <Accueil onPhoto={ouvrirCamera} onGalerie={choisirGalerie} />
   }
 
   return (
@@ -159,9 +174,9 @@ export default function App() {
         accept="image/*"
         capture="environment"
         hidden
-        onChange={photoChoisie}
+        onChange={photosChoisies}
       />
-      <input ref={champGalerie} type="file" accept="image/*" hidden onChange={photoChoisie} />
+      <input ref={champGalerie} type="file" accept="image/*" multiple hidden onChange={photosChoisies} />
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
   )

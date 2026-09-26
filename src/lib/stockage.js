@@ -15,9 +15,9 @@ export function enregistrerAnnonce(annonce) {
     localStorage.setItem(CLE, JSON.stringify(liste))
     return true
   } catch {
-    // Quota dépassé : on retente sans la photo la plus ancienne.
+    // Quota dépassé : on ne garde que la première photo des annonces plus anciennes.
     try {
-      const allegee = liste.map((a, i) => (i > 5 ? { ...a, photo: null } : a))
+      const allegee = liste.map((a, i) => (i > 0 ? { ...a, photos: a.photo ? [a.photo] : [] } : a))
       localStorage.setItem(CLE, JSON.stringify(allegee))
       return true
     } catch {
@@ -36,26 +36,44 @@ export function supprimerAnnonce(id) {
   return liste
 }
 
-// Réduit la photo pour qu'elle tienne dans le stockage du navigateur.
-export function reduirePhoto(fichier, tailleMax = 900) {
+// Redimensionne une image (ou une vidéo, un canvas) et la renvoie en JPEG.
+function redimensionner(source, largeur, hauteur, tailleMax, qualite) {
+  const echelle = Math.min(1, tailleMax / Math.max(largeur, hauteur))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(largeur * echelle)
+  canvas.height = Math.round(hauteur * echelle)
+  canvas.getContext('2d').drawImage(source, 0, 0, canvas.width, canvas.height)
+  return canvas.toDataURL('image/jpeg', qualite)
+}
+
+export function reduireCanvas(canvas, tailleMax = 1200) {
+  return redimensionner(canvas, canvas.width, canvas.height, tailleMax, 0.85)
+}
+
+function chargerImage(src) {
   return new Promise((resolve, reject) => {
-    const lecteur = new FileReader()
-    lecteur.onerror = reject
-    lecteur.onload = () => {
-      const img = new Image()
-      img.onerror = reject
-      img.onload = () => {
-        const echelle = Math.min(1, tailleMax / Math.max(img.width, img.height))
-        const canvas = document.createElement('canvas')
-        canvas.width = Math.round(img.width * echelle)
-        canvas.height = Math.round(img.height * echelle)
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-        resolve(canvas.toDataURL('image/jpeg', 0.8))
-      }
-      img.src = lecteur.result
-    }
-    lecteur.readAsDataURL(fichier)
+    const img = new Image()
+    img.onerror = reject
+    img.onload = () => resolve(img)
+    img.src = src
   })
+}
+
+// Réduit une photo choisie dans la galerie.
+export async function reduirePhoto(fichier, tailleMax = 1200) {
+  const url = URL.createObjectURL(fichier)
+  try {
+    const img = await chargerImage(url)
+    return redimensionner(img, img.naturalWidth, img.naturalHeight, tailleMax, 0.85)
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
+// Version plus légère pour la sauvegarde sur l'appareil (le stockage est limité).
+export async function allegerPhoto(dataUrl, tailleMax = 640) {
+  const img = await chargerImage(dataUrl)
+  return redimensionner(img, img.naturalWidth, img.naturalHeight, tailleMax, 0.72)
 }
 
 export async function copierTexte(texte) {

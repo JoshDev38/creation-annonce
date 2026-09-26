@@ -3,10 +3,13 @@ import { IconChevron, IconCopy, IconPlus, IconSave, IconShare } from '../compone
 import { texteAnnonce } from '../lib/generateur.js'
 import { copierTexte } from '../lib/stockage.js'
 
-async function fichierPhoto(dataUrl) {
-  if (!dataUrl) return null
-  const blob = await (await fetch(dataUrl)).blob()
-  return new File([blob], 'annonce.jpg', { type: 'image/jpeg' })
+async function fichiersPhotos(dataUrls) {
+  return Promise.all(
+    dataUrls.map(async (url, i) => {
+      const blob = await (await fetch(url)).blob()
+      return new File([blob], `annonce-${i + 1}.jpg`, { type: 'image/jpeg' })
+    }),
+  )
 }
 
 export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, onRetour }) {
@@ -23,9 +26,9 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
       return
     }
     try {
-      const photo = await fichierPhoto(annonce.photo)
+      const photos = await fichiersPhotos(annonce.photos || (annonce.photo ? [annonce.photo] : []))
       const donnees = { title: annonce.titre, text: texte }
-      if (photo && navigator.canShare?.({ files: [photo] })) donnees.files = [photo]
+      if (photos.length && navigator.canShare?.({ files: photos })) donnees.files = photos
       await navigator.share(donnees)
     } catch (e) {
       if (e.name !== 'AbortError') notifier('Le partage a échoué')

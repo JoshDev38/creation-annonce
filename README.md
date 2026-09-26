@@ -2,7 +2,9 @@
 
 Application web (pensée pour le mobile) qui transforme la photo d’un objet en annonce prête à publier.
 
-**Parcours :** Accueil → Photo prise → Détail (à l’oral ou à l’écrit) → Analyse → Résultat (prix, titre, description, mots-clés) → Partage (copier, partager, sauvegarder).
+**Parcours :** Accueil → Photos (caméra intégrée, jusqu’à 8 photos, galerie, flash et zoom si le téléphone le permet) → Détail (à l’oral ou à l’écrit) → Analyse → Résultat (prix, titre, description, mots-clés) → Partage (copier, partager avec les photos, sauvegarder).
+
+La caméra intégrée demande l’autorisation d’accès à l’appareil photo et un site en HTTPS. Si elle n’est pas disponible, l’appli ouvre l’appareil photo natif du téléphone.
 
 Onglets : Accueil, Mes annonces (sauvegardées sur l’appareil), Nouvelle annonce, Conseils, Profil.
 
