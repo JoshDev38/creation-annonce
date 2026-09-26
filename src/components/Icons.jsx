@@ -40,3 +40,23 @@ export const IconSparkle = make(<><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /><pa
 export const IconTrash = make(<><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></>)
 export const IconEdit = make(<><path d="M4 20h4L19 9l-4-4L4 16z" /><path d="m13 7 4 4" /></>)
 export const IconStop = make(<rect x="6" y="6" width="12" height="12" rx="2" />)
+export const IconBulb = make(<><path d="M9 17h6M10 20.5h4" /><path d="M8 14a6 6 0 1 1 8 0c-.8.7-1 1.5-1 2.5V17H9v-.5c0-1-.2-1.8-1-2.5z" /><path d="M12 1.5V3M4.2 4.7l1 1M19.8 4.7l-1 1M1.5 11H3M21 11h1.5" /></>)
+export const IconDiamondSparkle = make(<><path d="M5 7h11l3.5 5L10.5 22 1.5 12z" /><path d="M1.5 12h18M10.5 22 7 12l3.5-5 3.5 5-3.5 10" /><path d="M20 1.5v4M18 3.5h4" /></>)
+
+export const IconHomeFilled = (props) => (
+  <svg width={24} height={24} viewBox="0 0 24 24" aria-hidden="true" {...props}>
+    <path d="M12 3.2 2.5 11a1 1 0 0 0 1.3 1.5l.7-.6V20a1 1 0 0 0 1 1h4.5v-6h4v6H18.5a1 1 0 0 0 1-1v-8.1l.7.6A1 1 0 0 0 21.5 11z" fill="currentColor" />
+  </svg>
+)
+
+export const IconPeopleFilled = (props) => (
+  <svg width={24} height={24} viewBox="0 0 24 24" aria-hidden="true" {...props}>
+    <g fill="currentColor">
+      <circle cx="12" cy="6.5" r="3.3" />
+      <circle cx="5" cy="8.5" r="2.5" />
+      <circle cx="19" cy="8.5" r="2.5" />
+      <path d="M5.5 19c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5z" />
+      <path d="M4.3 18H.8c0-3 1.8-5 4.2-5 .8 0 1.5.2 2.1.5A8 8 0 0 0 4.3 18zM19.7 18h3.5c0-3-1.8-5-4.2-5-.8 0-1.5.2-2.1.5a8 8 0 0 1 2.8 4.5z" />
+    </g>
+  </svg>
+)

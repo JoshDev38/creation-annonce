@@ -1,21 +1,20 @@
-import Illustration from '../components/Illustration.jsx'
-import { IconCamera, IconClock, IconDiamond, IconPeople } from '../components/Icons.jsx'
+import photoBoite from '../assets/accueil-boite.jpg'
+import { IconCamera, IconClock, IconDiamondSparkle, IconPeopleFilled } from '../components/Icons.jsx'
 
 const ATOUTS = [
   { Icone: IconClock, texte: ['Gain', 'de temps'] },
-  { Icone: IconDiamond, texte: ['Annonces', 'de qualité'] },
-  { Icone: IconPeople, texte: ['Vendez', 'plus facilement'] },
+  { Icone: IconDiamondSparkle, texte: ['Annonces', 'de qualité'] },
+  { Icone: IconPeopleFilled, texte: ['Vendez', 'plus facilement'] },
 ]
 
 export default function Accueil({ onPhoto, onGalerie }) {
   return (
     <main className="page page-accueil">
-      <h1 className="titre-xl">
-        Vous avez l’objet,
-        <br />
-        nous avons l’annonce.
+      <h1 className="accroche">
+        <span>Vous avez l’objet,</span>
+        <span className="accroche-bleue">nous avons l’annonce.</span>
       </h1>
-      <p className="sous-titre brun">
+      <p className="accroche-sous">
         Prenez une photo,
         <br />
         on s’occupe du reste.
@@ -24,8 +23,8 @@ export default function Accueil({ onPhoto, onGalerie }) {
       <ul className="atouts">
         {ATOUTS.map(({ Icone, texte }) => (
           <li key={texte[0]}>
-            <span className="rond-icone">
-              <Icone width={30} height={30} />
+            <span className="rond-atout">
+              <Icone width={36} height={36} />
             </span>
             <span>
               {texte[0]}
@@ -36,15 +35,19 @@ export default function Accueil({ onPhoto, onGalerie }) {
         ))}
       </ul>
 
-      <Illustration />
-
-      <div className="actions">
-        <button className="bouton bouton-principal bouton-grand" onClick={onPhoto}>
-          <IconCamera width={28} height={28} /> Prendre une photo
-        </button>
-        <button className="bouton-lien" onClick={onGalerie}>
-          ou choisir une photo existante
-        </button>
+      <div className="scene">
+        <img
+          src={photoBoite}
+          alt="Un carton rempli d’objets : ourson en peluche, livres, plaid et petite voiture en bois. Sur le carton : « À vendre ? C’est déjà presque fait ! »"
+        />
+        <div className="scene-actions">
+          <button className="bouton-photo" onClick={onPhoto}>
+            <IconCamera width={30} height={30} /> Prendre une photo
+          </button>
+          <button className="lien-galerie" onClick={onGalerie}>
+            ou choisir une photo existante
+          </button>
+        </div>
       </div>
     </main>
   )

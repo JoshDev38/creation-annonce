@@ -10,7 +10,7 @@ const CONSEILS = [
 export default function Conseils() {
   return (
     <main className="page">
-      <h1 className="titre-l">Conseils</h1>
+      <h1 className="titre-l">Aide & conseils</h1>
       <p className="manuscrit">Les petits objets font les grands changements ♡</p>
       <ul className="liste-conseils">
         {CONSEILS.map((c, i) => (
