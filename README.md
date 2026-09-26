@@ -45,9 +45,11 @@ Le dossier `android/` contient l’appli Android (Capacitor). Dans l’appli ins
 passe par le module natif (`@capacitor-community/camera-preview`), qui a accès au flash —
 ce que le navigateur ne permet pas sur beaucoup de téléphones.
 
-- **Récupérer l’APK sans rien installer** : à chaque envoi sur GitHub, l’onglet *Actions* du dépôt
-  construit l’appli (« Appli Android »). Ouvrez la dernière exécution et téléchargez
-  `malow-apk`, puis installez `app-debug.apk` sur le téléphone (autorisez les sources inconnues).
+- **Installer la dernière version** : ouvrez sur le téléphone
+  https://github.com/JoshDev38/creation-annonce/releases/download/derniere-version/malow.apk
+  (reconstruit à chaque envoi sur GitHub), puis autorisez l’installation d’applis inconnues.
+  L’APK est signé avec une clé de test fixe (`android/app/malow-debug.keystore`) : chaque version
+  s’installe par-dessus la précédente.
 - **Avec Android Studio** : `npm run build && npx cap sync android && npx cap open android`.
 - Après chaque modification du code web : `npm run build && npx cap sync android`.
 

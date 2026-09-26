@@ -5,6 +5,9 @@ on:
     branches: [claude/friendly-cray-p8qvsx, main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -35,7 +38,21 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Renommer l'APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk malow.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: malow-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: malow.apk
+
+      # Lien fixe, sans zip ni compte GitHub :
+      # https://github.com/JoshDev38/creation-annonce/releases/download/derniere-version/malow.apk
+      - name: Publier la dernière version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view derniere-version >/dev/null 2>&1 || \
+            gh release create derniere-version --title "Malow – dernière version" \
+              --notes "APK de test Android, reconstruit à chaque modification." --prerelease
+          gh release upload derniere-version malow.apk --clobber
