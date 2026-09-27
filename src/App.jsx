@@ -10,10 +10,13 @@ import Partage from './screens/Partage.jsx'
 import MesAnnonces from './screens/MesAnnonces.jsx'
 import Conseils from './screens/Conseils.jsx'
 import Profil from './screens/Profil.jsx'
+import Connexion from './screens/Connexion.jsx'
 import { genererAnnonce } from './lib/generateur.js'
 import { analyserAvecIA } from './lib/analyseIA.js'
 import { estAppliNative } from './lib/cameraNative.js'
-import { allegerPhoto, enregistrerAnnonce, reduirePhoto } from './lib/stockage.js'
+import { lireAnnonces, reduirePhoto, supprimerAnnonce } from './lib/stockage.js'
+import { supabase } from './lib/supabase.js'
+import { enregistrerAnnonceCloud } from './lib/annoncesCloud.js'
 
 const AVEC_ONGLETS = ['accueil', 'partage', 'annonces', 'conseils', 'profil']
 
@@ -28,6 +31,19 @@ export default function App() {
   const analyseEnCours = useRef(0)
   const champPhoto = useRef(null)
   const champGalerie = useRef(null)
+
+  // ----- Compte -----
+  const [session, setSession] = useState(null)
+  const sessionRef = useRef(null)
+  const [connexion, setConnexion] = useState({ mode: 'connexion', raison: '', retour: 'accueil' })
+  const apresConnexion = useRef(null)
+
+  // Demande de se connecter, puis reprend l'action (analyse, sauvegarde…) une fois connecté.
+  const exigerConnexion = (raison, action, mode = 'connexion') => {
+    apresConnexion.current = action
+    setConnexion({ mode, raison, retour: ecran })
+    setEcran('connexion')
+  }
 
   const notifier = (message) => {
     setToast(message)
@@ -57,6 +73,11 @@ export default function App() {
   }
 
   const lancerAnalyse = (texte) => {
+    if (!sessionRef.current) {
+      setInfos(texte)
+      exigerConnexion('Créez un compte gratuit ou connectez-vous pour lancer l’analyse IA.', () => lancerAnalyse(texte))
+      return
+    }
     setInfos(texte)
     setResultat(null)
     setEcran('analyse')
@@ -89,14 +110,66 @@ export default function App() {
   }
 
   const sauvegarder = async (a = annonce) => {
-    let legeres = []
-    try {
-      legeres = await Promise.all((a.photos || []).map((p) => allegerPhoto(p)))
-    } catch {
-      legeres = a.photos || []
+    const s = sessionRef.current
+    if (!s) {
+      exigerConnexion('Connectez-vous pour sauvegarder vos annonces dans votre compte.', () => {
+        setEcran('partage')
+        sauvegarder(a)
+      })
+      return
     }
-    const ok = enregistrerAnnonce({ ...a, photo: legeres[0] || null, photos: legeres })
-    notifier(ok ? 'Annonce sauvegardée' : 'Stockage plein : supprimez une annonce')
+    notifier('Sauvegarde en cours…')
+    try {
+      const enregistree = await enregistrerAnnonceCloud(a, s.user.id)
+      setAnnonce((actuelle) => (actuelle?.id === a.id ? { ...actuelle, ...enregistree } : actuelle))
+      notifier('Annonce sauvegardée dans votre compte')
+    } catch (e) {
+      console.error(e)
+      notifier('La sauvegarde a échoué. Vérifiez votre connexion.')
+    }
+  }
+
+  // Annonces enregistrées sur le téléphone avant la création du compte : on les envoie dans le compte.
+  const importerAnnoncesLocales = async (s) => {
+    const locales = lireAnnonces()
+    if (!locales.length) return
+    let importees = 0
+    for (const a of locales) {
+      try {
+        await enregistrerAnnonceCloud(a, s.user.id)
+        supprimerAnnonce(a.id)
+        importees++
+      } catch (e) {
+        console.error('Import impossible', e)
+      }
+    }
+    if (importees) notifier(`${importees} annonce${importees > 1 ? 's' : ''} du téléphone ajoutée${importees > 1 ? 's' : ''} à votre compte`)
+  }
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      sessionRef.current = data.session
+      setSession(data.session)
+    })
+    const { data } = supabase.auth.onAuthStateChange((evenement, s) => {
+      sessionRef.current = s
+      setSession(s)
+      if (evenement === 'PASSWORD_RECOVERY') {
+        setConnexion({ mode: 'nouveau', raison: '', retour: 'profil' })
+        setEcran('connexion')
+      }
+      if (evenement === 'SIGNED_IN' && s) setTimeout(() => importerAnnoncesLocales(s), 0)
+    })
+    return () => data.subscription.unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const connecte = () => {
+    const action = apresConnexion.current
+    apresConnexion.current = null
+    notifier('Vous êtes connecté')
+    if (action) setTimeout(action, 0)
+    else setEcran(connexion.retour === 'connexion' ? 'profil' : connexion.retour || 'profil')
   }
 
   const nouvelleAnnonce = () => {
@@ -125,6 +198,7 @@ export default function App() {
       annonces: 'accueil',
       conseils: 'accueil',
       profil: 'accueil',
+      connexion: connexion.retour,
     }
     if (ecran === 'accueil') AppNative.exitApp()
     else if (ecran === 'analyse') return // on laisse l'analyse se terminer
@@ -189,13 +263,41 @@ export default function App() {
       )
       break
     case 'annonces':
-      contenu = <MesAnnonces onOuvrir={ouvrirAnnonce} onNouvelle={nouvelleAnnonce} />
+      contenu = (
+        <MesAnnonces
+          session={session}
+          onOuvrir={ouvrirAnnonce}
+          onNouvelle={nouvelleAnnonce}
+          onConnexion={() => exigerConnexion('Retrouvez vos annonces sur tous vos appareils.', null)}
+          notifier={notifier}
+        />
+      )
       break
     case 'conseils':
       contenu = <Conseils />
       break
     case 'profil':
-      contenu = <Profil />
+      contenu = (
+        <Profil
+          session={session}
+          onConnexion={(mode) => exigerConnexion('', null, mode)}
+          notifier={notifier}
+        />
+      )
+      break
+    case 'connexion':
+      contenu = (
+        <Connexion
+          modeInitial={connexion.mode}
+          raison={connexion.raison}
+          onRetour={() => {
+            apresConnexion.current = null
+            setEcran(connexion.retour === 'connexion' ? 'accueil' : connexion.retour)
+          }}
+          onConnecte={connecte}
+          notifier={notifier}
+        />
+      )
       break
     default:
       contenu = <Accueil onPhoto={ouvrirCamera} onGalerie={choisirGalerie} />

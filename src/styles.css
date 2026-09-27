@@ -1403,6 +1403,93 @@ html.camera-native .viseur {
   color: var(--texte-doux);
 }
 
+/* ---------- Compte ---------- */
+
+.logo-connexion {
+  width: 88px;
+  height: 88px;
+  align-self: center;
+  border-radius: 22px;
+  box-shadow: var(--ombre);
+}
+
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.formulaire label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.champ-mdp {
+  position: relative;
+}
+
+.champ-mdp .champ {
+  padding-right: 90px;
+}
+
+.champ-mdp .bouton-lien {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+.info {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bleu-voile);
+  color: #1f4f78;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.liens-connexion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+}
+
+.liens-connexion p {
+  margin: 0;
+}
+
+.liens-connexion .bouton-lien {
+  padding: 4px;
+}
+
+.bouton-lien.danger {
+  color: #a8432e;
+}
+
+.encart-compte {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--bleu-voile);
+}
+
+.encart-compte p {
+  flex: 1;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
 /* ---------- Barre d'onglets ---------- */
 
 .tabbar {

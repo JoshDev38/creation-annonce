@@ -38,6 +38,18 @@ la description, les trois prix et les mots-clés.
 - **Secours** : sans clé, sans réseau ou en cas d’erreur, l’appli utilise le générateur local
   `src/lib/generateur.js` (annonce construite à partir des infos du vendeur) et prévient l’utilisateur.
 
+## Comptes (Supabase)
+
+Projet Supabase `createur-annonce` (Paris). Connexion par e-mail et mot de passe.
+
+- **Table `annonces`** et **bucket privé `photos`** (`<user_id>/<annonce_id>/<n>.jpg`), protégés par des
+  règles RLS : chacun ne voit que ses propres annonces et photos.
+- **Analyse IA réservée aux comptes** : l’appli envoie le jeton de session, `api/analyser.js` le vérifie.
+- **Suppression du compte** depuis l’onglet Profil (fonction SQL `supprimer_mon_compte`), exigée par Google Play.
+- Les annonces enregistrées sur le téléphone avant la création du compte y sont importées à la connexion.
+- Réglages à faire dans le tableau de bord Supabase (*Authentication → URL Configuration*) :
+  *Site URL* = `https://malow.app`, *Redirect URLs* : `https://malow.app/**`.
+
 ## Palette
 
 | Bleu pastel | Chocolat au lait | Beige rosé | Crème |

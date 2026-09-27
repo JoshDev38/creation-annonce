@@ -7,6 +7,8 @@
 // similaires d'occasion (3 recherches au plus), puis rédige l'annonce en
 // appelant l'outil « rediger_annonce » (arguments au format strict).
 import Anthropic from '@anthropic-ai/sdk'
+import { createClient } from '@supabase/supabase-js'
+import { SUPABASE_CLE_PUBLIQUE, SUPABASE_URL } from '../src/lib/configSupabase.js'
 
 export const config = { maxDuration: 120 }
 
@@ -96,14 +98,14 @@ function autoriserOrigine(req, res) {
     res.setHeader('Access-Control-Allow-Origin', origine)
     res.setHeader('Vary', 'Origin')
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   }
   return !origine || ORIGINES.includes(origine)
 }
 
 // Un échange complet avec Claude. Renvoie l'annonce (arguments de rediger_annonce)
 // ou null si Claude n'a pas appelé l'outil.
-async function demanderAnnonce(client, contenuUtilisateur, avecRecherche) {
+async function demanderAnnonce(client, contenuUtilisateur, avecRecherche, utilisateur) {
   const messages = [{ role: 'user', content: contenuUtilisateur }]
   const tools = avecRecherche ? [RECHERCHE_WEB, OUTIL_ANNONCE] : [OUTIL_ANNONCE]
   const debut = Date.now()
@@ -130,6 +132,7 @@ async function demanderAnnonce(client, contenuUtilisateur, avecRecherche) {
   console.log(
     JSON.stringify({
       analyse: 'terminee',
+      utilisateur,
       modele_demande: MODELE,
       modele_utilise: reponse.model,
       repli: reponse.model !== MODELE,
@@ -160,6 +163,15 @@ export default async function handler(req, res) {
     return res.status(503).json({ erreur: 'Analyse IA non configurée' })
   }
 
+  // Réservé aux utilisateurs connectés : on vérifie le jeton de session auprès de Supabase.
+  const jeton = (req.headers.authorization || '').replace(/^Bearer\s+/i, '')
+  if (!jeton) return res.status(401).json({ erreur: 'Connectez-vous pour lancer l’analyse' })
+  const { data: auth, error: errAuth } = await createClient(SUPABASE_URL, SUPABASE_CLE_PUBLIQUE, {
+    auth: { persistSession: false },
+  }).auth.getUser(jeton)
+  if (errAuth || !auth?.user) return res.status(401).json({ erreur: 'Session expirée, reconnectez-vous' })
+  const utilisateur = auth.user.id
+
   const { photos = [], infos = '' } = req.body || {}
   if (!Array.isArray(photos) || photos.length === 0 || photos.length > MAX_PHOTOS) {
     return res.status(400).json({ erreur: `Envoyez entre 1 et ${MAX_PHOTOS} photos` })
@@ -184,14 +196,14 @@ export default async function handler(req, res) {
   try {
     let resultat = null
     try {
-      resultat = await demanderAnnonce(client, contenu, true)
+      resultat = await demanderAnnonce(client, contenu, true, utilisateur)
     } catch (e) {
       // Si la requête avec recherche web est rejetée, on retente sans recherche.
       if (!(e instanceof Anthropic.BadRequestError)) throw e
       console.error('Recherche web refusée, nouvel essai sans recherche :', e.message)
     }
     // Claude n'a pas appelé l'outil (ou la recherche a échoué) : un essai sans recherche.
-    if (!resultat) resultat = await demanderAnnonce(client, contenu, false)
+    if (!resultat) resultat = await demanderAnnonce(client, contenu, false, utilisateur)
     if (!resultat) return res.status(502).json({ erreur: 'L’IA n’a pas rédigé l’annonce' })
 
     const a = resultat.annonce
