@@ -1056,6 +1056,16 @@ html.camera-native .viseur {
   background: #efe5da;
 }
 
+.explication-prix {
+  margin: -4px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bleu-voile);
+  color: #1f4f78;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
 .photo-principale {
   position: relative;
 }

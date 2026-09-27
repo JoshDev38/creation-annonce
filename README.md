@@ -28,8 +28,13 @@ la description, les trois prix et les mots-clés.
 - **Clé d’API** : créez-la sur https://console.anthropic.com, puis ajoutez-la dans Vercel
   (*Settings → Environment Variables*) sous le nom `ANTHROPIC_API_KEY`, et redéployez.
   Elle reste sur le serveur : elle n’est jamais envoyée au téléphone.
-- **Modèle** : `claude-opus-5`, effort `medium`, avec repli automatique (`fallbacks: "default"`)
-  si le modèle refuse une demande.
+- **Modèle** : `claude-opus-5-5` (Claude Opus 5.5), effort `high`, avec repli automatique
+  (`fallbacks: "default"`) si le modèle refuse une demande.
+- **Prix** : Claude fait jusqu’à 3 recherches web (≈ 1 centime chacune) pour voir le prix d’articles
+  similaires d’occasion, et explique son estimation (`explicationPrix`). Si la recherche échoue,
+  l’analyse est relancée sans recherche.
+- **Journal** : chaque analyse écrit dans les logs Vercel le modèle réellement utilisé
+  (`modele_utilise`), le nombre de recherches et la durée.
 - **Secours** : sans clé, sans réseau ou en cas d’erreur, l’appli utilise le générateur local
   `src/lib/generateur.js` (annonce construite à partir des infos du vendeur) et prévient l’utilisateur.
 

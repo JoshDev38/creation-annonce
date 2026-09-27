@@ -10,7 +10,7 @@ export async function analyserAvecIA(photos, infos) {
   // Photos réduites : suffisant pour l'IA, et léger à envoyer.
   const legeres = await Promise.all(photos.map((p) => allegerPhoto(p, 1024, 0.8)))
   const controle = new AbortController()
-  const minuteur = setTimeout(() => controle.abort(), 60000)
+  const minuteur = setTimeout(() => controle.abort(), 115000) // recherche web des prix : jusqu'à ~1 min 30
   try {
     const rep = await fetch(`${BASE}/api/analyser`, {
       method: 'POST',
@@ -20,11 +20,11 @@ export async function analyserAvecIA(photos, infos) {
     })
     const donnees = await rep.json().catch(() => ({}))
     if (!rep.ok) throw new Error(donnees.erreur || `Erreur ${rep.status}`)
-    const { titre, description, prix, tags, marqueProbable = '' } = donnees
+    const { titre, description, prix, tags, marqueProbable = '', explicationPrix = '', modele = '' } = donnees
     if (!titre || !description || !prix?.conseille || !Array.isArray(tags)) {
       throw new Error('Réponse incomplète')
     }
-    return { titre, description, prix, tags, marqueProbable }
+    return { titre, description, prix, tags, marqueProbable, explicationPrix, modele }
   } finally {
     clearTimeout(minuteur)
   }

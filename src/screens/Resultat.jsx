@@ -101,6 +101,8 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
         </div>
       </div>
 
+      {annonce.explicationPrix && !edition && <p className="explication-prix">{annonce.explicationPrix}</p>}
+
       {photos.length > 1 && (
         <ul className="galerie">
           {photos.map((p, i) => (
