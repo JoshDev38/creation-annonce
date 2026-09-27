@@ -74,7 +74,7 @@ export default function App() {
 
   const analyseTerminee = () => {
     if (!resultat) return
-    const { source, ...contenu } = resultat
+    const { source } = resultat
     if (source === 'local') notifier('Analyse IA indisponible : annonce créée à partir de vos informations')
     setOrigine('detail')
     setAnnonce({
@@ -83,7 +83,7 @@ export default function App() {
       photo: photos[0] || null,
       photos,
       infos,
-      ...contenu,
+      ...resultat,
     })
     setEcran('resultat')
   }

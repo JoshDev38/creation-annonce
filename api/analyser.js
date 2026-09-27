@@ -26,8 +26,12 @@ const SCHEMA = {
     prix_rapide: { type: 'integer', description: 'Prix pour vendre en quelques jours' },
     prix_haut: { type: 'integer', description: 'Prix haut, pour un acheteur patient' },
     tags: { type: 'array', items: { type: 'string' }, description: '5 à 8 mots-clés' },
+    marque_probable: {
+      type: 'string',
+      description: 'Marque reconnue au style mais non confirmée (ni logo lisible, ni info du vendeur), sinon chaîne vide',
+    },
   },
-  required: ['titre', 'description', 'prix_conseille', 'prix_rapide', 'prix_haut', 'tags'],
+  required: ['titre', 'description', 'prix_conseille', 'prix_rapide', 'prix_haut', 'tags', 'marque_probable'],
   additionalProperties: false,
 }
 
@@ -36,8 +40,11 @@ const SYSTEME = `Tu rédiges des annonces de vente d'objets d'occasion pour des 
 
 À partir des photos et des informations du vendeur :
 - Identifie l'objet : type, public (enfant, femme, homme…), marque, taille, couleur, matière, détails utiles.
-- N'invente rien : une marque ou une taille n'apparaît que si elle est visible sur les photos \
-(étiquette, logo) ou donnée par le vendeur. En cas de doute, ne la mentionne pas.
+- Marque : cherche-la sur les photos (logo, étiquette, languette, semelle, motif caractéristique). \
+Si elle est lisible ou donnée par le vendeur, mets-la dans le titre et la description. \
+Si tu la reconnais seulement au style, sans certitude, ne l'écris pas dans l'annonce : \
+indique-la dans marque_probable pour que le vendeur la confirme. Sinon, laisse marque_probable vide.
+- N'invente rien d'autre : une taille n'apparaît que si elle est visible ou donnée par le vendeur.
 - Évalue l'état d'après les photos et les infos, et mentionne honnêtement les défauts visibles ou signalés.
 - Les informations du vendeur priment sur ce que tu crois voir.
 
@@ -119,6 +126,7 @@ export default async function handler(req, res) {
       description: a.description,
       prix: { conseille: a.prix_conseille, rapide: a.prix_rapide, haut: a.prix_haut },
       tags: a.tags,
+      marqueProbable: a.marque_probable || '',
     })
   } catch (e) {
     if (e instanceof Anthropic.RateLimitError) {

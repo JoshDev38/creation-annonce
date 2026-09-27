@@ -94,7 +94,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: max(24px, env(safe-area-inset-top)) 20px 24px;
+  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, calc(env(safe-area-inset-bottom) + 12px));
 }
 
 /* ---------- Typographie ---------- */
@@ -1054,6 +1054,107 @@ html.camera-native .viseur {
   object-fit: cover;
   border-radius: 14px;
   background: #efe5da;
+}
+
+.photo-principale {
+  position: relative;
+}
+
+.compteur-mini {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(31, 26, 23, 0.6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.galerie {
+  list-style: none;
+  margin: -6px 0 0;
+  padding: 2px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.galerie button {
+  display: block;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  opacity: 0.7;
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+}
+
+.galerie button.active {
+  opacity: 1;
+  outline-color: var(--bleu-fonce);
+}
+
+.galerie img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge-ia,
+.badge-local {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge-ia {
+  background: var(--bleu-voile);
+  color: #1f4f78;
+}
+
+.badge-local {
+  background: #efe5da;
+  color: var(--texte-doux);
+}
+
+.suggestion-marque {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fbf0dc;
+  border: 1px solid #f0dcb5;
+}
+
+.suggestion-marque p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.suggestion-marque div {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.bouton-petit {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--bleu-fonce);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .carte-prix {

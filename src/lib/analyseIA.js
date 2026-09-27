@@ -20,11 +20,11 @@ export async function analyserAvecIA(photos, infos) {
     })
     const donnees = await rep.json().catch(() => ({}))
     if (!rep.ok) throw new Error(donnees.erreur || `Erreur ${rep.status}`)
-    const { titre, description, prix, tags } = donnees
+    const { titre, description, prix, tags, marqueProbable = '' } = donnees
     if (!titre || !description || !prix?.conseille || !Array.isArray(tags)) {
       throw new Error('Réponse incomplète')
     }
-    return { titre, description, prix, tags }
+    return { titre, description, prix, tags, marqueProbable }
   } finally {
     clearTimeout(minuteur)
   }

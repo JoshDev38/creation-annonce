@@ -7,6 +7,25 @@ import { copierTexte } from '../lib/stockage.js'
 export default function Resultat({ annonce, onChange, onCopie, onSuivant, onRetour }) {
   const [edition, setEdition] = useState(false)
   const [tagsTexte, setTagsTexte] = useState(annonce.tags.join(', '))
+  const [active, setActive] = useState(0)
+  const photos = annonce.photos?.length ? annonce.photos : annonce.photo ? [annonce.photo] : []
+  const marque = annonce.marqueProbable
+  const marqueVisible =
+    marque && !annonce.marqueTraitee && !annonce.titre.toLowerCase().includes(marque.toLowerCase())
+
+  // Ajoute la marque proposée par l'IA au titre, à la description et aux mots-clés.
+  const ajouterMarque = () => {
+    const t = annonce.titre
+    const coupe = t.search(/,| – | - /)
+    const titre = coupe > 0 ? `${t.slice(0, coupe)} ${marque}${t.slice(coupe)}` : `${t} ${marque}`
+    onChange({
+      ...annonce,
+      titre,
+      description: `${annonce.description} Marque : ${marque}.`,
+      tags: [...new Set([marque, ...annonce.tags])],
+      marqueTraitee: true,
+    })
+  }
 
   const maj = (champ, valeur) => onChange({ ...annonce, [champ]: valeur })
 
@@ -34,11 +53,29 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
 
   return (
     <main className="page page-resultat">
-      <Entete onRetour={onRetour} />
+      <Entete
+        onRetour={onRetour}
+        droite={
+          annonce.source === 'ia' ? (
+            <span className="badge-ia">
+              <IconSparkle width={15} height={15} /> Rédigée par l’IA
+            </span>
+          ) : annonce.source === 'local' ? (
+            <span className="badge-local">Sans IA</span>
+          ) : null
+        }
+      />
 
       <div className="resultat-haut">
-        {annonce.photo ? (
-          <img className="vignette" src={annonce.photo} alt="" />
+        {photos.length ? (
+          <div className="photo-principale">
+            <img className="vignette" src={photos[Math.min(active, photos.length - 1)]} alt="" />
+            {photos.length > 1 && (
+              <span className="compteur-mini">
+                {Math.min(active, photos.length - 1) + 1}/{photos.length}
+              </span>
+            )}
+          </div>
         ) : (
           <div className="vignette vide" />
         )}
@@ -63,6 +100,38 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
           <small>Prix haut : <b>{annonce.prix.haut} €</b></small>
         </div>
       </div>
+
+      {photos.length > 1 && (
+        <ul className="galerie">
+          {photos.map((p, i) => (
+            <li key={i}>
+              <button
+                className={i === active ? 'active' : ''}
+                onClick={() => setActive(i)}
+                aria-label={`Voir la photo ${i + 1}`}
+              >
+                <img src={p} alt="" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {marqueVisible && (
+        <div className="suggestion-marque">
+          <p>
+            L’IA pense à la marque <strong>{marque}</strong>, sans en être sûre.
+          </p>
+          <div>
+            <button className="bouton-lien" onClick={() => onChange({ ...annonce, marqueTraitee: true })}>
+              Non
+            </button>
+            <button className="bouton-petit" onClick={ajouterMarque}>
+              C’est bien ça
+            </button>
+          </div>
+        </div>
+      )}
 
       <section className="bloc">
         <div className="bloc-titre">
