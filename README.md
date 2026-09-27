@@ -45,6 +45,8 @@ Projet Supabase `createur-annonce` (Paris). Connexion par e-mail et mot de passe
 - **Table `annonces`** et **bucket privé `photos`** (`<user_id>/<annonce_id>/<n>.jpg`), protégés par des
   règles RLS : chacun ne voit que ses propres annonces et photos.
 - **Analyse IA réservée aux comptes** : l’appli envoie le jeton de session, `api/analyser.js` le vérifie.
+- **Profil** (table `profils`) : pseudo unique choisi à l’inscription et photo de profil
+  (`<user_id>/profil/avatar-….jpg` dans le bucket `photos`), modifiables dans l’onglet Profil.
 - **Suppression du compte** depuis l’onglet Profil (fonction SQL `supprimer_mon_compte`), exigée par Google Play.
 - Les annonces enregistrées sur le téléphone avant la création du compte y sont importées à la connexion.
 - Réglages à faire dans le tableau de bord Supabase (*Authentication → URL Configuration*) :

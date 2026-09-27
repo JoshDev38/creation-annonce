@@ -1,17 +1,62 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { IconCamera, IconEdit } from '../components/Icons.jsx'
 import { listerAnnoncesCloud, supprimerCompte } from '../lib/annoncesCloud.js'
+import { changerAvatar, changerPseudo, lireProfil, PSEUDO_VALIDE } from '../lib/profil.js'
+import { photoCarree } from '../lib/stockage.js'
 import { supabase } from '../lib/supabase.js'
 
 export default function Profil({ session, onConnexion, notifier }) {
   const [annonces, setAnnonces] = useState(null)
   const [attente, setAttente] = useState(false)
+  const [profil, setProfil] = useState(null)
+  const [editionPseudo, setEditionPseudo] = useState(false)
+  const [pseudo, setPseudo] = useState('')
+  const [envoiPhoto, setEnvoiPhoto] = useState(false)
+  const champPhoto = useRef(null)
 
   useEffect(() => {
     if (!session) return
     listerAnnoncesCloud()
       .then(setAnnonces)
       .catch(() => setAnnonces([]))
+    lireProfil(session.user.id)
+      .then(setProfil)
+      .catch(() => setProfil({ pseudo: '', avatar: null, avatarUrl: null }))
   }, [session])
+
+  const enregistrerPseudo = async () => {
+    const p = pseudo.trim()
+    if (!PSEUDO_VALIDE.test(p)) {
+      notifier('Pseudo : 2 à 30 caractères (lettres, chiffres, espace, point, tiret)')
+      return
+    }
+    try {
+      await changerPseudo(session.user.id, p)
+      setProfil((x) => ({ ...x, pseudo: p }))
+      setEditionPseudo(false)
+      notifier('Pseudo enregistré')
+    } catch (e) {
+      notifier(e.message === 'Ce pseudo est déjà pris.' ? e.message : 'Enregistrement impossible')
+    }
+  }
+
+  const photoChoisie = async (e) => {
+    const fichier = e.target.files?.[0]
+    e.target.value = ''
+    if (!fichier) return
+    setEnvoiPhoto(true)
+    try {
+      const image = await photoCarree(fichier)
+      const chemin = await changerAvatar(session.user.id, image, profil?.avatar)
+      setProfil((x) => ({ ...x, avatar: chemin, avatarUrl: image }))
+      notifier('Photo de profil mise à jour')
+    } catch (err) {
+      console.error(err)
+      notifier('Impossible d’envoyer la photo')
+    } finally {
+      setEnvoiPhoto(false)
+    }
+  }
 
   if (!session) {
     return (
@@ -57,8 +102,50 @@ export default function Profil({ session, onConnexion, notifier }) {
 
   return (
     <main className="page">
-      <h1 className="titre-l">Mon espace</h1>
-      <p className="petit">Connecté avec {session.user.email}</p>
+      <div className="carte-profil">
+        <button
+          className="avatar"
+          onClick={() => champPhoto.current?.click()}
+          aria-label="Changer la photo de profil"
+          disabled={envoiPhoto}
+        >
+          {profil?.avatarUrl ? (
+            <img src={profil.avatarUrl} alt="" />
+          ) : (
+            <span className="initiale">{(profil?.pseudo || session.user.email || '?').charAt(0).toUpperCase()}</span>
+          )}
+          <span className="avatar-camera">{envoiPhoto ? '…' : <IconCamera width={16} height={16} />}</span>
+        </button>
+        <input ref={champPhoto} type="file" accept="image/*" hidden onChange={photoChoisie} />
+
+        {editionPseudo ? (
+          <div className="edition-pseudo">
+            <input
+              className="champ"
+              value={pseudo}
+              maxLength={30}
+              autoFocus
+              onChange={(e) => setPseudo(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && enregistrerPseudo()}
+            />
+            <button className="bouton-petit" onClick={enregistrerPseudo}>
+              OK
+            </button>
+          </div>
+        ) : (
+          <button
+            className="nom-profil"
+            onClick={() => {
+              setPseudo(profil?.pseudo || '')
+              setEditionPseudo(true)
+            }}
+          >
+            <span>{profil ? profil.pseudo || 'Choisir un pseudo' : '…'}</span>
+            <IconEdit width={16} height={16} />
+          </button>
+        )}
+        <p className="petit">{session.user.email}</p>
+      </div>
       <div className="stats">
         <div>
           <strong>{annonces ? annonces.length : '…'}</strong>

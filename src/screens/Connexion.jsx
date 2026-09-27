@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Entete from '../components/Entete.jsx'
 import { URL_SITE } from '../lib/configSupabase.js'
 import { messageErreur, supabase } from '../lib/supabase.js'
+import { PSEUDO_VALIDE, pseudoDisponible } from '../lib/profil.js'
 
 const TITRES = {
   connexion: 'Se connecter',
@@ -14,6 +15,7 @@ const TITRES = {
 export default function Connexion({ modeInitial = 'connexion', raison, onRetour, onConnecte, notifier }) {
   const [mode, setMode] = useState(modeInitial)
   const [email, setEmail] = useState('')
+  const [pseudo, setPseudo] = useState('')
   const [motDePasse, setMotDePasse] = useState('')
   const [voir, setVoir] = useState(false)
   const [attente, setAttente] = useState(false)
@@ -34,6 +36,10 @@ export default function Connexion({ modeInitial = 'connexion', raison, onRetour,
       setErreur('Adresse e-mail invalide.')
       return
     }
+    if (mode === 'inscription' && !PSEUDO_VALIDE.test(pseudo.trim())) {
+      setErreur('Pseudo : 2 à 30 caractères (lettres, chiffres, espace, point, tiret).')
+      return
+    }
     if ((mode === 'inscription' || mode === 'nouveau') && motDePasse.length < 8) {
       setErreur('Le mot de passe doit faire au moins 8 caractères.')
       return
@@ -45,10 +51,14 @@ export default function Connexion({ modeInitial = 'connexion', raison, onRetour,
         if (error) throw error
         onConnecte()
       } else if (mode === 'inscription') {
+        if (!(await pseudoDisponible(pseudo.trim()))) {
+          setErreur('Ce pseudo est déjà pris, choisissez-en un autre.')
+          return
+        }
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password: motDePasse,
-          options: { emailRedirectTo: URL_SITE },
+          options: { emailRedirectTo: URL_SITE, data: { pseudo: pseudo.trim() } },
         })
         if (error) throw error
         if (data.session) onConnecte()
@@ -85,6 +95,20 @@ export default function Connexion({ modeInitial = 'connexion', raison, onRetour,
       {raison && mode !== 'nouveau' && <p className="texte-bleu centre">{raison}</p>}
 
       <form className="formulaire" onSubmit={valider} noValidate>
+        {mode === 'inscription' && (
+          <label>
+            <span>Pseudo</span>
+            <input
+              className="champ"
+              autoComplete="nickname"
+              maxLength={30}
+              value={pseudo}
+              onChange={(e) => setPseudo(e.target.value)}
+              placeholder="Le nom affiché sur votre profil"
+              required
+            />
+          </label>
+        )}
         {mode !== 'nouveau' && (
           <label>
             <span>E-mail</span>

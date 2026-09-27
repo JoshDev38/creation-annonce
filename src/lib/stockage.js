@@ -92,3 +92,21 @@ export async function copierTexte(texte) {
     return ok
   }
 }
+
+// Photo de profil : recadrée au centre en carré, puis réduite.
+export async function photoCarree(fichier, taille = 400) {
+  const url = URL.createObjectURL(fichier)
+  try {
+    const img = await chargerImage(url)
+    const cote = Math.min(img.naturalWidth, img.naturalHeight)
+    const canvas = document.createElement('canvas')
+    canvas.width = taille
+    canvas.height = taille
+    canvas
+      .getContext('2d')
+      .drawImage(img, (img.naturalWidth - cote) / 2, (img.naturalHeight - cote) / 2, cote, cote, 0, 0, taille, taille)
+    return canvas.toDataURL('image/jpeg', 0.85)
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}

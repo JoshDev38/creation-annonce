@@ -1470,6 +1470,77 @@ html.camera-native .viseur {
   padding: 4px;
 }
 
+.carte-profil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.avatar {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: var(--bleu-voile);
+  box-shadow: 0 0 0 4px #fff, var(--ombre);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar .initiale {
+  font-family: var(--serif);
+  font-size: 44px;
+  color: var(--chocolat);
+  line-height: 104px;
+}
+
+.avatar-camera {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bleu-fonce);
+  color: #fff;
+  border: 3px solid var(--creme);
+}
+
+.nom-profil {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-family: var(--serif);
+  font-size: 26px;
+  color: var(--chocolat);
+}
+
+.nom-profil svg {
+  color: var(--texte-doux);
+}
+
+.edition-pseudo {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 6px;
+}
+
+.edition-pseudo .champ {
+  padding: 10px 12px;
+}
+
 .bouton-lien.danger {
   color: #a8432e;
 }
