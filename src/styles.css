@@ -206,6 +206,20 @@ img {
   background: var(--bleu-voile);
 }
 
+.badge-plateforme {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  color: var(--bleu-texte);
+}
+
+.note-publication {
+  margin: 0 4px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--texte-doux);
+}
+
 .carre-icone.sans-fond {
   background: none;
 }

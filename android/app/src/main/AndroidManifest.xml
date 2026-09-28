@@ -49,4 +49,9 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
+    <!-- Android 11+ : pour savoir si Vinted et Leboncoin sont installés, et les ouvrir -->
+    <queries>
+        <package android:name="fr.vinted" />
+        <package android:name="fr.leboncoin" />
+    </queries>
 </manifest>

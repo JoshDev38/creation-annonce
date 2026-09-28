@@ -2,7 +2,16 @@ import Entete from '../components/Entete.jsx'
 import { IconChevron, IconPlus, IconSave, IconShare } from '../components/Icons.jsx'
 import { texteAnnonce } from '../lib/generateur.js'
 import { copierTexte } from '../lib/stockage.js'
-import { partageDisponible, partagerAnnonce } from '../lib/partage.js'
+import {
+  PLATEFORMES,
+  ouvrirPlateforme,
+  partageDisponible,
+  partagerAnnonce,
+  rangerPhotosGalerie,
+} from '../lib/partage.js'
+import { estAppliNative } from '../lib/cameraNative.js'
+
+const Badge = ({ lettres }) => <span className="badge-plateforme">{lettres}</span>
 
 export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, onRetour }) {
   const texte = texteAnnonce(annonce)
@@ -26,8 +35,26 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
     }
   }
 
+  const publierSur = async (cle) => {
+    const copie = await copierTexte(texte)
+    let rangees = 0
+    try {
+      rangees = await rangerPhotosGalerie(annonce.photos || (annonce.photo ? [annonce.photo] : []), annonce.id)
+    } catch (e) {
+      console.error('Photos non enregistrées dans la galerie', e)
+    }
+    const etapes = [copie && 'texte copié', rangees && 'photos dans l’album « Malow »'].filter(Boolean)
+    notifier(etapes.length ? `${etapes.join(', ')} : ouverture de ${PLATEFORMES[cle].nom}…` : `Ouverture de ${PLATEFORMES[cle].nom}…`)
+    // Laisse le temps de lire le message avant de quitter Malow.
+    setTimeout(() => {
+      ouvrirPlateforme(cle).catch((e) => notifier(`Impossible d’ouvrir ${PLATEFORMES[cle].nom} (${e?.message || e})`))
+    }, 1400)
+  }
+
   const options = [
-    { Icone: IconShare, titre: 'La publier', sous: 'Sur Vinted, Leboncoin ou une autre appli', action: partager },
+    { Icone: () => <Badge lettres="V" />, titre: 'Publier sur Vinted', sous: 'Texte copié, photos en galerie', action: () => publierSur('vinted') },
+    { Icone: () => <Badge lettres="lbc" />, titre: 'Publier sur Leboncoin', sous: 'Texte copié, photos en galerie', action: () => publierSur('leboncoin') },
+    { Icone: IconShare, titre: 'Autres applis', sous: 'Facebook, Instagram, WhatsApp…', action: partager },
     { Icone: IconSave, titre: 'La sauvegarder', sous: 'Dans votre espace', action: onSauvegarder },
   ]
 
@@ -67,6 +94,12 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
             <IconChevron width={20} height={20} />
           </button>
         ))}
+        {estAppliNative() && (
+          <p className="note-publication">
+            Vinted et Leboncoin ne reçoivent pas les annonces partagées : Malow copie le texte et range les photos dans
+            l’album « Malow » de votre galerie. Dans l’appli, choisissez ces photos puis collez le texte.
+          </p>
+        )}
         <button className="carte-choix compacte" onClick={onNouvelle}>
           <span className="carre-icone sans-fond">
             <IconPlus width={26} height={26} />
