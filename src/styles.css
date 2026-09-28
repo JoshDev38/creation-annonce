@@ -289,6 +289,67 @@ img {
   50% { transform: translateY(-5px); }
 }
 
+.feuille-plateformes {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  text-align: left;
+}
+
+.feuille-plateformes h2 {
+  text-align: center;
+}
+
+.grille-plateformes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.tuile-plateforme {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid var(--bordure);
+  border-radius: 16px;
+  background: var(--blanc-casse);
+  font: inherit;
+  text-align: left;
+  color: var(--texte);
+  cursor: pointer;
+}
+
+.tuile-plateforme:active {
+  transform: scale(0.97);
+}
+
+.tuile-plateforme .carre-icone {
+  width: 38px;
+  height: 38px;
+  margin-bottom: 6px;
+}
+
+.tuile-plateforme strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.15;
+  color: var(--chocolat);
+}
+
+.tuile-plateforme small {
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+
+.tuile-plateforme em {
+  margin-top: 4px;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--bleu-texte);
+}
+
 .note-publication {
   margin: 0 4px;
   font-size: 13px;

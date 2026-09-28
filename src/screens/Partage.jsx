@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Entete from '../components/Entete.jsx'
-import { IconChevron, IconPlus, IconSave, IconShare } from '../components/Icons.jsx'
+import { IconChevron, IconPlus, IconSave, IconSend, IconShare } from '../components/Icons.jsx'
 import { texteAnnonce } from '../lib/generateur.js'
 import { formaterDescription } from '../lib/paragraphes.js'
 import { copierTexte } from '../lib/stockage.js'
 import {
   PLATEFORMES,
+  applisInstallees,
   ouvrirPlateforme,
   partageDisponible,
   partagerAnnonce,
@@ -18,6 +19,12 @@ const Badge = ({ lettres }) => <span className="badge-plateforme">{lettres}</spa
 
 export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, onRetour }) {
   const texte = texteAnnonce(annonce)
+  const [choixOuvert, setChoixOuvert] = useState(false)
+  const [installees, setInstallees] = useState({})
+
+  useEffect(() => {
+    applisInstallees().then(setInstallees).catch(() => {})
+  }, [])
 
   // Vinted et Leboncoin ne reprennent que les photos partagées : le texte est
   // donc aussi copié, prêt à être collé dans le formulaire de l'appli choisie.
@@ -106,11 +113,14 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
   }
 
   const options = [
-    { Icone: () => <Badge lettres="V" />, titre: 'Publier sur Vinted', sous: 'Photos et texte prêts à coller', action: () => choisirPlateforme('vinted') },
-    { Icone: () => <Badge lettres="lbc" />, titre: 'Publier sur Leboncoin', sous: 'Photos et texte prêts à coller', action: () => choisirPlateforme('leboncoin') },
-    { Icone: IconShare, titre: 'Autres applis', sous: 'Facebook, Instagram, WhatsApp…', action: partager },
+    { Icone: IconSend, titre: 'Publier', sous: 'Vinted, Leboncoin, eBay et d’autres', action: () => setChoixOuvert(true) },
     { Icone: IconSave, titre: 'La sauvegarder', sous: 'Dans votre espace', action: onSauvegarder },
   ]
+
+  const choisir = (action) => {
+    setChoixOuvert(false)
+    action()
+  }
 
   return (
     <main className="page page-partage">
@@ -148,23 +158,6 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
             <IconChevron width={20} height={20} />
           </button>
         ))}
-        {estAppliNative() && (
-          <p className="note-publication">
-            Vinted et Leboncoin ne se laissent pas remplir par une autre appli : les photos vont dans l’album
-            « Malow » de votre galerie, et une bulle Malow reste par-dessus l’appli pour copier le titre, la
-            description et le prix, un par un.
-          </p>
-        )}
-        {!estAppliNative() && (
-        <div className="copies-rapides">
-          <button className="bouton-lien" onClick={() => copierPartie(annonce.titre, 'Titre copié')}>
-            Copier le titre
-          </button>
-          <button className="bouton-lien" onClick={() => copierPartie(description, 'Description copiée')}>
-            Copier la description
-          </button>
-        </div>
-        )}
         <button className="carte-choix compacte" onClick={onNouvelle}>
           <span className="carre-icone sans-fond">
             <IconPlus width={26} height={26} />
@@ -175,6 +168,51 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
           <IconChevron width={20} height={20} />
         </button>
       </div>
+
+      {choixOuvert && (
+        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-choix" onClick={() => setChoixOuvert(false)}>
+          <div className="modale feuille-plateformes" onClick={(e) => e.stopPropagation()}>
+            <h2 id="titre-choix" className="titre-m">Où publier ?</h2>
+            <div className="grille-plateformes">
+              {Object.entries(PLATEFORMES).map(([cle, p]) => (
+                <button key={cle} className="tuile-plateforme" onClick={() => choisir(() => choisirPlateforme(cle))}>
+                  <span className="carre-icone">
+                    <Badge lettres={p.lettres} />
+                  </span>
+                  <strong>{p.nom}</strong>
+                  <small>{p.genre}</small>
+                  {estAppliNative() && <em>{installees[cle] ? 'Appli installée' : 'Site web'}</em>}
+                </button>
+              ))}
+            </div>
+            <button className="carte-choix compacte" onClick={() => choisir(partager)}>
+              <span className="carre-icone">
+                <IconShare width={22} height={22} />
+              </span>
+              <span className="carte-texte">
+                <strong>Autre appli</strong>
+                <small>WhatsApp, Instagram, e-mail…</small>
+              </span>
+              <IconChevron width={20} height={20} />
+            </button>
+            <p className="note-publication">
+              {estAppliNative()
+                ? 'Les photos vont dans l’album « Malow » de votre galerie, et la bulle Malow garde le titre, la description et le prix à portée de main.'
+                : 'La description est copiée : collez-la dans le formulaire du site.'}
+            </p>
+            {!estAppliNative() && (
+              <div className="copies-rapides">
+                <button className="bouton-lien" onClick={() => copierPartie(annonce.titre, 'Titre copié')}>
+                  Copier le titre
+                </button>
+                <button className="bouton-lien" onClick={() => copierPartie(description, 'Description copiée')}>
+                  Copier la description
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {demandeBulle && (
         <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-bulle">

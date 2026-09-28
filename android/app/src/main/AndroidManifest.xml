@@ -62,9 +62,15 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
-    <!-- Android 11+ : pour savoir si Vinted et Leboncoin sont installés, et les ouvrir -->
+    <!-- Android 11+ : pour savoir quelles applis de vente sont installées, et les ouvrir -->
     <queries>
         <package android:name="fr.vinted" />
         <package android:name="fr.leboncoin" />
+        <package android:name="com.ebay.mobile" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.priceminister.buyerapp" />
+        <package android:name="fr.vestiairecollective" />
+        <package android:name="com.beebs.mobile" />
+        <package android:name="com.selency.app" />
     </queries>
 </manifest>

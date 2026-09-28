@@ -84,8 +84,26 @@ export async function partagerAnnonce(titre, texte, photos) {
 // Ces applis n'apparaissent pas dans le partage d'Android : on copie le texte,
 // on range les photos dans l'album « Malow » de la galerie, puis on ouvre l'appli.
 export const PLATEFORMES = {
-  vinted: { nom: 'Vinted', paquet: 'fr.vinted', site: 'https://www.vinted.fr/items/new' },
-  leboncoin: { nom: 'Leboncoin', paquet: 'fr.leboncoin', site: 'https://www.leboncoin.fr/deposer-une-annonce' },
+  vinted: { nom: 'Vinted', genre: 'Mode, enfants, maison', lettres: 'V', paquet: 'fr.vinted', site: 'https://www.vinted.fr/items/new' },
+  leboncoin: { nom: 'Leboncoin', genre: 'Tout, près de chez vous', lettres: 'lbc', paquet: 'fr.leboncoin', site: 'https://www.leboncoin.fr/deposer-une-annonce' },
+  ebay: { nom: 'eBay', genre: 'Tout, neuf et occasion', lettres: 'eB', paquet: 'com.ebay.mobile', site: 'https://www.ebay.fr/sl/sell' },
+  facebook: { nom: 'Facebook Marketplace', genre: 'Tout, près de chez vous', lettres: 'f', paquet: 'com.facebook.katana', site: 'https://www.facebook.com/marketplace/create/item' },
+  rakuten: { nom: 'Rakuten', genre: 'High-tech, livres, jeux', lettres: 'R', paquet: 'com.priceminister.buyerapp', site: 'https://fr.shopping.rakuten.com/' },
+  vestiaire: { nom: 'Vestiaire Collective', genre: 'Mode de créateurs', lettres: 'VC', paquet: 'fr.vestiairecollective', site: 'https://fr.vestiairecollective.com/' },
+  beebs: { nom: 'Beebs', genre: 'Bébé et enfants', lettres: 'B', paquet: 'com.beebs.mobile', site: 'https://www.beebs.app/' },
+  selency: { nom: 'Selency', genre: 'Meubles et déco', lettres: 'S', paquet: 'com.selency.app', site: 'https://www.selency.fr/' },
+}
+
+// Pour chaque plateforme : true si l'appli est installée sur le téléphone.
+export async function applisInstallees() {
+  if (!estAppliNative()) return {}
+  const entrees = await Promise.all(
+    Object.entries(PLATEFORMES).map(async ([cle, { paquet }]) => {
+      const { value } = await AppLauncher.canOpenUrl({ url: paquet }).catch(() => ({ value: false }))
+      return [cle, value]
+    }),
+  )
+  return Object.fromEntries(entrees)
 }
 
 const ALBUM = 'Malow'
