@@ -1034,31 +1034,32 @@ html.camera-native .viseur {
 
 .zone-mascotte {
   position: relative;
-  margin-top: 104px; /* place pour Malow */
+  margin-top: 92px; /* place pour Malow */
 }
 
 .mascotte-analyse {
   position: absolute;
-  right: 22px;
-  bottom: calc(100% - 16px); /* les pattes reposent sur l’encadré */
-  width: 180px;
+  right: 8px;
+  /* l'image mesure 228 × 180 px ; le bord de l'encadré passe à 151 px :
+     le corps s'arrête pile sur le bord, les pattes passent devant */
+  bottom: calc(100% - 120px * 29 / 228);
+  width: 120px;
   height: auto;
   z-index: 2;
-  /* le bas du corps s'efface doucement sur l'encadré */
-  -webkit-mask-image: linear-gradient(to bottom, #000 90%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 90%, transparent 100%);
-  transform-origin: 50% 100%;
-  animation: surgir 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) both, bercer 3.6s ease-in-out 1s infinite;
-  filter: drop-shadow(0 3px 6px rgba(122, 69, 50, 0.16));
+  transform-origin: 50% 84%;
+  animation: surgir 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both, bercer 3.6s ease-in-out 0.8s infinite;
+  filter: drop-shadow(0 3px 4px rgba(122, 69, 50, 0.16));
 }
 
-/* Malow sort de derrière l'encadré… */
+/* Malow apparaît… */
 @keyframes surgir {
   from {
-    transform: translateY(70%);
+    opacity: 0;
+    transform: scale(0.6);
   }
   to {
-    transform: translateY(0);
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -1069,7 +1070,7 @@ html.camera-native .viseur {
     transform: rotate(0deg);
   }
   50% {
-    transform: rotate(-3deg);
+    transform: rotate(-2deg);
   }
 }
 
