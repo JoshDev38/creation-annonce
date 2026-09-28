@@ -1,6 +1,7 @@
 import Entete from '../components/Entete.jsx'
 import { IconChevron, IconPlus, IconSave, IconShare } from '../components/Icons.jsx'
 import { texteAnnonce } from '../lib/generateur.js'
+import { formaterDescription } from '../lib/paragraphes.js'
 import { copierTexte } from '../lib/stockage.js'
 import {
   PLATEFORMES,
@@ -35,15 +36,24 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
     }
   }
 
+  const description = formaterDescription(annonce.description)
+  const hashtags = annonce.tags.map((t) => `#${t.replace(/[\s/]+/g, '')}`).join(' ')
+
+  const copierPartie = async (partie, message) => {
+    notifier((await copierTexte(partie)) ? message : 'Copie impossible')
+  }
+
+  // Vinted et Leboncoin ont des champs séparés (titre, description, prix) :
+  // on copie la description seule, le titre se copie avec son propre bouton.
   const publierSur = async (cle) => {
-    const copie = await copierTexte(texte)
+    const copie = await copierTexte(cle === 'vinted' ? `${description}\n\n${hashtags}` : description)
     let rangees = 0
     try {
       rangees = await rangerPhotosGalerie(annonce.photos || (annonce.photo ? [annonce.photo] : []), annonce.id)
     } catch (e) {
       console.error('Photos non enregistrées dans la galerie', e)
     }
-    const etapes = [copie && 'texte copié', rangees && 'photos dans l’album « Malow »'].filter(Boolean)
+    const etapes = [copie && 'description copiée', rangees && 'photos dans l’album « Malow »'].filter(Boolean)
     notifier(etapes.length ? `${etapes.join(', ')} : ouverture de ${PLATEFORMES[cle].nom}…` : `Ouverture de ${PLATEFORMES[cle].nom}…`)
     // Laisse le temps de lire le message avant de quitter Malow.
     setTimeout(() => {
@@ -52,8 +62,8 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
   }
 
   const options = [
-    { Icone: () => <Badge lettres="V" />, titre: 'Publier sur Vinted', sous: 'Texte copié, photos en galerie', action: () => publierSur('vinted') },
-    { Icone: () => <Badge lettres="lbc" />, titre: 'Publier sur Leboncoin', sous: 'Texte copié, photos en galerie', action: () => publierSur('leboncoin') },
+    { Icone: () => <Badge lettres="V" />, titre: 'Publier sur Vinted', sous: 'Description et photos prêtes', action: () => publierSur('vinted') },
+    { Icone: () => <Badge lettres="lbc" />, titre: 'Publier sur Leboncoin', sous: 'Description et photos prêtes', action: () => publierSur('leboncoin') },
     { Icone: IconShare, titre: 'Autres applis', sous: 'Facebook, Instagram, WhatsApp…', action: partager },
     { Icone: IconSave, titre: 'La sauvegarder', sous: 'Dans votre espace', action: onSauvegarder },
   ]
@@ -96,10 +106,19 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
         ))}
         {estAppliNative() && (
           <p className="note-publication">
-            Vinted et Leboncoin ne reçoivent pas les annonces partagées : Malow copie le texte et range les photos dans
-            l’album « Malow » de votre galerie. Dans l’appli, choisissez ces photos puis collez le texte.
+            Vinted et Leboncoin ne reçoivent pas les annonces partagées : Malow copie la description et range les
+            photos dans l’album « Malow » de votre galerie. Dans l’appli, choisissez ces photos et collez la
+            description dans son champ. Pour le titre, revenez ici :
           </p>
         )}
+        <div className="copies-rapides">
+          <button className="bouton-lien" onClick={() => copierPartie(annonce.titre, 'Titre copié')}>
+            Copier le titre
+          </button>
+          <button className="bouton-lien" onClick={() => copierPartie(description, 'Description copiée')}>
+            Copier la description
+          </button>
+        </div>
         <button className="carte-choix compacte" onClick={onNouvelle}>
           <span className="carre-icone sans-fond">
             <IconPlus width={26} height={26} />

@@ -213,6 +213,13 @@ img {
   color: var(--bleu-texte);
 }
 
+.copies-rapides {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: -2px 0 4px;
+}
+
 .note-publication {
   margin: 0 4px;
   font-size: 13px;
