@@ -11,6 +11,8 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
@@ -27,10 +29,12 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.app.NotificationCompat;
+import java.util.ArrayList;
 
 // Bulle flottante : un rond avec l'icône Malow, déplaçable. Un appui ouvre un
 // panneau « Titre / Description / Prix » ; un appui sur un champ le copie,
@@ -59,6 +63,7 @@ public class BulleService extends Service {
     private String titre = "";
     private String description = "";
     private String prix = "";
+    private ArrayList<String> photos = new ArrayList<>();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -75,6 +80,8 @@ public class BulleService extends Service {
         titre = texte(intent.getStringExtra("titre"));
         description = texte(intent.getStringExtra("description"));
         prix = texte(intent.getStringExtra("prix"));
+        ArrayList<String> recues = intent.getStringArrayListExtra("photos");
+        photos = recues == null ? new ArrayList<>() : recues;
 
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         if (bulle == null) creerBulle();
@@ -278,7 +285,8 @@ public class BulleService extends Service {
     // Sous la bulle, ou au-dessus si elle est en bas de l'écran.
     private void placerPanneau() {
         int sous = pBulle.y + dp(66);
-        pPanneau.y = sous + dp(340) < hauteurEcran() ? sous : Math.max(dp(24), pBulle.y - dp(350));
+        int hauteur = photos.isEmpty() ? dp(340) : dp(460);
+        pPanneau.y = sous + hauteur < hauteurEcran() ? sous : Math.max(dp(24), pBulle.y - hauteur - dp(10));
     }
 
     private LinearLayout construirePanneau() {
@@ -317,10 +325,100 @@ public class BulleService extends Service {
         aide.setPadding(0, dp(2), 0, dp(10));
         p.addView(aide);
 
+        if (!photos.isEmpty()) ajouterPhotos(p);
         ajouterChamp(p, "Titre", titre, 1);
         ajouterChamp(p, "Description", description, 3);
         if (!prix.isEmpty()) ajouterChamp(p, "Prix", prix + " €", 1);
         return p;
+    }
+
+    // Les photos ne peuvent pas être glissées d'une appli à l'autre : on les montre
+    // en rappel, elles sont déjà en tête de la galerie (album « Malow »).
+    private void ajouterPhotos(LinearLayout parent) {
+        LinearLayout carte = new LinearLayout(this);
+        carte.setOrientation(LinearLayout.VERTICAL);
+        carte.setPadding(dp(14), dp(10), dp(14), dp(12));
+        GradientDrawable fond = new GradientDrawable();
+        fond.setColor(BLEU_VOILE);
+        fond.setCornerRadius(dp(14));
+        carte.setBackground(fond);
+
+        TextView etiquette = new TextView(this);
+        etiquette.setText("PHOTOS  ·  " + photos.size() + " dans votre galerie");
+        etiquette.setTextColor(MARRON);
+        etiquette.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+        etiquette.setTypeface(Typeface.DEFAULT_BOLD);
+        etiquette.setLetterSpacing(0.04f);
+        carte.addView(etiquette);
+
+        HorizontalScrollView defilement = new HorizontalScrollView(this);
+        defilement.setHorizontalScrollBarEnabled(false);
+        LinearLayout rangee = new LinearLayout(this);
+        rangee.setOrientation(LinearLayout.HORIZONTAL);
+        int cote = dp(58);
+        for (int i = 0; i < photos.size(); i++) {
+            Bitmap vignette = vignette(photos.get(i), cote);
+            if (vignette == null) continue;
+            FrameLayout cadre = new FrameLayout(this);
+            GradientDrawable arrondi = new GradientDrawable();
+            arrondi.setColor(Color.WHITE);
+            arrondi.setCornerRadius(dp(10));
+            cadre.setBackground(arrondi);
+            cadre.setClipToOutline(true);
+            ImageView image = new ImageView(this);
+            image.setImageBitmap(vignette);
+            image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            cadre.addView(image, new FrameLayout.LayoutParams(cote, cote));
+            TextView numero = new TextView(this);
+            numero.setText(String.valueOf(i + 1));
+            numero.setTextColor(Color.WHITE);
+            numero.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+            numero.setTypeface(Typeface.DEFAULT_BOLD);
+            numero.setShadowLayer(3, 0, 1, Color.BLACK);
+            numero.setPadding(dp(5), dp(2), 0, 0);
+            cadre.addView(numero);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(cote, cote);
+            lp.rightMargin = dp(6);
+            rangee.addView(cadre, lp);
+        }
+        defilement.addView(rangee);
+        LinearLayout.LayoutParams lpDef = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        lpDef.topMargin = dp(6);
+        carte.addView(defilement, lpDef);
+
+        TextView aide = new TextView(this);
+        aide.setText("Dans l’appli, touchez « Ajouter des photos » : elles sont en tête de votre galerie, dans cet ordre (album « Malow »).");
+        aide.setTextColor(TEXTE);
+        aide.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        aide.setPadding(0, dp(6), 0, 0);
+        carte.addView(aide);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        lp.topMargin = dp(8);
+        parent.addView(carte, lp);
+    }
+
+    // Charge une photo en petit, sans lire l'image entière en mémoire.
+    private static Bitmap vignette(String chemin, int cote) {
+        try {
+            String fichier = chemin.startsWith("file://") ? chemin.substring(7) : chemin;
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(fichier, o);
+            int echelle = 1;
+            while (o.outWidth / (echelle * 2) >= cote && o.outHeight / (echelle * 2) >= cote) echelle *= 2;
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = echelle;
+            return BitmapFactory.decodeFile(fichier, o2);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void ajouterChamp(LinearLayout parent, final String nom, final String valeur, int lignes) {

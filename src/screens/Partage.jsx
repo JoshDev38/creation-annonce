@@ -56,18 +56,23 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
   const publierSur = async (cle, avecBulle) => {
     const nom = PLATEFORMES[cle].nom
     const descriptionPlateforme = cle === 'vinted' ? `${description}\n\n${hashtags}` : description
-    let rangees = 0
+    let rangees = []
     try {
       rangees = await rangerPhotosGalerie(photosAnnonce(), annonce.id)
     } catch (e) {
       console.error('Photos non enregistrées dans la galerie', e)
     }
-    const photosPretes = rangees ? 'photos dans l’album « Malow »' : ''
+    const photosPretes = rangees.length ? 'photos dans l’album « Malow »' : ''
 
     let bulle = false
     if (avecBulle) {
       try {
-        await afficherBulle({ titre: annonce.titre, description: descriptionPlateforme, prix: annonce.prix?.conseille })
+        await afficherBulle({
+          titre: annonce.titre,
+          description: descriptionPlateforme,
+          prix: annonce.prix?.conseille,
+          photos: rangees,
+        })
         bulle = true
       } catch (e) {
         console.error('Bulle impossible', e)

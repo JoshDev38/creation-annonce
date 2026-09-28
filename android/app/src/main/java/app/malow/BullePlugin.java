@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import java.util.ArrayList;
 import androidx.activity.result.ActivityResult;
 import androidx.core.content.ContextCompat;
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -63,6 +65,15 @@ public class BullePlugin extends Plugin {
         intent.putExtra("titre", call.getString("titre", ""));
         intent.putExtra("description", call.getString("description", ""));
         intent.putExtra("prix", call.getString("prix", ""));
+        ArrayList<String> photos = new ArrayList<>();
+        JSArray liste = call.getArray("photos");
+        if (liste != null) {
+            for (int i = 0; i < liste.length(); i++) {
+                String chemin = liste.optString(i, "");
+                if (!chemin.isEmpty()) photos.add(chemin);
+            }
+        }
+        intent.putStringArrayListExtra("photos", photos);
         try {
             ContextCompat.startForegroundService(getContext(), intent);
             call.resolve();

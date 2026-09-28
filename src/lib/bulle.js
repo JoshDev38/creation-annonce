@@ -24,5 +24,6 @@ export async function autoriserBulle() {
   }
 }
 
-export const afficherBulle = ({ titre, description, prix }) =>
-  Bulle.afficher({ titre, description, prix: prix == null ? '' : String(prix) })
+// photos : chemins des photos déjà enregistrées dans la galerie (album « Malow »).
+export const afficherBulle = ({ titre, description, prix, photos = [] }) =>
+  Bulle.afficher({ titre, description, prix: prix == null ? '' : String(prix), photos })

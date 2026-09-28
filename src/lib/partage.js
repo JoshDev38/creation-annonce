@@ -100,19 +100,23 @@ async function albumMalow() {
   return identifiant
 }
 
-// Renvoie le nombre de photos ajoutées à la galerie (0 sur le site).
+// Renvoie les chemins des photos ajoutées à la galerie, dans l'ordre de l'annonce
+// ([] sur le site). Enregistrées de la dernière à la première : la photo 1 est
+// ainsi la plus récente, en tête de la galerie.
 export async function rangerPhotosGalerie(photos, idAnnonce) {
-  if (!estAppliNative() || !photos.length) return 0
+  if (!estAppliNative() || !photos.length) return []
   const albumIdentifier = await albumMalow()
   const prefixe = String(idAnnonce || Date.now()).slice(0, 8)
-  for (const [i, photo] of photos.entries()) {
-    await Media.savePhoto({
-      path: `data:image/jpeg;base64,${await enBase64(photo)}`,
+  const chemins = []
+  for (let i = photos.length - 1; i >= 0; i--) {
+    const { filePath } = await Media.savePhoto({
+      path: `data:image/jpeg;base64,${await enBase64(photos[i])}`,
       albumIdentifier,
       fileName: `malow-${prefixe}-${i + 1}`,
     })
+    chemins[i] = filePath
   }
-  return photos.length
+  return chemins.filter(Boolean)
 }
 
 export async function ouvrirPlateforme(cle) {
