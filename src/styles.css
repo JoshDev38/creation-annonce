@@ -1593,6 +1593,12 @@ html.camera-native .viseur {
   padding: 10px 12px;
 }
 
+.lien-discret {
+  align-self: center;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+
 .bouton-lien.danger {
   color: #a8432e;
 }

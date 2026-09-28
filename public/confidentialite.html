@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Confidentialité – Malow</title>
+  <meta name="description" content="Règles de confidentialité de l’application Malow." />
+  <link rel="icon" type="image/png" href="/favicon-32.png" />
+  <style>
+    :root { --creme: #fbf6ee; --chocolat: #7a4532; --texte: #4a352c; --bleu: #3f7ba3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--creme); color: var(--texte); font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 20px 64px; }
+    header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    header img { width: 56px; height: 56px; border-radius: 14px; }
+    h1 { font-family: Georgia, serif; font-weight: 400; color: var(--chocolat); font-size: 30px; margin: 0; }
+    h2 { font-family: Georgia, serif; font-weight: 400; color: var(--chocolat); font-size: 21px; margin: 32px 0 8px; }
+    a { color: var(--bleu); }
+    .maj { color: #7d6a60; font-size: 14px; }
+    ul { padding-left: 20px; }
+    li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="/icon-192.png" alt="" />
+    <h1>Règles de confidentialité</h1>
+  </header>
+  <p class="maj">Dernière mise à jour : 28 septembre 2026</p>
+
+  <p>
+    Malow (<a href="https://malow.app">malow.app</a> et l’application Android « Malow ») aide les particuliers à
+    rédiger des annonces de vente d’objets d’occasion à partir de photos. Cette page explique quelles données nous
+    collectons, pourquoi, et comment les supprimer.
+  </p>
+
+  <h2>Données collectées</h2>
+  <ul>
+    <li><strong>Compte</strong> : adresse e-mail, mot de passe (stocké chiffré, jamais lisible), pseudo et photo de profil.
+      Si vous vous connectez avec Google, nous recevons votre nom, votre adresse e-mail et votre photo de profil Google.</li>
+    <li><strong>Annonces</strong> : les photos de vos objets, les informations que vous dictez ou écrivez, et les annonces
+      générées (titre, description, prix, mots-clés).</li>
+    <li><strong>Appareil photo et micro</strong> : utilisés uniquement quand vous prenez une photo ou dictez des informations.
+      La dictée est transcrite par votre téléphone ; seul le texte est utilisé.</li>
+  </ul>
+  <p>Nous ne collectons pas votre position, vos contacts ni de données publicitaires, et nous ne vendons aucune donnée.</p>
+
+  <h2>Utilisation des données</h2>
+  <ul>
+    <li>Créer et sécuriser votre compte.</li>
+    <li>Analyser vos photos et rédiger vos annonces : les photos et vos informations sont envoyées à Anthropic (Claude),
+      qui génère l’annonce et peut rechercher sur le web le prix d’objets similaires.</li>
+    <li>Sauvegarder vos annonces pour que vous les retrouviez sur tous vos appareils.</li>
+  </ul>
+
+  <h2>Prestataires</h2>
+  <ul>
+    <li><strong>Supabase</strong> (comptes, base de données et stockage des photos), hébergement dans l’Union européenne (Paris).</li>
+    <li><strong>Vercel</strong> (hébergement du site et du service d’analyse).</li>
+    <li><strong>Anthropic</strong> (analyse des photos et rédaction par l’intelligence artificielle Claude).</li>
+    <li><strong>Google</strong> (connexion avec un compte Google, si vous la choisissez).</li>
+  </ul>
+  <p>Ces prestataires traitent les données uniquement pour fournir leur service à Malow.</p>
+
+  <h2>Accès et sécurité</h2>
+  <p>
+    Vos annonces et vos photos sont privées : elles ne sont visibles que par vous, une fois connecté. Les échanges sont
+    chiffrés (HTTPS).
+  </p>
+
+  <h2>Durée de conservation et suppression</h2>
+  <p>
+    Vos données sont conservées tant que votre compte existe. Vous pouvez supprimer une annonce à tout moment, et
+    supprimer votre compte depuis l’onglet <strong>Profil → Supprimer mon compte</strong> : votre compte, vos annonces
+    et vos photos sont alors effacés définitivement.
+  </p>
+
+  <h2>Vos droits</h2>
+  <p>
+    Conformément au RGPD, vous pouvez accéder à vos données, les corriger, les supprimer ou demander leur portabilité.
+    Pour toute question : <a href="mailto:contact@malow.app">contact@malow.app</a>.
+  </p>
+</main>
+</body>
+</html>

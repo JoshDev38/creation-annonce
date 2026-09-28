@@ -168,6 +168,9 @@ export default function Profil({ session, onConnexion, notifier }) {
         <button className="bouton-lien danger" onClick={supprimer} disabled={attente}>
           {attente ? 'Suppression…' : 'Supprimer mon compte'}
         </button>
+        <a className="lien-discret" href="https://malow.app/confidentialite.html" target="_blank" rel="noreferrer">
+          Règles de confidentialité
+        </a>
       </div>
     </main>
   )
