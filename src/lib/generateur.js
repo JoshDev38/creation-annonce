@@ -134,11 +134,17 @@ export function genererAnnonce(infos = '') {
   if (taille) intro += `, ${taille.enfant ? `taille ${taille.libelle}` : minuscule(taille.libelle)}`
   if (couleurs.length) intro += `, de couleur ${couleurs.join(' et ')}`
   phrases.push(`${intro}.`)
-  phrases.push(`${etat.nom} général${etat.coef >= 1 ? ', a très peu servi' : ''}.`)
   const caracteristiques = [...matieres.map((m) => `en ${m}`), ...details]
   if (caracteristiques.length) phrases.push(`${capitaliser(caracteristiques.join(', '))}.`)
   if (categorie.saison) phrases.push(`Idéal pour la saison ${minuscule(categorie.saison)}.`)
-  phrases.push('Envoi soigné ou remise en main propre possible.')
+
+  // Paragraphes par thème, séparés par une ligne vide (comme l'annonce rédigée par l'IA).
+  const paragraphes = [
+    `Description : ${phrases.join(' ')}`,
+    `État : ${etat.nom} général${etat.coef >= 1 ? ', a très peu servi' : ''}.`,
+    taille && `Taille / dimensions : ${taille.libelle}.`,
+    'Livraison : envoi soigné, remise en main propre possible.',
+  ].filter(Boolean)
 
   // Mots-clés
   const tags = [
@@ -153,7 +159,7 @@ export function genererAnnonce(infos = '') {
 
   return {
     titre,
-    description: phrases.join(' '),
+    description: paragraphes.join('\n\n'),
     prix,
     tags: [...new Set(tags)],
   }

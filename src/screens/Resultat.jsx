@@ -167,7 +167,7 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
         {edition ? (
           <textarea
             className="champ"
-            rows={6}
+            rows={12}
             value={annonce.description}
             onChange={(e) => maj('description', e.target.value)}
           />

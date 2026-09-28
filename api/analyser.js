@@ -34,7 +34,10 @@ const OUTIL_ANNONCE = {
     type: 'object',
     properties: {
       titre: { type: 'string', description: 'Titre court et vendeur, 70 caractères maximum' },
-      description: { type: 'string', description: 'Description de 3 à 6 phrases' },
+      description: {
+        type: 'string',
+        description: 'Description en paragraphes par thème (Description, État, Taille / dimensions, Livraison), séparés par une ligne vide',
+      },
       prix_conseille: { type: 'integer', description: 'Prix conseillé en euros' },
       prix_rapide: { type: 'integer', description: 'Prix pour vendre en quelques jours' },
       prix_haut: { type: 'integer', description: 'Prix haut, pour un acheteur patient' },
@@ -86,8 +89,13 @@ Résume en une phrase dans explication_prix ce qui justifie le prix (fourchette 
 
 Rédaction, en français :
 - Titre : court, avec les mots que les acheteurs tapent (type d'objet, marque, taille, état).
-- Description : 3 à 6 phrases simples et chaleureuses, sans emoji ni majuscules inutiles. \
-Termine par une phrase sur l'envoi ou la remise en main propre.
+- Description : des paragraphes courts par thème, chacun commençant par son intitulé suivi de « : », \
+séparés par une ligne vide, dans cet ordre :
+  Description : l'objet, ce qui le rend intéressant, ses détails (1 à 3 phrases chaleureuses).
+  État : l'état réel, avec les défauts visibles ou signalés (1 à 2 phrases).
+  Taille / dimensions : seulement si la taille, la pointure ou les dimensions sont connues.
+  Livraison : envoi soigné, remise en main propre possible (1 phrase).
+  Pas d'emoji, pas de majuscules inutiles, pas de listes à puces.
 - Mots-clés : 5 à 8, courts, sans « # ».
 
 Termine toujours en appelant l'outil rediger_annonce avec l'annonce finale.`
