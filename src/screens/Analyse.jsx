@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import mascotte from '../assets/mascotte.png'
 import { IconCamera, IconCheck, IconDoc, IconSearch, IconSparkle, IconTag } from '../components/Icons.jsx'
 
 const ETAPES = [
@@ -45,19 +46,13 @@ export default function Analyse({ pret, onFini }) {
         ))}
       </ul>
 
-      <div className="encart-info">
-        <IconSparkle width={34} height={34} />
-        <p>Cela ne prend que quelques secondes…</p>
-        <svg className="feuille" viewBox="0 0 60 90" aria-hidden="true">
-          <path d="M30 88V20" stroke="#6E9BB8" strokeWidth="2" fill="none" />
-          <g fill="#8DB5CF">
-            <ellipse cx="20" cy="30" rx="7" ry="14" transform="rotate(-35 20 30)" />
-            <ellipse cx="40" cy="42" rx="7" ry="14" transform="rotate(35 40 42)" />
-            <ellipse cx="19" cy="55" rx="7" ry="14" transform="rotate(-35 19 55)" />
-            <ellipse cx="41" cy="66" rx="7" ry="14" transform="rotate(35 41 66)" />
-            <ellipse cx="30" cy="14" rx="6" ry="13" />
-          </g>
-        </svg>
+      <div className="zone-mascotte">
+        {/* Malow passe la tête depuis le bord de l'écran, les pattes sur l'encadré */}
+        <img className="mascotte-analyse" src={mascotte} alt="" aria-hidden="true" />
+        <div className="encart-info">
+          <IconSparkle width={34} height={34} />
+          <p>Cela ne prend que quelques secondes…</p>
+        </div>
       </div>
     </main>
   )
