@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Entete from '../components/Entete.jsx'
 import { IconChevron, IconPlus, IconSave, IconShare } from '../components/Icons.jsx'
 import { texteAnnonce } from '../lib/generateur.js'
@@ -11,6 +12,7 @@ import {
   rangerPhotosGalerie,
 } from '../lib/partage.js'
 import { estAppliNative } from '../lib/cameraNative.js'
+import { afficherBulle, autoriserBulle, bulleAutorisee } from '../lib/bulle.js'
 
 const Badge = ({ lettres }) => <span className="badge-plateforme">{lettres}</span>
 
@@ -43,27 +45,64 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
     notifier((await copierTexte(partie)) ? message : 'Copie impossible')
   }
 
-  // Vinted et Leboncoin ont des champs séparés (titre, description, prix) :
-  // on copie la description seule, le titre se copie avec son propre bouton.
-  const publierSur = async (cle) => {
-    const copie = await copierTexte(cle === 'vinted' ? `${description}\n\n${hashtags}` : description)
+  const [demandeBulle, setDemandeBulle] = useState(null) // plateforme en attente d'autorisation
+
+  const photosAnnonce = () => annonce.photos || (annonce.photo ? [annonce.photo] : [])
+
+  // Vinted et Leboncoin ont des champs séparés (titre, description, prix) et ne
+  // se laissent pas remplir par une autre appli. Dans l'appli Android, une bulle
+  // Malow reste par-dessus pour copier chaque champ. Sinon (site, ou bulle
+  // refusée), on copie la description.
+  const publierSur = async (cle, avecBulle) => {
+    const nom = PLATEFORMES[cle].nom
+    const descriptionPlateforme = cle === 'vinted' ? `${description}\n\n${hashtags}` : description
     let rangees = 0
     try {
-      rangees = await rangerPhotosGalerie(annonce.photos || (annonce.photo ? [annonce.photo] : []), annonce.id)
+      rangees = await rangerPhotosGalerie(photosAnnonce(), annonce.id)
     } catch (e) {
       console.error('Photos non enregistrées dans la galerie', e)
     }
-    const etapes = [copie && 'description copiée', rangees && 'photos dans l’album « Malow »'].filter(Boolean)
-    notifier(etapes.length ? `${etapes.join(', ')} : ouverture de ${PLATEFORMES[cle].nom}…` : `Ouverture de ${PLATEFORMES[cle].nom}…`)
+    const photosPretes = rangees ? 'photos dans l’album « Malow »' : ''
+
+    let bulle = false
+    if (avecBulle) {
+      try {
+        await afficherBulle({ titre: annonce.titre, description: descriptionPlateforme, prix: annonce.prix?.conseille })
+        bulle = true
+      } catch (e) {
+        console.error('Bulle impossible', e)
+      }
+    }
+    // Le titre est le premier champ demandé : on le copie d'avance.
+    const copie = await copierTexte(bulle ? annonce.titre : descriptionPlateforme)
+    const etapes = [
+      bulle ? 'titre copié, la bulle Malow a le reste' : copie && 'description copiée',
+      photosPretes,
+    ].filter(Boolean)
+    notifier(etapes.length ? `${etapes.join(' · ')} : ouverture de ${nom}…` : `Ouverture de ${nom}…`)
     // Laisse le temps de lire le message avant de quitter Malow.
     setTimeout(() => {
-      ouvrirPlateforme(cle).catch((e) => notifier(`Impossible d’ouvrir ${PLATEFORMES[cle].nom} (${e?.message || e})`))
+      ouvrirPlateforme(cle).catch((e) => notifier(`Impossible d’ouvrir ${nom} (${e?.message || e})`))
     }, 1400)
   }
 
+  const choisirPlateforme = async (cle) => {
+    if (!estAppliNative()) return publierSur(cle, false)
+    if (await bulleAutorisee()) return publierSur(cle, true)
+    setDemandeBulle(cle)
+  }
+
+  const reponseBulle = async (accepte) => {
+    const cle = demandeBulle
+    setDemandeBulle(null)
+    const ok = accepte && (await autoriserBulle())
+    if (accepte && !ok) notifier('Bulle non autorisée : la description sera copiée à la place')
+    publierSur(cle, ok)
+  }
+
   const options = [
-    { Icone: () => <Badge lettres="V" />, titre: 'Publier sur Vinted', sous: 'Description et photos prêtes', action: () => publierSur('vinted') },
-    { Icone: () => <Badge lettres="lbc" />, titre: 'Publier sur Leboncoin', sous: 'Description et photos prêtes', action: () => publierSur('leboncoin') },
+    { Icone: () => <Badge lettres="V" />, titre: 'Publier sur Vinted', sous: 'Photos et texte prêts à coller', action: () => choisirPlateforme('vinted') },
+    { Icone: () => <Badge lettres="lbc" />, titre: 'Publier sur Leboncoin', sous: 'Photos et texte prêts à coller', action: () => choisirPlateforme('leboncoin') },
     { Icone: IconShare, titre: 'Autres applis', sous: 'Facebook, Instagram, WhatsApp…', action: partager },
     { Icone: IconSave, titre: 'La sauvegarder', sous: 'Dans votre espace', action: onSauvegarder },
   ]
@@ -106,11 +145,12 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
         ))}
         {estAppliNative() && (
           <p className="note-publication">
-            Vinted et Leboncoin ne reçoivent pas les annonces partagées : Malow copie la description et range les
-            photos dans l’album « Malow » de votre galerie. Dans l’appli, choisissez ces photos et collez la
-            description dans son champ. Pour le titre, revenez ici :
+            Vinted et Leboncoin ne se laissent pas remplir par une autre appli : les photos vont dans l’album
+            « Malow » de votre galerie, et une bulle Malow reste par-dessus l’appli pour copier le titre, la
+            description et le prix, un par un.
           </p>
         )}
+        {!estAppliNative() && (
         <div className="copies-rapides">
           <button className="bouton-lien" onClick={() => copierPartie(annonce.titre, 'Titre copié')}>
             Copier le titre
@@ -119,6 +159,7 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
             Copier la description
           </button>
         </div>
+        )}
         <button className="carte-choix compacte" onClick={onNouvelle}>
           <span className="carre-icone sans-fond">
             <IconPlus width={26} height={26} />
@@ -129,6 +170,32 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
           <IconChevron width={20} height={20} />
         </button>
       </div>
+
+      {demandeBulle && (
+        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-bulle">
+          <div className="modale">
+            <div className="bulle-demo" aria-hidden="true">
+              <img src="./icon-192.png" alt="" />
+            </div>
+            <h2 id="titre-bulle" className="titre-m">Une bulle pour copier-coller</h2>
+            <p>
+              Pendant que vous remplissez votre annonce sur {PLATEFORMES[demandeBulle].nom}, une petite bulle Malow reste
+              au bord de l’écran. Touchez-la : titre, description et prix sont là, un appui pour copier, un appui long
+              dans {PLATEFORMES[demandeBulle].nom} pour coller.
+            </p>
+            <p className="petit">
+              Android va vous demander d’autoriser Malow à « s’afficher par-dessus les autres applis ». Activez
+              l’interrupteur, puis revenez avec la flèche retour.
+            </p>
+            <button className="bouton bouton-principal" onClick={() => reponseBulle(true)}>
+              Autoriser la bulle
+            </button>
+            <button className="bouton-lien" onClick={() => reponseBulle(false)}>
+              Non merci, juste copier la description
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

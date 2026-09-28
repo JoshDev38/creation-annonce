@@ -1,0 +1,79 @@
+package app.malow;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import androidx.activity.result.ActivityResult;
+import androidx.core.content.ContextCompat;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.ActivityCallback;
+import com.getcapacitor.annotation.CapacitorPlugin;
+
+// Bulle Malow affichée par-dessus Vinted / Leboncoin : elle garde le titre,
+// la description et le prix à portée de main pour les copier-coller.
+@CapacitorPlugin(name = "Bulle")
+public class BullePlugin extends Plugin {
+
+    private boolean autorisee() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(getContext());
+    }
+
+    private void repondre(PluginCall call, boolean valeur) {
+        JSObject r = new JSObject();
+        r.put("value", valeur);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void autorisee(PluginCall call) {
+        repondre(call, autorisee());
+    }
+
+    // Ouvre le réglage « Afficher par-dessus les autres applis » ; répond au retour.
+    @PluginMethod
+    public void demanderAutorisation(PluginCall call) {
+        if (autorisee()) {
+            repondre(call, true);
+            return;
+        }
+        Intent intent = new Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:" + getContext().getPackageName())
+        );
+        startActivityForResult(call, intent, "retourAutorisation");
+    }
+
+    @ActivityCallback
+    private void retourAutorisation(PluginCall call, ActivityResult result) {
+        if (call == null) return;
+        repondre(call, autorisee());
+    }
+
+    @PluginMethod
+    public void afficher(PluginCall call) {
+        if (!autorisee()) {
+            call.reject("Autorisation « Afficher par-dessus les autres applis » manquante");
+            return;
+        }
+        Intent intent = new Intent(getContext(), BulleService.class);
+        intent.putExtra("titre", call.getString("titre", ""));
+        intent.putExtra("description", call.getString("description", ""));
+        intent.putExtra("prix", call.getString("prix", ""));
+        try {
+            ContextCompat.startForegroundService(getContext(), intent);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Impossible d’afficher la bulle : " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public void masquer(PluginCall call) {
+        getContext().stopService(new Intent(getContext(), BulleService.class));
+        call.resolve();
+    }
+}
