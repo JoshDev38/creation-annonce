@@ -1,43 +1,32 @@
 import Entete from '../components/Entete.jsx'
-import { IconChevron, IconCopy, IconPlus, IconSave, IconShare } from '../components/Icons.jsx'
+import { IconChevron, IconPlus, IconSave, IconShare } from '../components/Icons.jsx'
 import { texteAnnonce } from '../lib/generateur.js'
 import { copierTexte } from '../lib/stockage.js'
-
-async function fichiersPhotos(dataUrls) {
-  return Promise.all(
-    dataUrls.map(async (url, i) => {
-      const blob = await (await fetch(url)).blob()
-      return new File([blob], `annonce-${i + 1}.jpg`, { type: 'image/jpeg' })
-    }),
-  )
-}
+import { partageDisponible, partagerAnnonce } from '../lib/partage.js'
 
 export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, onRetour }) {
   const texte = texteAnnonce(annonce)
 
-  const copier = async () => {
-    notifier((await copierTexte(texte)) ? 'Annonce copiée' : 'Copie impossible')
-  }
-
+  // Vinted et Leboncoin ne reprennent que les photos partagées : le texte est
+  // donc aussi copié, prêt à être collé dans le formulaire de l'appli choisie.
   const partager = async () => {
-    if (!navigator.share) {
-      await copier()
-      notifier('Partage indisponible : annonce copiée à la place')
+    const copie = await copierTexte(texte)
+    if (!partageDisponible()) {
+      notifier(copie ? 'Annonce copiée : collez-la sur le site de votre choix' : 'Copie impossible')
       return
     }
     try {
-      const photos = await fichiersPhotos(annonce.photos || (annonce.photo ? [annonce.photo] : []))
-      const donnees = { title: annonce.titre, text: texte }
-      if (photos.length && navigator.canShare?.({ files: photos })) donnees.files = photos
-      await navigator.share(donnees)
+      const photos = annonce.photos || (annonce.photo ? [annonce.photo] : [])
+      const envoyee = await partagerAnnonce(annonce.titre, texte, photos)
+      if (envoyee && copie) notifier('Texte copié : collez-le dans votre annonce')
     } catch (e) {
-      if (e.name !== 'AbortError') notifier('Le partage a échoué')
+      console.error(e)
+      notifier(copie ? 'Le partage a échoué, mais l’annonce est copiée' : 'Le partage a échoué')
     }
   }
 
   const options = [
-    { Icone: IconCopy, titre: 'La copier', sous: 'Pour la publier où vous voulez', action: copier },
-    { Icone: IconShare, titre: 'La partager directement', sous: 'Sur les plateformes de votre choix', action: partager },
+    { Icone: IconShare, titre: 'La publier', sous: 'Sur Vinted, Leboncoin ou une autre appli', action: partager },
     { Icone: IconSave, titre: 'La sauvegarder', sous: 'Dans votre espace', action: onSauvegarder },
   ]
 
