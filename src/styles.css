@@ -1241,7 +1241,15 @@ html.camera-native .viseur {
 
 .bloc .description {
   color: var(--chocolat-doux);
-  white-space: pre-line; /* garde les paragraphes par thème */
+}
+
+.bloc .description strong {
+  color: var(--chocolat);
+  font-weight: 600;
+}
+
+.bloc .description p + p {
+  margin-top: 12px; /* un paragraphe par thème */
 }
 
 .tags {

@@ -1,3 +1,5 @@
+import { formaterDescription } from './paragraphes.js'
+
 // Génère une annonce à partir des informations données par l'utilisateur.
 // Tout se fait en local, dans le navigateur : pas de serveur ni de clé d'API.
 // Pour brancher une vraie IA de vision plus tard, il suffit de remplacer
@@ -169,7 +171,7 @@ export function texteAnnonce(annonce) {
   return [
     annonce.titre,
     '',
-    annonce.description,
+    formaterDescription(annonce.description),
     '',
     `Prix : ${annonce.prix.conseille} €`,
     '',

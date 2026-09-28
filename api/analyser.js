@@ -9,6 +9,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 import { SUPABASE_CLE_PUBLIQUE, SUPABASE_URL } from '../src/lib/configSupabase.js'
+import { formaterDescription } from '../src/lib/paragraphes.js'
 
 export const config = { maxDuration: 120 }
 
@@ -217,7 +218,7 @@ export default async function handler(req, res) {
     const a = resultat.annonce
     return res.status(200).json({
       titre: a.titre,
-      description: a.description,
+      description: formaterDescription(a.description),
       prix: { conseille: a.prix_conseille, rapide: a.prix_rapide, haut: a.prix_haut },
       explicationPrix: a.explication_prix || '',
       tags: a.tags,

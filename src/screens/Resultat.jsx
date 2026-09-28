@@ -3,6 +3,7 @@ import Entete from '../components/Entete.jsx'
 import { IconCheck, IconCopy, IconSparkle } from '../components/Icons.jsx'
 import { texteAnnonce } from '../lib/generateur.js'
 import { copierTexte } from '../lib/stockage.js'
+import { formaterDescription, paragraphes } from '../lib/paragraphes.js'
 
 export default function Resultat({ annonce, onChange, onCopie, onSuivant, onRetour }) {
   const [edition, setEdition] = useState(false)
@@ -157,7 +158,7 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
           {!edition && (
             <button
               className="icone-bouton"
-              onClick={() => copier(annonce.description)}
+              onClick={() => copier(formaterDescription(annonce.description))}
               aria-label="Copier la description"
             >
               <IconCopy width={20} height={20} />
@@ -172,7 +173,22 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
             onChange={(e) => maj('description', e.target.value)}
           />
         ) : (
-          <p className="description">{annonce.description}</p>
+          <div className="description">
+            {paragraphes(annonce.description).map((p, i) => {
+              const m = p.match(/^([^:]{2,25}) : ([\s\S]*)$/)
+              return (
+                <p key={i}>
+                  {m ? (
+                    <>
+                      <strong>{m[1]} :</strong> {m[2]}
+                    </>
+                  ) : (
+                    p
+                  )}
+                </p>
+              )
+            })}
+          </div>
         )}
       </section>
 
