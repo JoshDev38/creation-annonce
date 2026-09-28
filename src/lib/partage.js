@@ -6,18 +6,48 @@ import { Filesystem, Directory } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 import { estAppliNative } from './cameraNative.js'
 
-async function partagerNatif(titre, texte, photos) {
+// Les photos sont soit des data URL (annonce toute neuve), soit des liens
+// Supabase (annonce déjà sauvegardée) : on les ramène toutes en base64.
+async function enBase64(photo) {
+  if (photo.startsWith('data:')) return photo.split(',')[1]
+  const blob = await (await fetch(photo)).blob()
+  return new Promise((resolve, reject) => {
+    const lecteur = new FileReader()
+    lecteur.onerror = reject
+    lecteur.onload = () => resolve(String(lecteur.result).split(',')[1])
+    lecteur.readAsDataURL(blob)
+  })
+}
+
+async function ecrirePhotos(photos) {
   const files = []
   for (const [i, photo] of photos.entries()) {
     const { uri } = await Filesystem.writeFile({
       path: `partage/annonce-${i + 1}.jpg`,
-      data: photo.split(',')[1],
+      data: await enBase64(photo),
       directory: Directory.Cache,
       recursive: true,
     })
     files.push(uri)
   }
-  await Share.share({ title: titre, text: texte, files, dialogTitle: 'Publier sur…' })
+  return files
+}
+
+async function partagerNatif(titre, texte, photos) {
+  let files = []
+  try {
+    files = await ecrirePhotos(photos)
+  } catch (e) {
+    console.error('Photos non préparées pour le partage', e)
+  }
+  try {
+    await Share.share({ title: titre, text: texte, files, dialogTitle: 'Publier sur…' })
+  } catch (e) {
+    if (!files.length || estAnnulation(e)) throw e
+    // Certaines versions d'Android refusent photos + texte : on partage au moins le texte.
+    console.error('Partage avec photos refusé', e)
+    await Share.share({ title: titre, text: texte, dialogTitle: 'Publier sur…' })
+  }
 }
 
 async function partagerWeb(titre, texte, photos) {
@@ -32,6 +62,8 @@ async function partagerWeb(titre, texte, photos) {
   await navigator.share(donnees)
 }
 
+const estAnnulation = (e) => e?.name === 'AbortError' || /cancel/i.test(String(e?.message || ''))
+
 export const partageDisponible = () => estAppliNative() || Boolean(navigator.share)
 
 // Renvoie false si la personne a fermé la fenêtre de partage sans choisir d'appli.
@@ -41,8 +73,7 @@ export async function partagerAnnonce(titre, texte, photos) {
     else await partagerWeb(titre, texte, photos)
     return true
   } catch (e) {
-    const message = String(e?.message || '')
-    if (e?.name === 'AbortError' || /cancel/i.test(message)) return false
+    if (estAnnulation(e)) return false
     throw e
   }
 }

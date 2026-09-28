@@ -21,7 +21,8 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
       if (envoyee && copie) notifier('Texte copié : collez-le dans votre annonce')
     } catch (e) {
       console.error(e)
-      notifier(copie ? 'Le partage a échoué, mais l’annonce est copiée' : 'Le partage a échoué')
+      const detail = e?.message ? ` (${e.message})` : ''
+      notifier((copie ? 'Le partage a échoué, mais l’annonce est copiée' : 'Le partage a échoué') + detail)
     }
   }
 
