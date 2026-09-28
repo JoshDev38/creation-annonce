@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.128.0",
     "@capacitor-community/camera-preview": "^8.0.2",
     "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
     "@capacitor/core": "^8.5.2",
     "@supabase/supabase-js": "^2.117.2",
     "react": "^19.3.0",

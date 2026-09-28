@@ -3,6 +3,7 @@ import Entete from '../components/Entete.jsx'
 import { URL_SITE } from '../lib/configSupabase.js'
 import { messageErreur, supabase } from '../lib/supabase.js'
 import { PSEUDO_VALIDE, pseudoDisponible } from '../lib/profil.js'
+import BoutonGoogle from '../components/BoutonGoogle.jsx'
 
 const TITRES = {
   connexion: 'Se connecter',
@@ -93,6 +94,13 @@ export default function Connexion({ modeInitial = 'connexion', raison, onRetour,
       <img className="logo-connexion" src="./icon-192.png" alt="Malow" />
       <h1 className="titre-l centre">{TITRES[mode]}</h1>
       {raison && mode !== 'nouveau' && <p className="texte-bleu centre">{raison}</p>}
+
+      {(mode === 'connexion' || mode === 'inscription') && (
+        <>
+          <BoutonGoogle notifier={notifier} />
+          <div className="separateur">ou avec votre e-mail</div>
+        </>
+      )}
 
       <form className="formulaire" onSubmit={valider} noValidate>
         {mode === 'inscription' && (

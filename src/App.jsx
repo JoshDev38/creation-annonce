@@ -11,17 +11,20 @@ import MesAnnonces from './screens/MesAnnonces.jsx'
 import Conseils from './screens/Conseils.jsx'
 import Profil from './screens/Profil.jsx'
 import Connexion from './screens/Connexion.jsx'
+import Bienvenue from './screens/Bienvenue.jsx'
 import { genererAnnonce } from './lib/generateur.js'
 import { analyserAvecIA } from './lib/analyseIA.js'
 import { estAppliNative } from './lib/cameraNative.js'
 import { lireAnnonces, reduirePhoto, supprimerAnnonce } from './lib/stockage.js'
 import { supabase } from './lib/supabase.js'
 import { enregistrerAnnonceCloud } from './lib/annoncesCloud.js'
+import { ecouterRetourGoogle } from './lib/connexionGoogle.js'
 
 const AVEC_ONGLETS = ['accueil', 'partage', 'annonces', 'conseils', 'profil']
 
 export default function App() {
-  const [ecran, setEcran] = useState('accueil')
+  // « chargement » le temps de savoir si quelqu'un est connecté, puis accueil ou bienvenue.
+  const [ecran, setEcran] = useState('chargement')
   const [photos, setPhotos] = useState([])
   const [infos, setInfos] = useState('')
   const [annonce, setAnnonce] = useState(null)
@@ -150,6 +153,7 @@ export default function App() {
     supabase.auth.getSession().then(({ data }) => {
       sessionRef.current = data.session
       setSession(data.session)
+      setEcran((e) => (e === 'chargement' ? (data.session ? 'accueil' : 'bienvenue') : e))
     })
     const { data } = supabase.auth.onAuthStateChange((evenement, s) => {
       sessionRef.current = s
@@ -158,17 +162,27 @@ export default function App() {
         setConnexion({ mode: 'nouveau', raison: '', retour: 'profil' })
         setEcran('connexion')
       }
-      if (evenement === 'SIGNED_IN' && s) setTimeout(() => importerAnnoncesLocales(s), 0)
+      if (evenement === 'SIGNED_IN' && s) {
+        setTimeout(() => importerAnnoncesLocales(s), 0)
+        // Connexion (Google ou e-mail) : on reprend l'action en attente ou on quitte l'écran de connexion.
+        setTimeout(() => finConnexion.current(), 0)
+      }
     })
-    return () => data.subscription.unsubscribe()
+    const arreterGoogle = ecouterRetourGoogle((message) => notifier(message))
+    return () => {
+      data.subscription.unsubscribe()
+      arreterGoogle()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const connecte = () => {
     const action = apresConnexion.current
     apresConnexion.current = null
+    if (!action && !['bienvenue', 'connexion', 'chargement'].includes(ecran)) return // déjà traité
     notifier('Vous êtes connecté')
     if (action) setTimeout(action, 0)
+    else if (connexion.retour === 'bienvenue') setEcran('accueil')
     else setEcran(connexion.retour === 'connexion' ? 'profil' : connexion.retour || 'profil')
   }
 
@@ -187,6 +201,9 @@ export default function App() {
     setEcran('resultat')
   }
 
+  const finConnexion = useRef(null)
+  finConnexion.current = connecte
+
   // Bouton retour d'Android (appli installée) : écran précédent, ou fermeture sur l'accueil.
   const retour = useRef(null)
   retour.current = () => {
@@ -200,7 +217,7 @@ export default function App() {
       profil: 'accueil',
       connexion: connexion.retour,
     }
-    if (ecran === 'accueil') AppNative.exitApp()
+    if (ecran === 'accueil' || ecran === 'bienvenue') AppNative.exitApp()
     else if (ecran === 'analyse') return // on laisse l'analyse se terminer
     else setEcran(precedent[ecran] || 'accueil')
   }
@@ -295,6 +312,19 @@ export default function App() {
             setEcran(connexion.retour === 'connexion' ? 'accueil' : connexion.retour)
           }}
           onConnecte={connecte}
+          notifier={notifier}
+        />
+      )
+      break
+    case 'chargement':
+      contenu = <main className="page" />
+      break
+    case 'bienvenue':
+      contenu = (
+        <Bienvenue
+          onInscription={() => exigerConnexion('', null, 'inscription')}
+          onConnexion={() => exigerConnexion('', null, 'connexion')}
+          onDecouvrir={() => setEcran('accueil')}
           notifier={notifier}
         />
       )

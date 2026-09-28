@@ -1403,7 +1403,59 @@ html.camera-native .viseur {
   color: var(--texte-doux);
 }
 
+/* ---------- Bienvenue ---------- */
+
+.page-bienvenue {
+  justify-content: space-between;
+  background:
+    radial-gradient(120% 60% at 50% 0%, #fffaf2 0%, transparent 70%),
+    linear-gradient(180deg, #fbf4ea 0%, #f1e5da 100%);
+}
+
+.bienvenue-haut {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.logo-bienvenue {
+  width: min(56vw, 220px);
+  height: auto;
+  filter: drop-shadow(0 12px 24px rgba(79, 134, 166, 0.25));
+}
+
+.page-bienvenue .titre-xl {
+  margin-top: 8px;
+}
+
 /* ---------- Compte ---------- */
+
+.bouton-google {
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid #dadce0;
+  font-weight: 500;
+}
+
+.separateur {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+
+.separateur::before,
+.separateur::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--bordure);
+}
 
 .logo-connexion {
   width: 88px;

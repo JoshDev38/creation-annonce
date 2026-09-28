@@ -40,7 +40,13 @@ la description, les trois prix et les mots-clés.
 
 ## Comptes (Supabase)
 
-Projet Supabase `createur-annonce` (Paris). Connexion par e-mail et mot de passe.
+Projet Supabase `createur-annonce` (Paris). Connexion par e-mail et mot de passe, ou avec Google.
+Au lancement, un écran de bienvenue propose de se connecter ou de créer un compte (ou de découvrir sans compte).
+
+- **Google** : sur le site, redirection classique ; dans l’appli Android, la connexion s’ouvre dans le
+  navigateur puis revient vers `app.malow://auth` (intent-filter dans `AndroidManifest.xml`).
+  À configurer : client OAuth Google (Google Cloud) renseigné dans Supabase (*Authentication → Providers → Google*),
+  et `app.malow://auth` ajouté aux *Redirect URLs*.
 
 - **Table `annonces`** et **bucket privé `photos`** (`<user_id>/<annonce_id>/<n>.jpg`), protégés par des
   règles RLS : chacun ne voit que ses propres annonces et photos.

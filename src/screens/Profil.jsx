@@ -109,8 +109,8 @@ export default function Profil({ session, onConnexion, notifier }) {
           aria-label="Changer la photo de profil"
           disabled={envoiPhoto}
         >
-          {profil?.avatarUrl ? (
-            <img src={profil.avatarUrl} alt="" />
+          {profil?.avatarUrl || session.user.user_metadata?.avatar_url ? (
+            <img src={profil?.avatarUrl || session.user.user_metadata.avatar_url} alt="" referrerPolicy="no-referrer" />
           ) : (
             <span className="initiale">{(profil?.pseudo || session.user.email || '?').charAt(0).toUpperCase()}</span>
           )}
