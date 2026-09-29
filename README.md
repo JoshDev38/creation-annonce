@@ -80,3 +80,12 @@ ce que le navigateur ne permet pas sur beaucoup de téléphones.
 
 L’identifiant de l’appli (`app.malow`) est défini dans `capacitor.config.json` et `android/app/build.gradle` :
 une fois l’appli publiée sur le Play Store, il ne peut plus changer.
+
+## Fidélité
+
+Le programme de fidélité se paramètre dans Supabase, sans mise à jour de l'appli :
+
+- `fidelite_regles` : points gagnés par action (`bienvenue`, `annonce_sauvegardee`, `annonce_publiee`), plafond par jour, activée ou non.
+- `fidelite_niveaux` : les paliers (nom, points nécessaires, description).
+- `fidelite_recompenses` : les récompenses de chaque palier (titre, description, activée ou non).
+- `fidelite_points` : l'historique des points de chaque compte (écrit uniquement par le serveur).

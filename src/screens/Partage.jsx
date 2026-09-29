@@ -14,6 +14,7 @@ import {
 } from '../lib/partage.js'
 import { estAppliNative } from '../lib/cameraNative.js'
 import { afficherBulle, autoriserBulle, bulleAutorisee } from '../lib/bulle.js'
+import { gagnerPoints } from '../lib/fidelite.js'
 
 const Badge = ({ lettres }) => <span className="badge-plateforme">{lettres}</span>
 
@@ -92,6 +93,8 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
       photosPretes,
     ].filter(Boolean)
     notifier(etapes.length ? `${etapes.join(' · ')} : ouverture de ${nom}…` : `Ouverture de ${nom}…`)
+    // Fidélité : points de publication (seulement pour une annonce sauvegardée dans le compte).
+    gagnerPoints('annonce_publiee', annonce.id).catch(() => {})
     // Laisse le temps de lire le message avant de quitter Malow.
     setTimeout(() => {
       ouvrirPlateforme(cle).catch((e) => notifier(`Impossible d’ouvrir ${nom} (${e?.message || e})`))

@@ -3,10 +3,12 @@ import { IconCamera, IconEdit } from '../components/Icons.jsx'
 import { listerAnnoncesCloud, supprimerCompte } from '../lib/annoncesCloud.js'
 import { changerAvatar, changerPseudo, lireProfil, PSEUDO_VALIDE } from '../lib/profil.js'
 import { photoCarree } from '../lib/stockage.js'
+import { chargerFidelite } from '../lib/fidelite.js'
 import { supabase } from '../lib/supabase.js'
 
-export default function Profil({ session, onConnexion, onVoirAnnonces, notifier }) {
+export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelite, notifier }) {
   const [annonces, setAnnonces] = useState(null)
+  const [fidelite, setFidelite] = useState(null)
   const [attente, setAttente] = useState(false)
   const [profil, setProfil] = useState(null)
   const [editionPseudo, setEditionPseudo] = useState(false)
@@ -19,6 +21,9 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, notifier 
     listerAnnoncesCloud()
       .then(setAnnonces)
       .catch(() => setAnnonces([]))
+    chargerFidelite()
+      .then(setFidelite)
+      .catch(() => setFidelite(null))
     lireProfil(session.user.id)
       .then(setProfil)
       .catch(() => setProfil({ pseudo: '', avatar: null, avatarUrl: null }))
@@ -79,7 +84,6 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, notifier 
     )
   }
 
-  const total = (annonces || []).reduce((s, a) => s + (a.prix?.conseille || 0), 0)
 
   const deconnecter = async () => {
     await supabase.auth.signOut()
@@ -152,10 +156,10 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, notifier 
           <span>annonce{annonces?.length > 1 ? 's' : ''} sauvegardée{annonces?.length > 1 ? 's' : ''}</span>
           <em>Voir ›</em>
         </button>
-        <button onClick={onVoirAnnonces}>
-          <strong>{annonces ? `${total} €` : '…'}</strong>
-          <span>de valeur estimée</span>
-          <em>Voir ›</em>
+        <button onClick={onFidelite}>
+          <strong>{fidelite ? `Niv. ${fidelite.actuel?.niveau ?? 1}` : '…'}</strong>
+          <span>{fidelite ? `${fidelite.actuel?.nom} · ${fidelite.total} pts` : 'fidélité'}</span>
+          <em>Fidélité ›</em>
         </button>
       </div>
       <p className="manuscrit centre">
