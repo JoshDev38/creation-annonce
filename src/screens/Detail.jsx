@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Entete from '../components/Entete.jsx'
+import { demarrerDictee, dicteeDisponible } from '../lib/dictee.js'
 import { IconChat, IconChevron, IconKeyboard, IconMic, IconSparkle, IconStop } from '../components/Icons.jsx'
-
-const Reconnaissance =
-  typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
 
 export default function Detail({ valeurInitiale, onRetour, onValider }) {
   const [mode, setMode] = useState(valeurInitiale ? 'ecrit' : null)
@@ -14,45 +12,37 @@ export default function Detail({ valeurInitiale, onRetour, onValider }) {
   const base = useRef('')
   const zone = useRef(null)
 
-  useEffect(() => () => reco.current?.abort(), [])
+  useEffect(() => () => reco.current?.annuler(), [])
 
-  const demarrerOral = () => {
+  const demarrerOral = async () => {
     setMode('oral')
     setErreur('')
-    if (!Reconnaissance) {
-      setErreur('La dictée vocale n’est pas disponible sur ce navigateur. Essayez Chrome ou Safari, ou écrivez vos informations.')
-      return
-    }
-    const r = new Reconnaissance()
-    r.lang = 'fr-FR'
-    r.continuous = true
-    r.interimResults = true
+    reco.current?.annuler()
     base.current = texte ? `${texte.trim()} ` : ''
-    r.onresult = (e) => {
-      let dicte = ''
-      for (let i = 0; i < e.results.length; i++) dicte += e.results[i][0].transcript
-      setTexte(base.current + dicte)
-    }
-    r.onerror = (e) => {
-      if (e.error === 'not-allowed') setErreur('Autorisez l’accès au micro pour dicter.')
-      else if (e.error !== 'aborted' && e.error !== 'no-speech') setErreur('La dictée s’est interrompue. Réessayez.')
-    }
-    r.onend = () => setEcoute(false)
-    reco.current = r
-    r.start()
     setEcoute(true)
+    try {
+      reco.current = await demarrerDictee({
+        onTexte: (finaux, partiel) => setTexte(base.current + [finaux, partiel].filter(Boolean).join(' ')),
+        onErreur: (message) => setErreur(message),
+        onFin: () => setEcoute(false),
+      })
+    } catch (e) {
+      setEcoute(false)
+      setErreur(e?.message || 'La dictée n’a pas pu démarrer. Réessayez.')
+    }
   }
 
-  const arreterOral = () => reco.current?.stop()
+  const arreterOral = () => reco.current?.arreter()
 
   const demarrerEcrit = () => {
-    reco.current?.abort()
+    reco.current?.annuler()
+    setEcoute(false)
     setMode('ecrit')
     setTimeout(() => zone.current?.focus(), 50)
   }
 
   const valider = () => {
-    reco.current?.abort()
+    reco.current?.annuler()
     onValider(texte.trim())
   }
 
@@ -105,7 +95,7 @@ export default function Detail({ valeurInitiale, onRetour, onValider }) {
 
       {mode && (
         <div className="saisie">
-          {mode === 'oral' && Reconnaissance && (
+          {mode === 'oral' && dicteeDisponible() && (
             <button
               className={`micro ${ecoute ? 'enregistre' : ''}`}
               onClick={ecoute ? arreterOral : demarrerOral}
@@ -114,7 +104,7 @@ export default function Detail({ valeurInitiale, onRetour, onValider }) {
               {ecoute ? <IconStop width={28} height={28} /> : <IconMic width={28} height={28} />}
             </button>
           )}
-          {mode === 'oral' && Reconnaissance && (
+          {mode === 'oral' && dicteeDisponible() && (
             <p className="petit centre">{ecoute ? 'Je vous écoute…' : 'Touchez le micro pour continuer à parler'}</p>
           )}
           {erreur && <p className="erreur">{erreur}</p>}
