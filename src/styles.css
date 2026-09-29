@@ -1580,7 +1580,10 @@ html.camera-native .viseur {
   margin: 8px 0 18px;
 }
 
-.stats div {
+.stats button {
+  font: inherit;
+  border: none;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1601,6 +1604,18 @@ html.camera-native .viseur {
 .stats span {
   font-size: 13px;
   color: var(--texte-doux);
+}
+
+.stats em {
+  margin-top: 2px;
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bleu-texte);
+}
+
+.stats button:active {
+  transform: scale(0.97);
 }
 
 /* ---------- Bienvenue ---------- */

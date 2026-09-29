@@ -5,7 +5,7 @@ import { changerAvatar, changerPseudo, lireProfil, PSEUDO_VALIDE } from '../lib/
 import { photoCarree } from '../lib/stockage.js'
 import { supabase } from '../lib/supabase.js'
 
-export default function Profil({ session, onConnexion, notifier }) {
+export default function Profil({ session, onConnexion, onVoirAnnonces, notifier }) {
   const [annonces, setAnnonces] = useState(null)
   const [attente, setAttente] = useState(false)
   const [profil, setProfil] = useState(null)
@@ -147,14 +147,16 @@ export default function Profil({ session, onConnexion, notifier }) {
         <p className="petit">{session.user.email}</p>
       </div>
       <div className="stats">
-        <div>
+        <button onClick={onVoirAnnonces}>
           <strong>{annonces ? annonces.length : '…'}</strong>
           <span>annonce{annonces?.length > 1 ? 's' : ''} sauvegardée{annonces?.length > 1 ? 's' : ''}</span>
-        </div>
-        <div>
+          <em>Voir ›</em>
+        </button>
+        <button onClick={onVoirAnnonces}>
           <strong>{annonces ? `${total} €` : '…'}</strong>
           <span>de valeur estimée</span>
-        </div>
+          <em>Voir ›</em>
+        </button>
       </div>
       <p className="manuscrit centre">
         Une seconde vie

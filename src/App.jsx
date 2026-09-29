@@ -298,6 +298,7 @@ export default function App() {
         <Profil
           session={session}
           onConnexion={(mode) => exigerConnexion('', null, mode)}
+          onVoirAnnonces={() => setEcran('annonces')}
           notifier={notifier}
         />
       )
