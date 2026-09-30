@@ -17,7 +17,8 @@ import com.getcapacitor.annotation.PermissionCallback;
 import java.util.ArrayList;
 
 // Dictée vocale avec la reconnaissance d'Android (la WebView n'en a pas).
-// Écoute en continu : après chaque phrase, l'écoute reprend jusqu'à « arreter ».
+// Écoute en continu : après chaque phrase ou silence, l'écoute reprend jusqu'à
+// « arreter » (bouton stop) ou jusqu'à ce que l'appli passe en arrière-plan.
 // Événements : « partiel » {texte}, « final » {texte}, « fin », « erreur » {message}.
 @CapacitorPlugin(name = "Dictee", permissions = { @Permission(strings = { Manifest.permission.RECORD_AUDIO }, alias = "micro") })
 public class DicteePlugin extends Plugin {
@@ -25,7 +26,7 @@ public class DicteePlugin extends Plugin {
     private SpeechRecognizer reconnaisseur;
     private boolean continuer = false;
     private String langue = "fr-FR";
-    private int silencesDeSuite = 0;
+    private int echecsDeSuite = 0; // service occupé en boucle : on finit par abandonner
 
     @PluginMethod
     public void disponible(PluginCall call) {
@@ -56,7 +57,6 @@ public class DicteePlugin extends Plugin {
         }
         langue = call.getString("langue", "fr-FR");
         continuer = true;
-        silencesDeSuite = 0;
         getActivity().runOnUiThread(() -> {
             try {
                 ecouter();
@@ -75,6 +75,15 @@ public class DicteePlugin extends Plugin {
             if (reconnaisseur != null) reconnaisseur.stopListening();
             call.resolve();
         });
+    }
+
+    @Override
+    protected void handleOnPause() {
+        // Malow n'est plus à l'écran : on arrête d'écouter.
+        if (continuer) {
+            continuer = false;
+            if (reconnaisseur != null) reconnaisseur.stopListening();
+        }
     }
 
     @Override
@@ -106,8 +115,11 @@ public class DicteePlugin extends Plugin {
 
     // Reprend l'écoute après une phrase ou un silence, sinon signale la fin.
     private void suite() {
-        if (continuer && silencesDeSuite < 3) {
-            getActivity().runOnUiThread(this::ecouter);
+        if (continuer) {
+            // petit délai : le service de reconnaissance doit se libérer
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                if (continuer) ecouter();
+            }, 200);
         } else {
             continuer = false;
             getActivity().runOnUiThread(this::detruire);
@@ -136,8 +148,7 @@ public class DicteePlugin extends Plugin {
         public void onResults(Bundle results) {
             String t = premier(results);
             if (!t.isEmpty()) {
-                silencesDeSuite = 0;
-                JSObject r = new JSObject();
+                        JSObject r = new JSObject();
                 r.put("texte", t);
                 notifyListeners("final", r);
             }
@@ -146,13 +157,14 @@ public class DicteePlugin extends Plugin {
 
         @Override
         public void onError(int code) {
+            // Silence ou rien compris : on continue d'écouter.
             if (code == SpeechRecognizer.ERROR_NO_MATCH || code == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                silencesDeSuite++;
                 suite();
                 return;
             }
-            if (code == SpeechRecognizer.ERROR_CLIENT && !continuer) {
-                suite(); // arrêt demandé
+            // Service occupé (souvent juste après une reprise) : on réessaie, sans boucler sans fin.
+            if ((code == SpeechRecognizer.ERROR_RECOGNIZER_BUSY || code == SpeechRecognizer.ERROR_CLIENT) && ++echecsDeSuite < 15) {
+                suite();
                 return;
             }
             continuer = false;
@@ -166,9 +178,6 @@ public class DicteePlugin extends Plugin {
                 case SpeechRecognizer.ERROR_SERVER:
                     message = "La dictée a besoin d’internet. Vérifiez votre connexion.";
                     break;
-                case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
-                    message = "Le micro est déjà utilisé. Réessayez dans un instant.";
-                    break;
                 default:
                     message = "La dictée s’est interrompue. Réessayez.";
             }
@@ -179,7 +188,9 @@ public class DicteePlugin extends Plugin {
         }
 
         @Override
-        public void onReadyForSpeech(Bundle params) {}
+        public void onReadyForSpeech(Bundle params) {
+            echecsDeSuite = 0;
+        }
 
         @Override
         public void onBeginningOfSpeech() {}

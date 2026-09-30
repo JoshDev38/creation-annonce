@@ -48,7 +48,6 @@ async function dicteeNative({ onTexte, onFin, onErreur }) {
 function dicteeWeb({ onTexte, onFin, onErreur }) {
   let finaux = ''
   let actif = true
-  let silences = 0
   let r = null
 
   const ecouter = () => {
@@ -62,14 +61,13 @@ function dicteeWeb({ onTexte, onFin, onErreur }) {
         const t = e.results[i][0].transcript.trim()
         if (e.results[i].isFinal) {
           finaux = joindre(finaux, t)
-          silences = 0
         } else partiel = joindre(partiel, t)
       }
       onTexte(finaux, partiel)
     }
     r.onerror = (e) => {
-      if (e.error === 'no-speech') silences++
-      else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      if (e.error === 'no-speech') return // silence : on continue d'écouter
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
         actif = false
         onErreur('Autorisez l’accès au micro pour dicter.')
       } else if (e.error === 'network') {
@@ -82,7 +80,7 @@ function dicteeWeb({ onTexte, onFin, onErreur }) {
     }
     r.onend = () => {
       onTexte(finaux, '')
-      if (actif && silences < 3) {
+      if (actif) {
         try {
           ecouter()
           return
@@ -91,10 +89,20 @@ function dicteeWeb({ onTexte, onFin, onErreur }) {
         }
       }
       actif = false
+      document.removeEventListener('visibilitychange', cache)
       onFin()
     }
     r.start()
   }
+
+  // Onglet caché ou écran éteint : on arrête d'écouter.
+  const cache = () => {
+    if (document.hidden && actif) {
+      actif = false
+      r?.stop()
+    }
+  }
+  document.addEventListener('visibilitychange', cache)
 
   ecouter()
   return {
@@ -104,6 +112,7 @@ function dicteeWeb({ onTexte, onFin, onErreur }) {
     },
     annuler: () => {
       actif = false
+      document.removeEventListener('visibilitychange', cache)
       r.onend = null
       r?.abort()
     },
