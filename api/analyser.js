@@ -51,13 +51,24 @@ const OUTIL_ANNONCE = {
       marque_probable: {
         type: 'string',
         description:
-          'Marque (et modèle si reconnu) la plus probable mais non confirmée (ni logo lisible, ni info du vendeur), écrite courte et sans commentaire, ex. « HP EliteBook 840 G9 » ; sinon chaîne vide',
+          'Marque seule (sans le modèle) la plus probable mais non confirmée (ni logo lisible, ni info du vendeur), ex. « HP » ; chaîne vide si la marque est certaine ou inconnue',
       },
       autres_marques: {
         type: 'array',
         items: { type: 'string' },
         description:
-          '2 à 5 autres marques ou modèles plausibles, du plus au moins probable, écrits courts (ex. « HP EliteBook 840 G10 », « Dell Latitude 7430 ») ; liste vide si marque_probable est vide',
+          '2 à 5 autres marques plausibles, du plus au moins probable (ex. « Dell », « Lenovo ») ; liste vide si marque_probable est vide',
+      },
+      modele_probable: {
+        type: 'string',
+        description:
+          'Modèle seul (sans la marque) le plus probable mais non confirmé, ex. « EliteBook 840 G9 » ; chaîne vide si le modèle est certain, inconnu ou sans objet',
+      },
+      autres_modeles: {
+        type: 'array',
+        items: { type: 'string' },
+        description:
+          '2 à 5 autres modèles plausibles de la même marque, du plus au moins probable (ex. « EliteBook 840 G10 », « EliteBook 850 G9 ») ; liste vide si modele_probable est vide',
       },
     },
     required: [
@@ -70,6 +81,8 @@ const OUTIL_ANNONCE = {
       'tags',
       'marque_probable',
       'autres_marques',
+      'modele_probable',
+      'autres_modeles',
     ],
     additionalProperties: false,
   },
@@ -86,7 +99,10 @@ const SYSTEME = `Tu rédiges des annonces de vente d'objets d'occasion pour des 
 Si elle est lisible ou donnée par le vendeur, mets-la dans le titre et la description. \
 Si tu la reconnais seulement au style, sans certitude, ne l'écris pas dans l'annonce : \
 indique-la dans marque_probable pour que le vendeur la confirme, et mets dans autres_marques les autres \
-marques ou modèles possibles, pour qu'il puisse choisir s'il répond non. Sinon, laisse les deux vides.
+marques possibles, pour qu'il puisse choisir s'il répond non. Sinon, laisse les deux vides.
+- Modèle : même principe, séparément de la marque. S'il est certain (inscription lisible, info du vendeur), \
+mets-le dans l'annonce. S'il est seulement probable, ne l'écris pas : indique-le dans modele_probable (sans \
+la marque) et les autres modèles possibles de la même marque dans autres_modeles.
 - N'invente rien d'autre : une taille n'apparaît que si elle est visible ou donnée par le vendeur.
 - Évalue l'état d'après les photos et les infos, et mentionne honnêtement les défauts visibles ou signalés.
 - Les informations du vendeur priment sur ce que tu crois voir.
@@ -233,6 +249,8 @@ export default async function handler(req, res) {
       tags: a.tags,
       marqueProbable: a.marque_probable || '',
       autresMarques: a.marque_probable ? (a.autres_marques || []).filter((m) => m && m !== a.marque_probable).slice(0, 5) : [],
+      modeleProbable: a.modele_probable || '',
+      autresModeles: a.modele_probable ? (a.autres_modeles || []).filter((m) => m && m !== a.modele_probable).slice(0, 5) : [],
       modele: resultat.modele,
     })
   } catch (e) {

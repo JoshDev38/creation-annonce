@@ -5,42 +5,118 @@ import { texteAnnonce } from '../lib/generateur.js'
 import { copierTexte } from '../lib/stockage.js'
 import { formaterDescription, paragraphes } from '../lib/paragraphes.js'
 
+// Question « marque » ou « modèle » : confirmer la proposition de l'IA, ou
+// choisir parmi les autres possibilités, en saisir une, ou passer.
+function QuestionIdentite({ question, proposition, autres = [], intitule, onChoix }) {
+  const [choix, setChoix] = useState(!proposition)
+  const [saisie, setSaisie] = useState('')
+
+  if (!choix) {
+    return (
+      <div className="suggestion-marque">
+        <p>{question}</p>
+        <div>
+          <button className="bouton-lien" onClick={() => setChoix(true)}>
+            Non
+          </button>
+          <button className="bouton-petit" onClick={() => onChoix(proposition)}>
+            C’est bien ça
+          </button>
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className="suggestion-marque choix-marque">
+      <p>
+        {!proposition && typeof question === 'string'
+          ? question
+          : autres.length
+            ? `C’est plutôt l’un de ces choix ?`
+            : `Quel est le ${intitule === 'marque' ? 'nom de la marque' : 'modèle'} ?`}
+      </p>
+      {autres.length > 0 && (
+        <div className="puces-marques">
+          {autres.map((m) => (
+            <button key={m} className="puce-marque" onClick={() => onChoix(m)}>
+              {m}
+            </button>
+          ))}
+        </div>
+      )}
+      <form
+        className="autre-marque"
+        onSubmit={(e) => {
+          e.preventDefault()
+          onChoix(saisie)
+        }}
+      >
+        <input
+          className="champ"
+          value={saisie}
+          onChange={(e) => setSaisie(e.target.value)}
+          placeholder={intitule === 'marque' ? 'Autre marque…' : 'Autre modèle…'}
+          maxLength={60}
+        />
+        <button className="bouton-petit" type="submit" disabled={!saisie.trim()}>
+          OK
+        </button>
+      </form>
+      <button className="bouton-lien" onClick={() => onChoix('')}>
+        Je ne sais pas / sans {intitule}
+      </button>
+    </div>
+  )
+}
+
 export default function Resultat({ annonce, onChange, onCopie, onSuivant, onRetour }) {
   const [edition, setEdition] = useState(false)
   const [tagsTexte, setTagsTexte] = useState(annonce.tags.join(', '))
   const [active, setActive] = useState(0)
   const photos = annonce.photos?.length ? annonce.photos : annonce.photo ? [annonce.photo] : []
+  // Marque puis modèle incertains : l'IA propose, le vendeur confirme ou choisit.
+  const dansTitre = (x) => x && annonce.titre.toLowerCase().includes(x.toLowerCase())
   const marque = annonce.marqueProbable
-  const marqueVisible =
-    marque && !annonce.marqueTraitee && !annonce.titre.toLowerCase().includes(marque.toLowerCase())
+  const questionMarque = marque && !annonce.marqueTraitee && !dansTitre(marque)
+  const modele = annonce.modeleProbable
+  // modeleLibre : le vendeur a choisi une autre marque, on lui demande le modèle sans suggestion
+  const questionModele =
+    !questionMarque && !annonce.modeleTraite && ((modele && !dansTitre(modele)) || annonce.modeleLibre)
 
-  const [choixMarque, setChoixMarque] = useState(false) // « Non » : on propose les autres marques
-  const [autreMarque, setAutreMarque] = useState('')
-
-  // Ajoute la marque choisie au titre, à la description et aux mots-clés.
-  const ajouterMarque = (m = marque) => {
-    const nom = m.trim()
-    if (!nom) return
+  // Ajoute la marque ou le modèle au titre, à la description et aux mots-clés.
+  const ajouter = (type, valeur) => {
+    const nom = valeur.trim()
+    const drapeau = type === 'marque' ? 'marqueTraitee' : 'modeleTraite'
+    if (!nom) return onChange({ ...annonce, [drapeau]: true })
     const t = annonce.titre
-    const coupe = t.search(/,| – | - /)
-    const titre = coupe > 0 ? `${t.slice(0, coupe)} ${nom}${t.slice(coupe)}` : `${t} ${nom}`
-    // « Marque : … » à la fin du paragraphe Description
+    let titre
+    const posMarque = type === 'modele' && annonce.marqueChoisie ? t.toLowerCase().indexOf(annonce.marqueChoisie.toLowerCase()) : -1
+    if (posMarque >= 0) {
+      // le modèle se place juste après la marque
+      const fin = posMarque + annonce.marqueChoisie.length
+      titre = `${t.slice(0, fin)} ${nom}${t.slice(fin)}`
+    } else {
+      const coupe = t.search(/,| – | - /)
+      titre = coupe > 0 ? `${t.slice(0, coupe)} ${nom}${t.slice(coupe)}` : `${t} ${nom}`
+    }
+    // « Marque : … » / « Modèle : … » à la fin du paragraphe Description
+    const mention = `${type === 'marque' ? 'Marque' : 'Modèle'} : ${nom}.`
     const blocs = paragraphes(annonce.description)
-    if (blocs.length && /^Description\s*:/.test(blocs[0])) blocs[0] = `${blocs[0].replace(/\s*$/, '')} Marque : ${nom}.`
-    else blocs.unshift(`Marque : ${nom}.`)
+    if (blocs.length && /^Description\s*:/.test(blocs[0])) blocs[0] = `${blocs[0].replace(/\s*$/, '')} ${mention}`
+    else blocs.unshift(mention)
     onChange({
       ...annonce,
       titre,
       description: blocs.join('\n\n'),
       tags: [...new Set([nom, ...annonce.tags])],
-      marqueTraitee: true,
+      [drapeau]: true,
+      ...(type === 'marque' && {
+        marqueChoisie: nom,
+        // autre marque que celle proposée : les modèles suggérés ne valent plus
+        ...(nom.toLowerCase() !== marque.toLowerCase() &&
+          annonce.modeleProbable && { autresModeles: [], modeleProbable: '', modeleLibre: true }),
+      }),
     })
-    setChoixMarque(false)
-  }
-
-  const sansMarque = () => {
-    onChange({ ...annonce, marqueTraitee: true })
-    setChoixMarque(false)
   }
 
   const maj = (champ, valeur) => onChange({ ...annonce, [champ]: valeur })
@@ -135,56 +211,37 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
         </ul>
       )}
 
-      {marqueVisible && !choixMarque && (
-        <div className="suggestion-marque">
-          <p>
-            L’IA pense à la marque <strong>{marque}</strong>, sans en être sûre.
-          </p>
-          <div>
-            <button className="bouton-lien" onClick={() => setChoixMarque(true)}>
-              Non
-            </button>
-            <button className="bouton-petit" onClick={() => ajouterMarque()}>
-              C’est bien ça
-            </button>
-          </div>
-        </div>
+      {questionMarque && (
+        <QuestionIdentite
+          key="marque"
+          question={
+            <>
+              L’IA pense à la marque <strong>{marque}</strong>, sans en être sûre.
+            </>
+          }
+          proposition={marque}
+          autres={annonce.autresMarques}
+          intitule="marque"
+          onChoix={(v) => ajouter('marque', v)}
+        />
       )}
-
-      {marqueVisible && choixMarque && (
-        <div className="suggestion-marque choix-marque">
-          <p>{annonce.autresMarques?.length ? 'C’est plutôt l’une de celles-ci ?' : 'Quelle est la marque ?'}</p>
-          {annonce.autresMarques?.length > 0 && (
-            <div className="puces-marques">
-              {annonce.autresMarques.map((m) => (
-                <button key={m} className="puce-marque" onClick={() => ajouterMarque(m)}>
-                  {m}
-                </button>
-              ))}
-            </div>
-          )}
-          <form
-            className="autre-marque"
-            onSubmit={(e) => {
-              e.preventDefault()
-              ajouterMarque(autreMarque)
-            }}
-          >
-            <input
-              className="champ"
-              value={autreMarque}
-              onChange={(e) => setAutreMarque(e.target.value)}
-              placeholder="Autre marque ou modèle…"
-              maxLength={60}
-            />
-            <button className="bouton-petit" type="submit" disabled={!autreMarque.trim()}>
-              OK
-            </button>
-          </form>
-          <button className="bouton-lien" onClick={sansMarque}>
-            Je ne sais pas / sans marque
-          </button>
-        </div>
+      {questionModele && (
+        <QuestionIdentite
+          key="modele"
+          question={
+            modele ? (
+              <>
+                Le modèle serait <strong>{modele}</strong>, sans certitude.
+              </>
+            ) : (
+              'Et le modèle ?'
+            )
+          }
+          proposition={modele}
+          autres={annonce.autresModeles}
+          intitule="modèle"
+          onChoix={(v) => ajouter('modele', v)}
+        />
       )}
 
       <section className="bloc">

@@ -24,6 +24,7 @@ function depuisLigne(ligne, urls) {
     explicationPrix: ligne.explication_prix,
     marqueProbable: ligne.marque_probable,
     marqueTraitee: true,
+    modeleTraite: true,
     source: ligne.source,
     photos,
     photo: photos[0] || null,
