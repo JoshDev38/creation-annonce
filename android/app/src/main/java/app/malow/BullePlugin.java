@@ -1,6 +1,12 @@
 package app.malow;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -80,6 +86,37 @@ public class BullePlugin extends Plugin {
         } catch (Exception e) {
             call.reject("Impossible d’afficher la bulle : " + e.getMessage());
         }
+    }
+
+    // Icônes des applis installées (Vinted, Leboncoin…), telles qu'elles
+    // apparaissent sur le téléphone : { icones: { "fr.vinted": "data:image/png;base64,…" } }
+    @PluginMethod
+    public void iconesApplis(PluginCall call) {
+        JSArray paquets = call.getArray("paquets");
+        JSObject icones = new JSObject();
+        PackageManager pm = getContext().getPackageManager();
+        int taille = Math.round(96 * getContext().getResources().getDisplayMetrics().density / 2);
+        if (paquets != null) {
+            for (int i = 0; i < paquets.length(); i++) {
+                String paquet = paquets.optString(i, "");
+                if (paquet.isEmpty()) continue;
+                try {
+                    Drawable d = pm.getApplicationIcon(paquet);
+                    Bitmap b = Bitmap.createBitmap(taille, taille, Bitmap.Config.ARGB_8888);
+                    Canvas c = new Canvas(b);
+                    d.setBounds(0, 0, taille, taille);
+                    d.draw(c);
+                    ByteArrayOutputStream sortie = new ByteArrayOutputStream();
+                    b.compress(Bitmap.CompressFormat.PNG, 100, sortie);
+                    icones.put(paquet, "data:image/png;base64," + Base64.encodeToString(sortie.toByteArray(), Base64.NO_WRAP));
+                } catch (Exception ignore) {
+                    // appli absente : l'appli Malow affichera l'icône du site
+                }
+            }
+        }
+        JSObject r = new JSObject();
+        r.put("icones", icones);
+        call.resolve(r);
     }
 
     @PluginMethod

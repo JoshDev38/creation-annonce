@@ -27,3 +27,13 @@ export async function autoriserBulle() {
 // photos : chemins des photos déjà enregistrées dans la galerie (album « Malow »).
 export const afficherBulle = ({ titre, description, prix, photos = [] }) =>
   Bulle.afficher({ titre, description, prix: prix == null ? '' : String(prix), photos })
+
+// Icônes réelles des applis installées, par nom de paquet ({} sur le site ou en cas d'échec).
+export async function iconesApplis(paquets) {
+  if (!estAppliNative()) return {}
+  try {
+    return (await Bulle.iconesApplis({ paquets })).icones || {}
+  } catch {
+    return {}
+  }
+}

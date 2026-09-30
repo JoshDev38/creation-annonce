@@ -7,24 +7,34 @@ import { copierTexte } from '../lib/stockage.js'
 import {
   PLATEFORMES,
   applisInstallees,
+  iconeSite,
   ouvrirPlateforme,
   partageDisponible,
   partagerAnnonce,
   rangerPhotosGalerie,
 } from '../lib/partage.js'
 import { estAppliNative } from '../lib/cameraNative.js'
-import { afficherBulle, autoriserBulle, bulleAutorisee } from '../lib/bulle.js'
+import { afficherBulle, autoriserBulle, bulleAutorisee, iconesApplis } from '../lib/bulle.js'
 import { gagnerPoints } from '../lib/fidelite.js'
 
 const Badge = ({ lettres }) => <span className="badge-plateforme">{lettres}</span>
+
+// Icône réelle : celle de l'appli installée, sinon celle du site, sinon les initiales.
+function IconePlateforme({ cle, icone }) {
+  const [echec, setEchec] = useState(false)
+  if (echec) return <Badge lettres={PLATEFORMES[cle].lettres} />
+  return <img className="icone-plateforme" src={icone || iconeSite(cle)} alt="" onError={() => setEchec(true)} />
+}
 
 export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, onRetour }) {
   const texte = texteAnnonce(annonce)
   const [choixOuvert, setChoixOuvert] = useState(false)
   const [installees, setInstallees] = useState({})
+  const [icones, setIcones] = useState({})
 
   useEffect(() => {
     applisInstallees().then(setInstallees).catch(() => {})
+    iconesApplis(Object.values(PLATEFORMES).map((p) => p.paquet)).then(setIcones)
   }, [])
 
   // Vinted et Leboncoin ne reprennent que les photos partagées : le texte est
@@ -179,8 +189,8 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
             <div className="grille-plateformes">
               {Object.entries(PLATEFORMES).map(([cle, p]) => (
                 <button key={cle} className="tuile-plateforme" onClick={() => choisir(() => choisirPlateforme(cle))}>
-                  <span className="carre-icone">
-                    <Badge lettres={p.lettres} />
+                  <span className="carre-icone icone-appli">
+                    <IconePlateforme key={icones[p.paquet] ? 'appli' : 'site'} cle={cle} icone={icones[p.paquet]} />
                   </span>
                   <strong>{p.nom}</strong>
                   <small>{p.genre}</small>

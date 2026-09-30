@@ -330,6 +330,18 @@ img {
   margin-bottom: 6px;
 }
 
+.tuile-plateforme .icone-appli {
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(74, 53, 44, 0.12);
+}
+
+.icone-plateforme {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .tuile-plateforme strong {
   font-family: var(--serif);
   font-weight: 400;

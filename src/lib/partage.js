@@ -94,6 +94,12 @@ export const PLATEFORMES = {
   selency: { nom: 'Selency', genre: 'Meubles et déco', lettres: 'S', paquet: 'com.selency.app', site: 'https://www.selency.fr/' },
 }
 
+// Icône officielle du site (favicon), chargée par le téléphone.
+export const iconeSite = (cle) => {
+  const domaine = new URL(PLATEFORMES[cle].site).hostname.replace(/^www\./, '')
+  return `https://www.google.com/s2/favicons?domain=${domaine}&sz=128`
+}
+
 // Pour chaque plateforme : true si l'appli est installée sur le téléphone.
 export async function applisInstallees() {
   if (!estAppliNative()) return {}
