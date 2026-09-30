@@ -86,18 +86,25 @@ export async function partagerAnnonce(titre, texte, photos) {
 export const PLATEFORMES = {
   vinted: { nom: 'Vinted', genre: 'Mode, enfants, maison', lettres: 'V', paquet: 'fr.vinted', site: 'https://www.vinted.fr/items/new' },
   leboncoin: { nom: 'Leboncoin', genre: 'Tout, près de chez vous', lettres: 'lbc', paquet: 'fr.leboncoin', site: 'https://www.leboncoin.fr/deposer-une-annonce' },
-  ebay: { nom: 'eBay', genre: 'Tout, neuf et occasion', lettres: 'eB', paquet: 'com.ebay.mobile', site: 'https://www.ebay.fr/sl/sell' },
+  ebay: { nom: 'eBay', genre: 'Tout, neuf et occasion', lettres: 'eB', paquet: 'com.ebay.mobile', icone: './plateformes/ebay.svg', site: 'https://www.ebay.fr/sl/sell' },
   facebook: { nom: 'Facebook Marketplace', genre: 'Tout, près de chez vous', lettres: 'f', paquet: 'com.facebook.katana', site: 'https://www.facebook.com/marketplace/create/item' },
-  rakuten: { nom: 'Rakuten', genre: 'High-tech, livres, jeux', lettres: 'R', paquet: 'com.priceminister.buyerapp', site: 'https://fr.shopping.rakuten.com/' },
+  rakuten: { nom: 'Rakuten', genre: 'High-tech, livres, jeux', lettres: 'R', paquet: 'com.priceminister.buyerapp', icone: './plateformes/rakuten.svg', site: 'https://fr.shopping.rakuten.com/' },
   vestiaire: { nom: 'Vestiaire Collective', genre: 'Mode de créateurs', lettres: 'VC', paquet: 'fr.vestiairecollective', site: 'https://fr.vestiairecollective.com/' },
   beebs: { nom: 'Beebs', genre: 'Bébé et enfants', lettres: 'B', paquet: 'com.beebs.mobile', site: 'https://www.beebs.app/' },
   selency: { nom: 'Selency', genre: 'Meubles et déco', lettres: 'S', paquet: 'com.selency.app', site: 'https://www.selency.fr/' },
 }
 
-// Icône officielle du site (favicon), chargée par le téléphone.
-export const iconeSite = (cle) => {
-  const domaine = new URL(PLATEFORMES[cle].site).hostname.replace(/^www\./, '')
-  return `https://www.google.com/s2/favicons?domain=${domaine}&sz=128`
+// Icônes à essayer dans l'ordre : logo intégré à Malow (net), grande icône
+// du site (apple-touch-icon), puis favicon via Google. Les images trop petites
+// (floues) sont écartées par l'écran.
+export const iconesSite = (cle) => {
+  const { site, icone } = PLATEFORMES[cle]
+  const { origin, hostname } = new URL(site)
+  return [
+    icone,
+    `${origin}/apple-touch-icon.png`,
+    `https://www.google.com/s2/favicons?domain=${hostname.replace(/^www\./, '')}&sz=256`,
+  ].filter(Boolean)
 }
 
 // Pour chaque plateforme : true si l'appli est installée sur le téléphone.

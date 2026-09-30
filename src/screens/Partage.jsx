@@ -7,7 +7,7 @@ import { copierTexte } from '../lib/stockage.js'
 import {
   PLATEFORMES,
   applisInstallees,
-  iconeSite,
+  iconesSite,
   ouvrirPlateforme,
   partageDisponible,
   partagerAnnonce,
@@ -19,11 +19,26 @@ import { gagnerPoints } from '../lib/fidelite.js'
 
 const Badge = ({ lettres }) => <span className="badge-plateforme">{lettres}</span>
 
-// Icône réelle : celle de l'appli installée, sinon celle du site, sinon les initiales.
+// Icône réelle : celle de l'appli installée, sinon la première icône nette
+// trouvée pour le site, sinon les initiales.
 function IconePlateforme({ cle, icone }) {
-  const [echec, setEchec] = useState(false)
-  if (echec) return <Badge lettres={PLATEFORMES[cle].lettres} />
-  return <img className="icone-plateforme" src={icone || iconeSite(cle)} alt="" onError={() => setEchec(true)} />
+  const sources = icone ? [icone, ...iconesSite(cle)] : iconesSite(cle)
+  const [rang, setRang] = useState(0)
+  if (rang >= sources.length) return <Badge lettres={PLATEFORMES[cle].lettres} />
+  const src = sources[rang]
+  const suivante = () => setRang((r) => r + 1)
+  return (
+    <img
+      className="icone-plateforme"
+      src={src}
+      alt=""
+      onError={suivante}
+      onLoad={(e) => {
+        // favicon trop petit = flou : on passe à la source suivante
+        if (!src.startsWith('data:') && !src.endsWith('.svg') && e.currentTarget.naturalWidth < 64) suivante()
+      }}
+    />
+  )
 }
 
 export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, onRetour }) {
