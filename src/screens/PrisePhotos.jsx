@@ -8,6 +8,7 @@ import {
   estAppliNative,
   reglerFlashNatif,
 } from '../lib/cameraNative.js'
+import { angleIcone, ecouterOrientation, lireOrientation, redresserPhoto } from '../lib/orientation.js'
 
 export const MAX_PHOTOS = 8
 
@@ -52,6 +53,11 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
   const actif = useRef(true)
   const modeFlash = useRef(null) // 'torch' | 'capture' | null
   const capture = useRef(null)
+  // Appli verrouillée en portrait : les boutons restent en place, seules les
+  // icônes pivotent, et les photos prises en paysage sont redressées.
+  const [orientation, setOrientation] = useState(0)
+  useEffect(() => ecouterOrientation(setOrientation), [])
+  const pivot = { transform: `rotate(${angleIcone(orientation)}deg)` }
   const [etat, setEtat] = useState('demarrage') // demarrage | pret | erreur
   const [flash, setFlash] = useState(false)
   const [flashDispo, setFlashDispo] = useState(false)
@@ -281,7 +287,8 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
     }
     if (NATIF) {
       try {
-        const photo = await allegerPhoto(await capturerNatif(), 1200, 0.85)
+        const brute = await capturerNatif()
+        const photo = await allegerPhoto(await redresserPhoto(brute, await lireOrientation()), 1200, 0.85)
         onChange([...photos, photo])
         setEclair(true)
         setTimeout(() => setEclair(false), 180)
@@ -373,7 +380,7 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
             aria-label={flash ? 'Éteindre le flash' : 'Allumer le flash'}
             aria-pressed={flash}
           >
-            <IconFlash width={24} height={24} />
+            <IconFlash className="pivote" style={pivot} width={24} height={24} />
           </button>
         </header>
         {info && (
@@ -403,7 +410,7 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
           {Array.from({ length: MAX_PHOTOS }, (_, i) =>
             photos[i] ? (
               <li key={i} className={`vignette-photo ${i === 0 ? 'principale' : ''}`}>
-                <img src={photos[i]} alt={`Photo ${i + 1}`} />
+                <img className="pivote" style={pivot} src={photos[i]} alt={`Photo ${i + 1}`} />
                 <button className="retirer" onClick={() => retirer(i)} aria-label={`Retirer la photo ${i + 1}`}>
                   ×
                 </button>
@@ -420,7 +427,7 @@ export default function PrisePhotos({ photos, onChange, onRetour, onContinuer, o
 
         <div className="commandes">
           <button className="bouton-galerie" onClick={onGalerie} disabled={plein}>
-            <IconGallery width={30} height={30} />
+            <IconGallery className="pivote" style={pivot} width={30} height={30} />
             Galerie
           </button>
           <button

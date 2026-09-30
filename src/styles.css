@@ -2116,3 +2116,8 @@ html.camera-native .viseur {
     transition: none !important;
   }
 }
+
+/* icônes de l'appareil photo qui restent droites quand le téléphone tourne */
+.pivote {
+  transition: transform 0.25s ease;
+}
