@@ -1361,6 +1361,50 @@ html.camera-native .viseur {
   margin-left: auto;
 }
 
+.choix-marque {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.suggestion-marque .puces-marques {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+
+.puce-marque {
+  padding: 8px 12px;
+  border: 1px solid #e6cfa3;
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  color: var(--texte);
+}
+
+.puce-marque:active {
+  transform: scale(0.97);
+}
+
+.suggestion-marque .autre-marque {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.autre-marque .champ {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.choix-marque > .bouton-lien {
+  align-self: center;
+  font-size: 14px;
+}
+
 .bouton-petit {
   padding: 8px 14px;
   border-radius: 999px;

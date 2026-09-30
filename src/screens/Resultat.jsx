@@ -14,18 +14,33 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
   const marqueVisible =
     marque && !annonce.marqueTraitee && !annonce.titre.toLowerCase().includes(marque.toLowerCase())
 
-  // Ajoute la marque proposée par l'IA au titre, à la description et aux mots-clés.
-  const ajouterMarque = () => {
+  const [choixMarque, setChoixMarque] = useState(false) // « Non » : on propose les autres marques
+  const [autreMarque, setAutreMarque] = useState('')
+
+  // Ajoute la marque choisie au titre, à la description et aux mots-clés.
+  const ajouterMarque = (m = marque) => {
+    const nom = m.trim()
+    if (!nom) return
     const t = annonce.titre
     const coupe = t.search(/,| – | - /)
-    const titre = coupe > 0 ? `${t.slice(0, coupe)} ${marque}${t.slice(coupe)}` : `${t} ${marque}`
+    const titre = coupe > 0 ? `${t.slice(0, coupe)} ${nom}${t.slice(coupe)}` : `${t} ${nom}`
+    // « Marque : … » à la fin du paragraphe Description
+    const blocs = paragraphes(annonce.description)
+    if (blocs.length && /^Description\s*:/.test(blocs[0])) blocs[0] = `${blocs[0].replace(/\s*$/, '')} Marque : ${nom}.`
+    else blocs.unshift(`Marque : ${nom}.`)
     onChange({
       ...annonce,
       titre,
-      description: `${annonce.description} Marque : ${marque}.`,
-      tags: [...new Set([marque, ...annonce.tags])],
+      description: blocs.join('\n\n'),
+      tags: [...new Set([nom, ...annonce.tags])],
       marqueTraitee: true,
     })
+    setChoixMarque(false)
+  }
+
+  const sansMarque = () => {
+    onChange({ ...annonce, marqueTraitee: true })
+    setChoixMarque(false)
   }
 
   const maj = (champ, valeur) => onChange({ ...annonce, [champ]: valeur })
@@ -120,19 +135,55 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
         </ul>
       )}
 
-      {marqueVisible && (
+      {marqueVisible && !choixMarque && (
         <div className="suggestion-marque">
           <p>
             L’IA pense à la marque <strong>{marque}</strong>, sans en être sûre.
           </p>
           <div>
-            <button className="bouton-lien" onClick={() => onChange({ ...annonce, marqueTraitee: true })}>
+            <button className="bouton-lien" onClick={() => setChoixMarque(true)}>
               Non
             </button>
-            <button className="bouton-petit" onClick={ajouterMarque}>
+            <button className="bouton-petit" onClick={() => ajouterMarque()}>
               C’est bien ça
             </button>
           </div>
+        </div>
+      )}
+
+      {marqueVisible && choixMarque && (
+        <div className="suggestion-marque choix-marque">
+          <p>{annonce.autresMarques?.length ? 'C’est plutôt l’une de celles-ci ?' : 'Quelle est la marque ?'}</p>
+          {annonce.autresMarques?.length > 0 && (
+            <div className="puces-marques">
+              {annonce.autresMarques.map((m) => (
+                <button key={m} className="puce-marque" onClick={() => ajouterMarque(m)}>
+                  {m}
+                </button>
+              ))}
+            </div>
+          )}
+          <form
+            className="autre-marque"
+            onSubmit={(e) => {
+              e.preventDefault()
+              ajouterMarque(autreMarque)
+            }}
+          >
+            <input
+              className="champ"
+              value={autreMarque}
+              onChange={(e) => setAutreMarque(e.target.value)}
+              placeholder="Autre marque ou modèle…"
+              maxLength={60}
+            />
+            <button className="bouton-petit" type="submit" disabled={!autreMarque.trim()}>
+              OK
+            </button>
+          </form>
+          <button className="bouton-lien" onClick={sansMarque}>
+            Je ne sais pas / sans marque
+          </button>
         </div>
       )}
 

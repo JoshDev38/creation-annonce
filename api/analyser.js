@@ -50,7 +50,14 @@ const OUTIL_ANNONCE = {
       tags: { type: 'array', items: { type: 'string' }, description: '5 à 8 mots-clés' },
       marque_probable: {
         type: 'string',
-        description: 'Marque reconnue au style mais non confirmée (ni logo lisible, ni info du vendeur), sinon chaîne vide',
+        description:
+          'Marque (et modèle si reconnu) la plus probable mais non confirmée (ni logo lisible, ni info du vendeur), écrite courte et sans commentaire, ex. « HP EliteBook 840 G9 » ; sinon chaîne vide',
+      },
+      autres_marques: {
+        type: 'array',
+        items: { type: 'string' },
+        description:
+          '2 à 5 autres marques ou modèles plausibles, du plus au moins probable, écrits courts (ex. « HP EliteBook 840 G10 », « Dell Latitude 7430 ») ; liste vide si marque_probable est vide',
       },
     },
     required: [
@@ -62,6 +69,7 @@ const OUTIL_ANNONCE = {
       'explication_prix',
       'tags',
       'marque_probable',
+      'autres_marques',
     ],
     additionalProperties: false,
   },
@@ -77,7 +85,8 @@ const SYSTEME = `Tu rédiges des annonces de vente d'objets d'occasion pour des 
 - Marque : cherche-la sur les photos (logo, étiquette, languette, semelle, motif caractéristique). \
 Si elle est lisible ou donnée par le vendeur, mets-la dans le titre et la description. \
 Si tu la reconnais seulement au style, sans certitude, ne l'écris pas dans l'annonce : \
-indique-la dans marque_probable pour que le vendeur la confirme. Sinon, laisse marque_probable vide.
+indique-la dans marque_probable pour que le vendeur la confirme, et mets dans autres_marques les autres \
+marques ou modèles possibles, pour qu'il puisse choisir s'il répond non. Sinon, laisse les deux vides.
 - N'invente rien d'autre : une taille n'apparaît que si elle est visible ou donnée par le vendeur.
 - Évalue l'état d'après les photos et les infos, et mentionne honnêtement les défauts visibles ou signalés.
 - Les informations du vendeur priment sur ce que tu crois voir.
@@ -223,6 +232,7 @@ export default async function handler(req, res) {
       explicationPrix: a.explication_prix || '',
       tags: a.tags,
       marqueProbable: a.marque_probable || '',
+      autresMarques: a.marque_probable ? (a.autres_marques || []).filter((m) => m && m !== a.marque_probable).slice(0, 5) : [],
       modele: resultat.modele,
     })
   } catch (e) {
