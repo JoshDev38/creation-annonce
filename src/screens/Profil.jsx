@@ -4,9 +4,10 @@ import { listerAnnoncesCloud, supprimerCompte } from '../lib/annoncesCloud.js'
 import { changerAvatar, changerPseudo, lireProfil, PSEUDO_VALIDE } from '../lib/profil.js'
 import { photoCarree } from '../lib/stockage.js'
 import { chargerFidelite } from '../lib/fidelite.js'
+import { formule } from '../lib/formules.jsx'
 import { supabase } from '../lib/supabase.js'
 
-export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelite, notifier }) {
+export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelite, onAbonnements, notifier }) {
   const [annonces, setAnnonces] = useState(null)
   const [fidelite, setFidelite] = useState(null)
   const [attente, setAttente] = useState(false)
@@ -162,6 +163,14 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelit
           <em>Fidélité ›</em>
         </button>
       </div>
+      <button className="carte-abonnement" onClick={onAbonnements}>
+        <img src={formule(profil?.formule).ours} alt="" aria-hidden="true" />
+        <span>
+          <small>Mon abonnement</small>
+          <strong>{profil ? formule(profil.formule).nom : '…'}</strong>
+        </span>
+        <em>Voir les offres ›</em>
+      </button>
       <p className="manuscrit centre">
         Une seconde vie
         <br />

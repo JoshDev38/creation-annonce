@@ -50,7 +50,8 @@ L'offre gratuite de **Vercel interdit l'usage commercial**. Plan retenu pour ram
 - [ ] Quotas côté serveur : 5 / mois en gratuit, 15 / mois en Premium, 2 Premium offertes à l'inscription
 - [ ] Plafond de dépense mensuel et alerte dans la console Anthropic (à faire par Josh)
 - [ ] Pub AdMob avec consentement RGPD (compte AdMob : Josh)
-- [ ] Abonnements via Google Play Billing + RevenueCat (compte marchand et SIRET : Josh)
+- [x] Écran « Abonnements » (3 formules, Gratuit par défaut) ; colonne `formule` dans `profils`, modifiable seulement par le serveur
+- [ ] Abonnements via Google Play Billing + RevenueCat (compte marchand et SIRET : Josh) : les boutons « Choisir » affichent pour l’instant « bientôt disponible »
 - [ ] Migration de l'hébergement (voir plus haut)
 - [ ] Clé de signature de production pour le Play Store (la clé de test actuelle est publique dans le dépôt)
 - [ ] Protection contre les mots de passe piratés : Supabase → Authentication (case à cocher, Josh)

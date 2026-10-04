@@ -2385,3 +2385,384 @@ html.camera-native .viseur {
 .items-aide a {
   color: var(--bleu-texte);
 }
+
+/* ---------- Mon abonnement (profil) ---------- */
+
+.carte-abonnement {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: -4px 0 14px;
+  padding: 8px 14px 8px 8px;
+  text-align: left;
+  border-radius: var(--rayon);
+  background: var(--blanc-casse);
+  border: 1px solid var(--bordure);
+  box-shadow: var(--ombre);
+}
+
+.carte-abonnement img {
+  flex: none;
+  width: 64px;
+  height: 52px;
+  object-fit: contain;
+  object-position: bottom;
+}
+
+.carte-abonnement span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.carte-abonnement small {
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+
+.carte-abonnement strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 18px;
+  color: var(--chocolat);
+}
+
+.carte-abonnement em {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bleu-texte);
+}
+
+/* ---------- Abonnements ---------- */
+
+.page-abonnements {
+  gap: 12px;
+  padding-left: 0;
+  padding-right: 0;
+  background:
+    radial-gradient(80% 30% at 50% 0%, #e6f0f6 0%, transparent 70%),
+    var(--creme);
+}
+
+.abos-haut {
+  position: relative;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.abos-retour {
+  position: absolute;
+  left: 14px;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--texte);
+  box-shadow: var(--ombre);
+}
+
+.abos-haut h1 {
+  margin: 4px 0 6px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 32px;
+  color: var(--chocolat);
+}
+
+.abos-haut p {
+  margin: 0 auto;
+  max-width: 300px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--bleu-texte);
+}
+
+.abos-cartes {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 8px 7% 12px;
+  scrollbar-width: none;
+}
+
+.abos-cartes::-webkit-scrollbar {
+  display: none;
+}
+
+.abo {
+  --abo-fond: #fdeef2;
+  --abo-bord: #f6cbd8;
+  --abo-accent: #e5487a;
+  --abo-pastille: #fbdbe5;
+  position: relative;
+  flex: 0 0 86%;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  background: var(--abo-fond);
+  border: 1.5px solid var(--abo-bord);
+  box-shadow: var(--ombre);
+}
+
+.abo-mensuel {
+  --abo-fond: #e9f2f8;
+  --abo-bord: var(--bleu);
+  --abo-accent: var(--bleu-texte);
+  --abo-pastille: #d3e6f2;
+}
+
+.abo-annuel {
+  --abo-fond: #fbeee3;
+  --abo-bord: #f0cfb3;
+  --abo-accent: var(--chocolat);
+  --abo-pastille: #f8e0cc;
+}
+
+.abo.actuelle {
+  border-width: 2.5px;
+  border-color: var(--abo-accent);
+}
+
+.abo-ours {
+  display: block;
+  width: 88%;
+  height: auto;
+  margin: 6px auto -18px;
+}
+
+.abo-economie {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: var(--chocolat);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: 0 6px 14px rgba(122, 69, 50, 0.3);
+}
+
+.abo-economie small {
+  font-family: var(--sans);
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.abo-corps {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 8px 8px;
+  padding: 16px 14px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.75);
+  text-align: center;
+}
+
+.abo-corps h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 26px;
+  color: var(--chocolat);
+}
+
+.abo-actuelle {
+  align-self: center;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--abo-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.abo-cadeau {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--abo-bord);
+  color: var(--abo-accent);
+  font-weight: 600;
+  font-size: 15px;
+  text-align: left;
+}
+
+.abo-cadeau span {
+  font-size: 30px;
+}
+
+.abo-prix {
+  align-self: center;
+  margin: 0;
+  padding: 4px 18px;
+  border-radius: 999px;
+  background: var(--abo-pastille);
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--abo-accent);
+}
+
+.abo-annuel .abo-prix {
+  color: var(--texte);
+}
+
+.abo-soit {
+  margin: -2px 0 0;
+  font-weight: 600;
+  color: #c0622b;
+}
+
+.abo-accroche {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--texte-doux);
+}
+
+.abo-avantages {
+  list-style: none;
+  margin: 4px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.abo-avantages li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--texte);
+}
+
+.abo-avantages strong {
+  color: var(--bleu-texte);
+}
+
+.abo-puce {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.abo-avantages .oui .abo-puce {
+  background: #3e9b52;
+}
+
+.abo-avantages .non .abo-puce {
+  background: #e0473e;
+}
+
+.abo-bouton {
+  margin-top: auto;
+  min-height: 52px;
+  border-radius: 999px;
+  background: var(--abo-accent);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: 0 6px 14px rgba(63, 123, 163, 0.25);
+}
+
+.abo-mensuel .abo-bouton {
+  background: linear-gradient(180deg, #6fa3c7, var(--bleu-texte));
+}
+
+.abo-annuel .abo-bouton {
+  background: linear-gradient(180deg, #8b4d33, #6a3523);
+  box-shadow: 0 6px 14px rgba(122, 69, 50, 0.3);
+}
+
+.abo-bouton:disabled {
+  opacity: 0.6;
+}
+
+.abos-points {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.abos-points button {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bordure);
+  transition: width 0.2s, background 0.2s;
+}
+
+.abos-points button.actif {
+  width: 24px;
+  border-radius: 99px;
+  background: var(--bleu-fonce);
+}
+
+.abos-bon-a-savoir {
+  display: flex;
+  gap: 14px;
+  margin: 4px 20px 0;
+  padding: 14px;
+  border-radius: var(--rayon);
+  background: var(--blanc-casse);
+  border: 1px solid var(--bordure);
+}
+
+.abos-ampoule {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #fbeee3;
+  color: #c0622b;
+}
+
+.abos-bon-a-savoir strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 19px;
+  color: var(--chocolat);
+}
+
+.abos-bon-a-savoir ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--texte-doux);
+}
+
+.abos-bon-a-savoir li::marker {
+  color: #c0622b;
+}

@@ -13,6 +13,7 @@ import Profil from './screens/Profil.jsx'
 import Connexion from './screens/Connexion.jsx'
 import Bienvenue from './screens/Bienvenue.jsx'
 import Fidelite from './screens/Fidelite.jsx'
+import Abonnements from './screens/Abonnements.jsx'
 import { genererAnnonce } from './lib/generateur.js'
 import { analyserAvecIA } from './lib/analyseIA.js'
 import { estAppliNative } from './lib/cameraNative.js'
@@ -243,6 +244,7 @@ export default function App() {
       conseils: 'accueil',
       profil: 'accueil',
       fidelite: 'profil',
+      abonnements: 'profil',
       connexion: connexion.retour,
     }
     if (ecran === 'accueil' || ecran === 'bienvenue') AppNative.exitApp()
@@ -328,6 +330,7 @@ export default function App() {
           onConnexion={(mode) => exigerConnexion('', null, mode)}
           onVoirAnnonces={() => setEcran('annonces')}
           onFidelite={() => setEcran('fidelite')}
+          onAbonnements={() => setEcran('abonnements')}
           notifier={notifier}
         />
       )
@@ -345,6 +348,9 @@ export default function App() {
           notifier={notifier}
         />
       )
+      break
+    case 'abonnements':
+      contenu = <Abonnements session={session} onRetour={() => setEcran('profil')} notifier={notifier} />
       break
     case 'fidelite':
       contenu = <Fidelite onRetour={() => setEcran('profil')} />
