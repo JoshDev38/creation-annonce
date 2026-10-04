@@ -62,3 +62,10 @@ export const IconPeopleFilled = (props) => (
   </svg>
 )
 export const IconGallery = make(<><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9.5" r="1.8" /><path d="m3.5 18 5.5-5.5 4 4 2.5-2.5 5 5" /></>)
+
+// Aide & conseils
+export const IconSun = make(<><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" /></>)
+export const IconDrap = make(<><path d="M4 4c2.5 1 13.5 1 16 0-1 3-1 13 0 16-2.5-1-13.5-1-16 0 1-3 1-13 0-16z" /><path d="M4 4 3 3M20 4l1-1M4 20l-1 1M20 20l1 1" /></>)
+export const IconMessage = make(<><rect x="3" y="4" width="18" height="14" rx="3" /><path d="M7 9h10M7 13h7M8 18l-2 3" /></>)
+export const IconChatDots = make(<><path d="M12 4c5 0 9 3.1 9 7s-4 7-9 7c-1.1 0-2.2-.2-3.2-.5L4 19l1.3-3.6C4 14.2 3 12.7 3 11c0-3.9 4-7 9-7z" /><path d="M8 11h.01M12 11h.01M16 11h.01" /></>)
+export const IconClipboard = make(<><rect x="5" y="5" width="14" height="16" rx="2" /><path d="M9 3h6v4H9zM8.5 14l2.5 2.5 4.5-5" /></>)
