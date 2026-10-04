@@ -89,3 +89,7 @@ Le programme de fidélité se paramètre dans Supabase, sans mise à jour de l'a
 - `fidelite_niveaux` : les paliers (nom, points nécessaires, description).
 - `fidelite_recompenses` : les récompenses de chaque palier (titre, description, activée ou non).
 - `fidelite_points` : l'historique des points de chaque compte (écrit uniquement par le serveur).
+
+## Feuille de route
+
+Décisions (offres, coûts, hébergement) et liste avant lancement : [docs/feuille-de-route.md](docs/feuille-de-route.md).
