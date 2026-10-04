@@ -377,9 +377,11 @@ export default function App() {
       <input ref={champGalerie} type="file" accept="image/*" multiple hidden onChange={photosChoisies} />
       {toast && <div className="toast" role="status">{toast}</div>}
       {lancement && (
-        <div className={`lancement ${lancement === 'sortie' ? 'sortie' : ''}`} aria-hidden="true">
-          <img src="./icon-512.png" alt="" />
-        </div>
+        <div
+          className={`lancement ${lancement === 'sortie' ? 'sortie' : ''}`}
+          style={{ backgroundImage: 'url(./lancement.webp), linear-gradient(#9bd7fe, #6eace0)' }}
+          aria-hidden="true"
+        />
       )}
     </div>
   )

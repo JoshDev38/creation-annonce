@@ -3,6 +3,6 @@
   "appName": "Malow",
   "webDir": "dist",
   "android": {
-    "backgroundColor": "#FBF6EE"
+    "backgroundColor": "#9BD7FE"
   }
 }

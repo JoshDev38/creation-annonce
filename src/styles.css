@@ -2166,34 +2166,17 @@ html.camera-native .viseur {
   transition: transform 0.25s ease;
 }
 
-/* ---------- Écran d'ouverture (logo 3 s) ---------- */
+/* ---------- Écran d'ouverture (logo plein écran, 3 s) ---------- */
+/* Image générée par ressources/generer-lancement.cjs (aussi utilisée pour le démarrage Android). */
 
 .lancement {
   position: fixed;
   inset: 0;
   z-index: 100;
-  display: grid;
-  place-items: center;
-  background: #fbf6ee; /* même fond que l'écran de démarrage Android */
+  background: center / cover no-repeat, linear-gradient(#9bd7fe, #6eace0); /* image ajoutée par App.jsx */
   transition: opacity 0.4s ease;
-}
-
-.lancement img {
-  /* même taille que le logo de l'écran de démarrage Android : pas de saut */
-  width: min(45vw, 260px);
-  height: auto;
-  animation: lancement-logo 1.6s ease-in-out 0.3s infinite alternate;
 }
 
 .lancement.sortie {
   opacity: 0;
-}
-
-@keyframes lancement-logo {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.05);
-  }
 }

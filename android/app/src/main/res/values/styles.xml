@@ -18,5 +18,7 @@
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <!-- Android 12+ : fond bleu du logo pendant le démarrage -->
+        <item name="windowSplashScreenBackground">#9BD7FE</item>
     </style>
 </resources>
