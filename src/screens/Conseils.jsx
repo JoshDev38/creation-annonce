@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react'
-import oursPhoto from '../assets/ours-photo.png'
+import oursPhoto from '../assets/aide/ours-photo.png'
+import oursTelephone from '../assets/aide/ours-telephone.png'
+import fonctionne1 from '../assets/aide/fonctionne-1.png'
+import fonctionne2 from '../assets/aide/fonctionne-2.png'
+import fonctionne3 from '../assets/aide/fonctionne-3.png'
+import fonctionne4 from '../assets/aide/fonctionne-4.png'
+import fonctionne5 from '../assets/aide/fonctionne-5.png'
 import mascotte from '../assets/mascotte.png'
 import {
-  IconCamera,
   IconChatDots,
   IconChevron,
   IconClipboard,
   IconDrap,
   IconHeart,
   IconMessage,
-  IconMic,
-  IconSave,
   IconSearch,
-  IconShare,
-  IconSparkle,
   IconSun,
   IconTag,
   IconUser,
@@ -73,40 +74,38 @@ const THEMES = [
     ],
   },
   {
-    id: 'malow',
-    titre: 'Bien utiliser Malow',
-    resume: 'Photos, dictée, marque, publication et bulle Malow',
-    ours: null,
+    id: 'fonctionnement',
+    titre: 'Comment fonctionne Malow ?',
+    resume: 'Les 5 étapes pour créer votre annonce',
+    ours: oursTelephone,
     items: [
       {
-        Icone: IconCamera,
-        titre: 'Prendre les photos',
-        texte:
-          'Jusqu’à 8 photos par annonce, avec l’appareil photo de Malow ou depuis votre galerie. La première photo est la photo principale. Touchez l’éclair pour allumer le flash si besoin.',
+        image: fonctionne1,
+        titre: 'Ajoutez vos photos',
+        texte: 'Prenez ou importez jusqu’à 8 photos de l’objet que vous souhaitez vendre.',
       },
       {
-        Icone: IconMic,
-        titre: 'Dicter les détails',
+        image: fonctionne2,
+        titre: 'Donnez quelques informations',
         texte:
-          'Touchez « Le dire à l’oral » et parlez naturellement : taille, état, défauts, prix d’achat… L’écoute continue jusqu’à ce que vous touchiez le bouton stop. Vous pouvez corriger le texte avant de lancer l’analyse.',
+          'À l’écrit ou à l’oral, indiquez simplement ce que vous savez sur votre objet : marque, taille, état, matière…',
       },
       {
-        Icone: IconSparkle,
-        titre: 'Marque et modèle',
+        image: fonctionne3,
+        titre: 'Malow s’occupe du reste',
         texte:
-          'Quand l’IA hésite sur la marque ou le modèle, elle vous le demande. Confirmez, choisissez parmi ses propositions ou écrivez la bonne réponse : elle s’ajoute au titre et à la description.',
+          'Malow analyse vos photos et vos informations pour créer votre annonce et estimer un prix adapté.',
       },
       {
-        Icone: IconShare,
-        titre: 'Publier sur Vinted, Leboncoin…',
-        texte:
-          'Touchez « Publier » puis choisissez la plateforme. Les photos sont rangées dans l’album « Malow » de votre galerie et une bulle Malow reste par-dessus l’appli : touchez-la pour copier le titre, la description ou le prix, puis collez-les dans le formulaire.',
+        image: fonctionne4,
+        titre: 'Vérifiez et ajustez',
+        texte: 'Relisez le résultat et, si besoin, modifiez ce que vous souhaitez : titre, description, prix…',
       },
       {
-        Icone: IconSave,
-        titre: 'Retrouver mes annonces',
+        image: fonctionne5,
+        titre: 'Votre annonce est prête !',
         texte:
-          'Sauvegardez une annonce pour la retrouver dans « Mes annonces », sur tous vos appareils. Vous pouvez la rouvrir, la modifier et la publier plus tard.',
+          'Copiez votre annonce et publiez-la sur la plateforme de vente de votre choix (Vinted, Leboncoin, Facebook Marketplace…).',
       },
     ],
   },
@@ -181,11 +180,15 @@ export default function Conseils({ retourInterne }) {
       <main className="page page-aide" key={theme.id}>
         <EnteteAide sousTitre={theme.titre} ours={theme.ours} onRetour={() => setRubrique(null)} />
         <ol className="items-aide">
-          {theme.items.map(({ Icone, titre, texte, lien }, i) => (
+          {theme.items.map(({ Icone, image, titre, texte, lien }, i) => (
             <li key={titre}>
-              <span className={`icone-aide ${i % 2 ? 'beige' : ''}`}>
-                <Icone width={30} height={30} />
-              </span>
+              {image ? (
+                <img className="icone-aide image" src={image} alt="" aria-hidden="true" />
+              ) : (
+                <span className={`icone-aide ${i % 2 ? 'beige' : ''}`}>
+                  <Icone width={30} height={30} />
+                </span>
+              )}
               <div>
                 <strong>
                   <span className="num-aide">{i + 1}</span>

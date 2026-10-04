@@ -2342,6 +2342,10 @@ html.camera-native .viseur {
   color: var(--chocolat);
 }
 
+.icone-aide.image {
+  object-fit: cover;
+}
+
 .icone-aide.beige {
   background: #f3e6d8;
 }
