@@ -70,7 +70,15 @@ export default function App() {
     notifier.timer = setTimeout(() => setToast(null), 2200)
   }
 
-  const ouvrirCamera = () => setEcran('photos')
+  // Écran d'où l'on a lancé une nouvelle annonce (accueil, mes annonces…) : « Retour » y ramène.
+  const depart = useRef('accueil')
+  const allerPhotos = () => {
+    if (AVEC_ONGLETS.includes(ecran)) depart.current = ecran
+    setEcran('photos')
+  }
+  const quitterPhotos = () => setEcran(depart.current)
+
+  const ouvrirCamera = () => allerPhotos()
   const cameraNative = () => champPhoto.current?.click()
   const choisirGalerie = () => champGalerie.current?.click()
 
@@ -88,7 +96,7 @@ export default function App() {
     const valides = lues.filter(Boolean)
     if (valides.length < lues.length) notifier('Certaines photos n’ont pas pu être lues')
     setPhotos((actuelles) => [...actuelles, ...valides].slice(0, MAX_PHOTOS))
-    setEcran('photos')
+    allerPhotos()
   }
 
   const lancerAnalyse = (texte) => {
@@ -206,7 +214,7 @@ export default function App() {
     setPhotos([])
     setInfos('')
     setAnnonce(null)
-    setEcran('photos')
+    allerPhotos()
   }
 
   const ouvrirAnnonce = (a) => {
@@ -224,7 +232,7 @@ export default function App() {
   const retour = useRef(null)
   retour.current = () => {
     const precedent = {
-      photos: 'accueil',
+      photos: depart.current,
       detail: 'photos',
       resultat: origine,
       partage: 'resultat',
@@ -254,7 +262,7 @@ export default function App() {
         <PrisePhotos
           photos={photos}
           onChange={setPhotos}
-          onRetour={() => setEcran('accueil')}
+          onRetour={quitterPhotos}
           onContinuer={() => setEcran('detail')}
           onGalerie={choisirGalerie}
           onCameraNative={cameraNative}
