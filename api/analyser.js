@@ -126,6 +126,42 @@ séparés par une ligne vide, dans cet ordre :
 
 Termine toujours en appelant l'outil rediger_annonce avec l'annonce finale.`
 
+// Tarifs Anthropic en dollars par million de jetons (cache : écriture 5 min = 1,25 × l'entrée,
+// lecture = 0,1 × l'entrée) et par recherche web (10 $ les 1 000). Un repli de sécurité peut
+// faire répondre un autre modèle : on applique alors son tarif.
+const TARIFS = {
+  'claude-opus-5-5': { entree: 4, sortie: 20 },
+  'claude-opus-5': { entree: 5, sortie: 25 },
+  'claude-opus-4-8': { entree: 5, sortie: 25 },
+  'claude-sonnet-5-5': { entree: 2, sortie: 10 },
+}
+const PRIX_RECHERCHE = 0.01
+
+function nouveauCompteur() {
+  return { appels: 0, entree: 0, sortie: 0, cacheLecture: 0, cacheEcriture: 0, recherches: 0, cout: 0, modele: MODELE }
+}
+
+// Ajoute la consommation d'une réponse de l'API au compteur de l'analyse.
+function compter(compteur, reponse) {
+  const u = reponse.usage || {}
+  const t = TARIFS[reponse.model] || TARIFS[MODELE]
+  const entree = u.input_tokens || 0
+  const sortie = u.output_tokens || 0
+  const lecture = u.cache_read_input_tokens || 0
+  const ecriture = u.cache_creation_input_tokens || 0
+  const recherches = u.server_tool_use?.web_search_requests || 0
+  compteur.appels++
+  compteur.entree += entree
+  compteur.sortie += sortie
+  compteur.cacheLecture += lecture
+  compteur.cacheEcriture += ecriture
+  compteur.recherches += recherches
+  compteur.modele = reponse.model || compteur.modele
+  compteur.cout +=
+    (entree * t.entree + sortie * t.sortie + lecture * t.entree * 0.1 + ecriture * t.entree * 1.25) / 1e6 +
+    recherches * PRIX_RECHERCHE
+}
+
 function autoriserOrigine(req, res) {
   const origine = req.headers.origin
   if (origine && ORIGINES.includes(origine)) {
@@ -139,7 +175,7 @@ function autoriserOrigine(req, res) {
 
 // Un échange complet avec Claude. Renvoie l'annonce (arguments de rediger_annonce)
 // ou null si Claude n'a pas appelé l'outil.
-async function demanderAnnonce(client, contenuUtilisateur, avecRecherche, utilisateur) {
+async function demanderAnnonce(client, contenuUtilisateur, avecRecherche, utilisateur, compteur) {
   const messages = [{ role: 'user', content: contenuUtilisateur }]
   const tools = avecRecherche ? [RECHERCHE_WEB, OUTIL_ANNONCE] : [OUTIL_ANNONCE]
   const debut = Date.now()
@@ -156,6 +192,7 @@ async function demanderAnnonce(client, contenuUtilisateur, avecRecherche, utilis
       tools,
       messages,
     })
+    compter(compteur, reponse)
     // La recherche web tourne côté serveur ; si elle a besoin de plus de temps,
     // on renvoie la réponse telle quelle pour qu'elle reprenne là où elle en était.
     if (reponse.stop_reason !== 'pause_turn') break
@@ -227,17 +264,49 @@ export default async function handler(req, res) {
   ]
 
   const client = new Anthropic()
+  const compteur = nouveauCompteur()
+  const debut = Date.now()
+  // Enregistre le coût réel de l'analyse (table couts_analyses), sans bloquer la réponse en cas d'échec.
+  const noterCout = async (reussie) => {
+    if (!compteur.appels) return
+    console.log(JSON.stringify({ analyse: 'cout', utilisateur, cout_usd: +compteur.cout.toFixed(5), ...compteur }))
+    try {
+      const { error } = await createClient(SUPABASE_URL, SUPABASE_CLE_PUBLIQUE, {
+        auth: { persistSession: false },
+        global: { headers: { Authorization: `Bearer ${jeton}` } },
+      })
+        .from('couts_analyses')
+        .insert({
+          user_id: utilisateur,
+          modele: compteur.modele,
+          photos: images.length,
+          recherches: compteur.recherches,
+          jetons_entree: compteur.entree,
+          jetons_sortie: compteur.sortie,
+          jetons_cache_lecture: compteur.cacheLecture,
+          jetons_cache_ecriture: compteur.cacheEcriture,
+          appels: compteur.appels,
+          duree_ms: Date.now() - debut,
+          cout_usd: +compteur.cout.toFixed(5),
+          reussie,
+        })
+      if (error) console.error('Coût non enregistré :', error.message)
+    } catch (e) {
+      console.error('Coût non enregistré :', e.message)
+    }
+  }
   try {
     let resultat = null
     try {
-      resultat = await demanderAnnonce(client, contenu, true, utilisateur)
+      resultat = await demanderAnnonce(client, contenu, true, utilisateur, compteur)
     } catch (e) {
       // Si la requête avec recherche web est rejetée, on retente sans recherche.
       if (!(e instanceof Anthropic.BadRequestError)) throw e
       console.error('Recherche web refusée, nouvel essai sans recherche :', e.message)
     }
     // Claude n'a pas appelé l'outil (ou la recherche a échoué) : un essai sans recherche.
-    if (!resultat) resultat = await demanderAnnonce(client, contenu, false, utilisateur)
+    if (!resultat) resultat = await demanderAnnonce(client, contenu, false, utilisateur, compteur)
+    await noterCout(Boolean(resultat))
     if (!resultat) return res.status(502).json({ erreur: 'L’IA n’a pas rédigé l’annonce' })
 
     const a = resultat.annonce
@@ -254,6 +323,7 @@ export default async function handler(req, res) {
       modele: resultat.modele,
     })
   } catch (e) {
+    await noterCout(false)
     if (e.refus) return res.status(422).json({ erreur: 'L’IA n’a pas pu analyser ces photos' })
     if (e instanceof Anthropic.RateLimitError) {
       return res.status(429).json({ erreur: 'Trop de demandes, réessayez dans un instant' })
