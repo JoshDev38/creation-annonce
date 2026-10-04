@@ -2165,3 +2165,44 @@ html.camera-native .viseur {
 .pivote {
   transition: transform 0.25s ease;
 }
+
+/* ---------- Ouverture (logo au lancement) ---------- */
+
+.ouverture {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--creme);
+  transition: opacity 0.4s ease;
+}
+
+.ouverture-fondu {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ouverture-logo {
+  width: min(56vw, 240px);
+  height: auto;
+  animation: ouverture-apparition 0.6s ease-out both;
+}
+
+@keyframes ouverture-apparition {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ouverture-logo {
+    animation: none;
+  }
+}

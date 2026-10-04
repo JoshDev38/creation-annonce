@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { App as AppNative } from '@capacitor/app'
 import TabBar from './components/TabBar.jsx'
+import Ouverture from './components/Ouverture.jsx'
 import Accueil from './screens/Accueil.jsx'
 import PrisePhotos, { MAX_PHOTOS } from './screens/PrisePhotos.jsx'
 import Detail from './screens/Detail.jsx'
@@ -361,6 +362,7 @@ export default function App() {
       />
       <input ref={champGalerie} type="file" accept="image/*" multiple hidden onChange={photosChoisies} />
       {toast && <div className="toast" role="status">{toast}</div>}
+      <Ouverture />
     </div>
   )
 }
