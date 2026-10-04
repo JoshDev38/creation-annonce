@@ -230,7 +230,10 @@ export default function App() {
 
   // Bouton retour d'Android (appli installée) : écran précédent, ou fermeture sur l'accueil.
   const retour = useRef(null)
+  // Un écran peut gérer lui-même le retour (ex. rubrique de l'aide → menu de l'aide) : il renvoie true.
+  const retourInterne = useRef(null)
   retour.current = () => {
+    if (retourInterne.current?.()) return
     const precedent = {
       photos: depart.current,
       detail: 'photos',
@@ -316,7 +319,7 @@ export default function App() {
       )
       break
     case 'conseils':
-      contenu = <Conseils />
+      contenu = <Conseils retourInterne={retourInterne} />
       break
     case 'profil':
       contenu = (

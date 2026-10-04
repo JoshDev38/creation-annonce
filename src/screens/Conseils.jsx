@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import oursPhoto from '../assets/ours-photo.png'
+import mascotte from '../assets/mascotte.png'
 import {
   IconCamera,
   IconChatDots,
@@ -18,12 +19,15 @@ import {
   IconUser,
 } from '../components/Icons.jsx'
 
-// Chaque thème est un menu déroulant ; le premier est ouvert à l'arrivée.
-// Pour ajouter de l'aide : une entrée dans un thème, ou un nouveau thème.
+// Chaque rubrique a sa page et son ourson (« ours ») ; la page Aide liste les rubriques.
+// Pour ajouter de l'aide : une entrée dans une rubrique, ou une nouvelle rubrique.
+// Les rubriques sans ourson dédié affichent la mascotte en attendant le leur.
 const THEMES = [
   {
     id: 'annonces',
     titre: 'Réussir mes annonces',
+    resume: 'Photos, prix, mots-clés : nos conseils pour vendre vite',
+    ours: oursPhoto,
     items: [
       {
         Icone: IconSun,
@@ -71,6 +75,8 @@ const THEMES = [
   {
     id: 'malow',
     titre: 'Bien utiliser Malow',
+    resume: 'Photos, dictée, marque, publication et bulle Malow',
+    ours: null,
     items: [
       {
         Icone: IconCamera,
@@ -107,6 +113,8 @@ const THEMES = [
   {
     id: 'compte',
     titre: 'Mon compte',
+    resume: 'Fidélité, profil et contact',
+    ours: null,
     items: [
       {
         Icone: IconHeart,
@@ -130,57 +138,85 @@ const THEMES = [
   },
 ]
 
-export default function Conseils() {
-  const [ouvert, setOuvert] = useState('annonces')
+// En-tête commun : vague bleue, titre, sous-titre et ourson de la rubrique.
+function EnteteAide({ sousTitre, ours, onRetour }) {
+  return (
+    <header className="aide-haut">
+      <svg className="aide-vague" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 0h400v150c-60-40-130 10-200-30S60 60 0 110z" />
+      </svg>
+      {onRetour && (
+        <button className="aide-retour" onClick={onRetour} aria-label="Retour">
+          <IconChevron width={26} height={26} />
+        </button>
+      )}
+      <div className="aide-titres">
+        <h1 className="titre-l">Aide & conseils</h1>
+        <p>{sousTitre}</p>
+      </div>
+      <img className={`aide-ours ${ours ? '' : 'mascotte'}`} src={ours || mascotte} alt="" aria-hidden="true" />
+    </header>
+  )
+}
+
+export default function Conseils({ retourInterne }) {
+  const [rubrique, setRubrique] = useState(null)
+  const theme = THEMES.find((t) => t.id === rubrique)
+
+  // Bouton retour d'Android : d'une rubrique, on revient au menu de l'aide.
+  useEffect(() => {
+    if (!retourInterne) return
+    retourInterne.current = () => {
+      if (!rubrique) return false
+      setRubrique(null)
+      return true
+    }
+    return () => {
+      retourInterne.current = null
+    }
+  }, [rubrique, retourInterne])
+
+  if (theme) {
+    return (
+      <main className="page page-aide" key={theme.id}>
+        <EnteteAide sousTitre={theme.titre} ours={theme.ours} onRetour={() => setRubrique(null)} />
+        <ol className="items-aide">
+          {theme.items.map(({ Icone, titre, texte, lien }, i) => (
+            <li key={titre}>
+              <span className={`icone-aide ${i % 2 ? 'beige' : ''}`}>
+                <Icone width={30} height={30} />
+              </span>
+              <div>
+                <strong>
+                  <span className="num-aide">{i + 1}</span>
+                  {titre}
+                </strong>
+                <p>{lien ? <a href={lien}>{texte}</a> : texte}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </main>
+    )
+  }
 
   return (
     <main className="page page-aide">
-      <header className="aide-haut">
-        <svg className="aide-vague" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0 0h400v150c-60-40-130 10-200-30S60 60 0 110z" />
-        </svg>
-        <div className="aide-titres">
-          <h1 className="titre-l">Aide & conseils</h1>
-          <p>Réussir mes annonces</p>
-        </div>
-        <img className="aide-ours" src={oursPhoto} alt="" aria-hidden="true" />
-      </header>
-
-      <div className="themes-aide">
-        {THEMES.map((theme) => {
-          const estOuvert = ouvert === theme.id
-          return (
-            <section key={theme.id} className={`theme-aide ${estOuvert ? 'ouvert' : ''}`}>
-              <button
-                className="theme-titre"
-                onClick={() => setOuvert(estOuvert ? null : theme.id)}
-                aria-expanded={estOuvert}
-              >
-                <span>{theme.titre}</span>
-                <IconChevron width={20} height={20} />
-              </button>
-              {estOuvert && (
-                <ol className="items-aide">
-                  {theme.items.map(({ Icone, titre, texte, lien }, i) => (
-                    <li key={titre}>
-                      <span className={`icone-aide ${i % 2 ? 'beige' : ''}`}>
-                        <Icone width={30} height={30} />
-                      </span>
-                      <div>
-                        <strong>
-                          <span className="num-aide">{i + 1}</span>
-                          {titre}
-                        </strong>
-                        <p>{lien ? <a href={lien}>{texte}</a> : texte}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </section>
-          )
-        })}
-      </div>
+      <EnteteAide sousTitre="Comment pouvons-nous vous aider ?" ours={null} />
+      <ul className="rubriques-aide">
+        {THEMES.map((t) => (
+          <li key={t.id}>
+            <button className="rubrique-aide" onClick={() => setRubrique(t.id)}>
+              <img src={t.ours || mascotte} alt="" aria-hidden="true" />
+              <span>
+                <strong>{t.titre}</strong>
+                <small>{t.resume}</small>
+              </span>
+              <IconChevron width={20} height={20} />
+            </button>
+          </li>
+        ))}
+      </ul>
     </main>
   )
 }
