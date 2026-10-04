@@ -23,9 +23,24 @@ import { ecouterRetourGoogle } from './lib/connexionGoogle.js'
 
 const AVEC_ONGLETS = ['accueil', 'partage', 'annonces', 'conseils', 'profil']
 
+// Logo Malow à l'ouverture de l'appli (Android, ou site installé sur l'écran d'accueil).
+const DUREE_LANCEMENT = 3000
+const AVEC_LANCEMENT =
+  estAppliNative() || (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches)
+
 export default function App() {
   // « chargement » le temps de savoir si quelqu'un est connecté, puis accueil ou bienvenue.
   const [ecran, setEcran] = useState('chargement')
+  const [lancement, setLancement] = useState(AVEC_LANCEMENT ? 'visible' : null)
+  useEffect(() => {
+    if (!AVEC_LANCEMENT) return
+    const fondu = setTimeout(() => setLancement('sortie'), DUREE_LANCEMENT - 400)
+    const fin = setTimeout(() => setLancement(null), DUREE_LANCEMENT)
+    return () => {
+      clearTimeout(fondu)
+      clearTimeout(fin)
+    }
+  }, [])
   const [photos, setPhotos] = useState([])
   const [infos, setInfos] = useState('')
   const [annonce, setAnnonce] = useState(null)
@@ -361,6 +376,11 @@ export default function App() {
       />
       <input ref={champGalerie} type="file" accept="image/*" multiple hidden onChange={photosChoisies} />
       {toast && <div className="toast" role="status">{toast}</div>}
+      {lancement && (
+        <div className={`lancement ${lancement === 'sortie' ? 'sortie' : ''}`} aria-hidden="true">
+          <img src="./icon-512.png" alt="" />
+        </div>
+      )}
     </div>
   )
 }
