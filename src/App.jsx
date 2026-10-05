@@ -233,6 +233,17 @@ export default function App() {
   const retour = useRef(null)
   // Un écran peut gérer lui-même le retour (ex. rubrique de l'aide → menu de l'aide) : il renvoie true.
   const retourInterne = useRef(null)
+  // Les abonnements s'ouvrent depuis le profil ou depuis l'aide : le retour y ramène.
+  const [abosDepuis, setAbosDepuis] = useState('profil')
+  const [rubriqueAide, setRubriqueAide] = useState(null)
+  const ouvrirAbonnements = (depuis) => {
+    setAbosDepuis(depuis)
+    setEcran('abonnements')
+  }
+  const quitterAbonnements = () => {
+    if (abosDepuis === 'conseils') setRubriqueAide('abonnements')
+    setEcran(abosDepuis)
+  }
   retour.current = () => {
     if (retourInterne.current?.()) return
     const precedent = {
@@ -244,11 +255,12 @@ export default function App() {
       conseils: 'accueil',
       profil: 'accueil',
       fidelite: 'profil',
-      abonnements: 'profil',
+      abonnements: abosDepuis,
       connexion: connexion.retour,
     }
     if (ecran === 'accueil' || ecran === 'bienvenue') AppNative.exitApp()
     else if (ecran === 'analyse') return // on laisse l'analyse se terminer
+    else if (ecran === 'abonnements') quitterAbonnements()
     else setEcran(precedent[ecran] || 'accueil')
   }
 
@@ -321,7 +333,14 @@ export default function App() {
       )
       break
     case 'conseils':
-      contenu = <Conseils retourInterne={retourInterne} />
+      contenu = (
+        <Conseils
+          retourInterne={retourInterne}
+          rubriqueInitiale={rubriqueAide}
+          onRubriqueLue={() => setRubriqueAide(null)}
+          onAbonnements={() => ouvrirAbonnements('conseils')}
+        />
+      )
       break
     case 'profil':
       contenu = (
@@ -330,7 +349,7 @@ export default function App() {
           onConnexion={(mode) => exigerConnexion('', null, mode)}
           onVoirAnnonces={() => setEcran('annonces')}
           onFidelite={() => setEcran('fidelite')}
-          onAbonnements={() => setEcran('abonnements')}
+          onAbonnements={() => ouvrirAbonnements('profil')}
           notifier={notifier}
         />
       )
@@ -350,7 +369,7 @@ export default function App() {
       )
       break
     case 'abonnements':
-      contenu = <Abonnements session={session} onRetour={() => setEcran('profil')} notifier={notifier} />
+      contenu = <Abonnements session={session} onRetour={quitterAbonnements} notifier={notifier} />
       break
     case 'fidelite':
       contenu = <Fidelite onRetour={() => setEcran('profil')} />

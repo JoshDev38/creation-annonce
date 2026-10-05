@@ -6,11 +6,21 @@ import fonctionne2 from '../assets/aide/fonctionne-2.png'
 import fonctionne3 from '../assets/aide/fonctionne-3.png'
 import fonctionne4 from '../assets/aide/fonctionne-4.png'
 import fonctionne5 from '../assets/aide/fonctionne-5.png'
+import oursGratuit from '../assets/aide/aide-gratuit.png'
+import oursPlus from '../assets/aide/aide-plus.png'
 import mascotte from '../assets/mascotte.png'
+import { formule } from '../lib/formules.jsx'
 import {
+  IconBulb,
+  IconCamera,
   IconChatDots,
   IconChevron,
   IconClipboard,
+  IconCrown,
+  IconDoc,
+  IconGift,
+  IconMegaphone,
+  IconMegaphoneOff,
   IconDrap,
   IconHeart,
   IconMessage,
@@ -110,6 +120,13 @@ const THEMES = [
     ],
   },
   {
+    id: 'abonnements',
+    titre: 'Les abonnements',
+    resume: 'Gratuit ou Malow+ : quelle formule choisir ?',
+    ours: oursPlus,
+    page: PageAbonnements, // mise en page dédiée (deux colonnes)
+  },
+  {
     id: 'compte',
     titre: 'Mon compte',
     resume: 'Fidélité, profil et contact',
@@ -137,10 +154,109 @@ const THEMES = [
   },
 ]
 
-// En-tête commun : vague bleue, titre, sous-titre et ourson de la rubrique.
+// Rubrique « Les abonnements » : Gratuit et Malow+ côte à côte, puis le lien vers le choix de formule.
+const GRATUIT = [
+  [IconDoc, 'Jusqu’à 5 annonces par mois', 'Vous pouvez créer un titre, une description et ajouter vos photos.'],
+  [IconCamera, 'Analyse standard de vos photos', 'Malow reconnaît votre objet et rédige l’annonce.'],
+  [IconMegaphone, 'Une publicité est affichée', 'Pour chaque annonce créée.'],
+]
+const PLUS = [
+  [IconDoc, 'Jusqu’à 15 annonces par mois', 'Chacune avec un titre, une description et vos photos.'],
+  [IconCamera, 'Analyse approfondie de vos photos', 'Obtenez une estimation du prix de vente et la recherche des prix du marché.'],
+  [IconCrown, 'Toutes les fonctionnalités Premium', 'Profitez de l’analyse avancée, des conseils et des outils exclusifs.'],
+  [IconMegaphoneOff, 'Une application sans publicité', 'Pour une utilisation plus agréable.'],
+]
+
+function Avantages({ liste }) {
+  return (
+    <ul className="aa-avantages">
+      {liste.map(([Icone, titre, texte]) => (
+        <li key={titre}>
+          <span className="aa-icone">
+            <Icone width={20} height={20} />
+          </span>
+          <div>
+            <strong>{titre}</strong>
+            <p>{texte}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function PageAbonnements({ onAbonnements }) {
+  const mensuel = formule('mensuel')
+  const annuel = formule('annuel')
+  return (
+    <>
+      <p className="aa-intro">
+        Découvrez ici comment fonctionnent les abonnements Malow et lequel est le plus adapté à vos besoins.
+      </p>
+      <div className="aa-colonnes">
+        <section className="aa-carte aa-gratuit">
+          <img className="aa-ours" src={oursGratuit} alt="" aria-hidden="true" />
+          <header className="aa-nom">
+            <h2>Malow Gratuit</h2>
+            <p>Pour commencer simplement</p>
+          </header>
+          <Avantages liste={GRATUIT} />
+          <div className="aa-cadeau">
+            <IconGift width={30} height={30} />
+            <strong>À votre inscription, nous vous offrons 2 annonces Premium</strong>
+            <p>
+              pour découvrir les fonctionnalités avancées de Malow, comme l’estimation du prix de vente et la recherche
+              des prix du marché.
+            </p>
+          </div>
+        </section>
+        <section className="aa-carte aa-plus">
+          <img className="aa-ours" src={oursPlus} alt="" aria-hidden="true" />
+          <header className="aa-nom">
+            <h2>Malow+</h2>
+            <p>Pour aller plus loin</p>
+          </header>
+          <Avantages liste={PLUS} />
+          <div className="aa-formules">
+            <span className="aa-formules-titre">Choisissez votre formule</span>
+            <button className="aa-formule" onClick={onAbonnements}>
+              <strong>Mensuel</strong>
+              <b>{mensuel.prix.replace('/mois', '')}</b>
+              <small>par mois</small>
+            </button>
+            <button className="aa-formule annuel" onClick={onAbonnements}>
+              <span className="aa-badge">{annuel.economie}</span>
+              <strong>Annuel</strong>
+              <b>{annuel.prix.replace('/an', '')}</b>
+              <small>par an, {annuel.soit.toLowerCase()}</small>
+            </button>
+          </div>
+        </section>
+      </div>
+      <section className="abos-bon-a-savoir aa-bon-a-savoir">
+        <span className="abos-ampoule">
+          <IconBulb width={22} height={22} />
+        </span>
+        <div>
+          <strong>Bon à savoir !</strong>
+          <ul>
+            <li>Les 2 annonces Premium de bienvenue sont offertes une seule fois, lors de votre inscription, sur la formule gratuite.</li>
+            <li>Vous pouvez passer d’une formule à l’autre à tout moment depuis votre compte.</li>
+          </ul>
+        </div>
+      </section>
+      <button className="bouton bouton-principal aa-voir" onClick={onAbonnements}>
+        Voir les abonnements <IconChevron width={20} height={20} />
+      </button>
+    </>
+  )
+}
+
+// En-tête commun : vague bleue, titre, sous-titre et ourson de la rubrique
+// (ours = false : pas d'ourson, la page a les siens).
 function EnteteAide({ sousTitre, ours, onRetour }) {
   return (
-    <header className="aide-haut">
+    <header className={`aide-haut ${ours === false ? 'sans-ours' : ''}`}>
       <svg className="aide-vague" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0 0h400v150c-60-40-130 10-200-30S60 60 0 110z" />
       </svg>
@@ -153,13 +269,20 @@ function EnteteAide({ sousTitre, ours, onRetour }) {
         <h1 className="titre-l">Aide & conseils</h1>
         <p>{sousTitre}</p>
       </div>
-      <img className={`aide-ours ${ours ? '' : 'mascotte'}`} src={ours || mascotte} alt="" aria-hidden="true" />
+      {ours !== false && (
+        <img className={`aide-ours ${ours ? '' : 'mascotte'}`} src={ours || mascotte} alt="" aria-hidden="true" />
+      )}
     </header>
   )
 }
 
-export default function Conseils({ retourInterne }) {
-  const [rubrique, setRubrique] = useState(null)
+export default function Conseils({ retourInterne, rubriqueInitiale = null, onRubriqueLue, onAbonnements }) {
+  const [rubrique, setRubrique] = useState(rubriqueInitiale)
+
+  // Retour des abonnements : on rouvre la rubrique une seule fois.
+  useEffect(() => {
+    if (rubriqueInitiale) onRubriqueLue?.()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const theme = THEMES.find((t) => t.id === rubrique)
 
   // Bouton retour d'Android : d'une rubrique, on revient au menu de l'aide.
@@ -174,6 +297,16 @@ export default function Conseils({ retourInterne }) {
       retourInterne.current = null
     }
   }, [rubrique, retourInterne])
+
+  if (theme?.page) {
+    const Page = theme.page
+    return (
+      <main className={`page page-aide page-aide-${theme.id}`} key={theme.id}>
+        <EnteteAide sousTitre={theme.titre} ours={false} onRetour={() => setRubrique(null)} />
+        <Page onAbonnements={onAbonnements} />
+      </main>
+    )
+  }
 
   if (theme) {
     return (

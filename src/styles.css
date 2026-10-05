@@ -2386,6 +2386,238 @@ html.camera-native .viseur {
   color: var(--bleu-texte);
 }
 
+/* ---------- Aide : rubrique « Les abonnements » ---------- */
+
+.aide-haut.sans-ours {
+  min-height: 0;
+  padding-bottom: 6px;
+}
+
+.aide-haut.sans-ours .aide-titres {
+  max-width: none;
+}
+
+.aa-intro {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--texte-doux);
+}
+
+.aa-colonnes {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 -10px;
+  animation: apparaitre 0.2s ease both;
+}
+
+.aa-carte {
+  --aa-fond: #fdf0f3;
+  --aa-bord: #f6d3dd;
+  --aa-pastille: #fbdde6;
+  --aa-accent: #c8335f;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 7px 10px;
+  border-radius: 20px;
+  background: var(--aa-fond);
+  border: 1px solid var(--aa-bord);
+  box-shadow: var(--ombre);
+}
+
+.aa-plus {
+  --aa-fond: #eaf3f9;
+  --aa-bord: #c9e0ef;
+  --aa-pastille: #d3e6f2;
+  --aa-accent: var(--bleu-texte);
+}
+
+.aa-ours {
+  display: block;
+  width: 96%;
+  height: auto;
+  margin: 0 auto -16px;
+}
+
+.aa-nom {
+  position: relative;
+  padding: 8px 4px;
+  border-radius: 16px;
+  background: var(--aa-pastille);
+  text-align: center;
+}
+
+.aa-nom h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--chocolat);
+}
+
+.aa-nom p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--texte);
+}
+
+.aa-avantages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aa-avantages li {
+  display: flex;
+  gap: 7px;
+}
+
+.aa-icone {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--aa-pastille);
+  color: var(--aa-accent);
+}
+
+.aa-avantages div {
+  min-width: 0;
+}
+
+.aa-avantages strong {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.2;
+  color: var(--chocolat);
+}
+
+.aa-plus .aa-avantages strong {
+  color: var(--bleu-texte);
+}
+
+.aa-avantages p {
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--texte-doux);
+}
+
+.aa-cadeau {
+  margin-top: auto;
+  padding: 10px 9px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--aa-bord);
+  color: var(--aa-accent);
+}
+
+.aa-cadeau strong {
+  display: block;
+  margin: 4px 0 4px;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.aa-cadeau p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--texte-doux);
+}
+
+.aa-formules {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-top: auto;
+  padding: 8px 5px 6px;
+  border-radius: 16px;
+  background: var(--aa-pastille);
+}
+
+.aa-formules-titre {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--bleu-texte);
+}
+
+.aa-formule {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 8px 3px 7px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1.5px solid var(--bleu);
+  color: var(--bleu-texte);
+  text-align: center;
+}
+
+.aa-formule strong {
+  font-size: 12px;
+}
+
+.aa-formule b {
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.aa-formule small {
+  font-size: 9.5px;
+  line-height: 1.2;
+}
+
+.aa-formule.annuel {
+  background: linear-gradient(180deg, #6fa3c7, var(--bleu-texte));
+  border-color: transparent;
+  color: #fff;
+}
+
+.aa-badge {
+  position: absolute;
+  top: -9px;
+  right: -3px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bleu-fonce);
+  border: 1.5px solid #fff;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.page-aide .aa-bon-a-savoir {
+  position: relative;
+  z-index: 1;
+  margin: 12px -10px 0;
+}
+
+.aa-voir {
+  position: relative;
+  z-index: 1;
+  margin: 14px 0 4px;
+  gap: 6px;
+}
+
 /* ---------- Mon abonnement (profil) ---------- */
 
 .carte-abonnement {
@@ -2785,7 +3017,7 @@ html.camera-native .viseur {
 /* très petits écrans : on garde l'essentiel pour que tout tienne sans défiler */
 @media (max-height: 700px) {
   .abos-haut p,
-  .abos-bon-a-savoir ul li:last-child {
+  .page-abonnements .abos-bon-a-savoir li:last-child {
     display: none;
   }
 }

@@ -69,3 +69,7 @@ export const IconDrap = make(<><path d="M4 4c2.5 1 13.5 1 16 0-1 3-1 13 0 16-2.5
 export const IconMessage = make(<><rect x="3" y="4" width="18" height="14" rx="3" /><path d="M7 9h10M7 13h7M8 18l-2 3" /></>)
 export const IconChatDots = make(<><path d="M12 4c5 0 9 3.1 9 7s-4 7-9 7c-1.1 0-2.2-.2-3.2-.5L4 19l1.3-3.6C4 14.2 3 12.7 3 11c0-3.9 4-7 9-7z" /><path d="M8 11h.01M12 11h.01M16 11h.01" /></>)
 export const IconClipboard = make(<><rect x="5" y="5" width="14" height="16" rx="2" /><path d="M9 3h6v4H9zM8.5 14l2.5 2.5 4.5-5" /></>)
+export const IconCrown = make(<><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z" /><path d="M5 21h14" /></>)
+export const IconMegaphone = make(<><path d="M3 10v4h3l8 5V5L6 10z" /><path d="M6 14l1.5 5.5h2.5L9 15M18 9a4 4 0 0 1 0 6" /></>)
+export const IconMegaphoneOff = make(<><path d="M3 10v4h3l8 5V5L6 10z" /><path d="M6 14l1.5 5.5h2.5L9 15M2 3l20 18" /></>)
+export const IconGift = make(<><rect x="3" y="9" width="18" height="12" rx="1.5" /><path d="M2 9h20M12 9v12M12 9C10 4 6 4 6.5 6.5S12 9 12 9zM12 9c2-5 6-5 5.5-2.5S12 9 12 9z" /></>)
