@@ -110,13 +110,13 @@ export default function Abonnements({ session, onRetour, notifier }) {
 
       <section className="abos-bon-a-savoir">
         <span className="abos-ampoule">
-          <IconBulb width={28} height={28} />
+          <IconBulb width={20} height={20} />
         </span>
         <div>
           <strong>Bon à savoir !</strong>
           <ul>
-            <li>Les 2 annonces Premium de bienvenue sont offertes une seule fois, lors de votre inscription, sur la formule gratuite.</li>
-            <li>Vous pouvez passer d’une formule à l’autre à tout moment depuis votre compte.</li>
+            <li>Les 2 annonces Premium offertes le sont une seule fois, à l’inscription.</li>
+            <li>Changez de formule à tout moment depuis votre compte.</li>
           </ul>
         </div>
       </section>
