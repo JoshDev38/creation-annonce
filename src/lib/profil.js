@@ -5,14 +5,14 @@ const BUCKET = 'photos'
 export const PSEUDO_VALIDE = /^[\p{L}\p{N}_.\- ]{2,30}$/u
 
 export async function lireProfil(userId) {
-  const { data, error } = await supabase.from('profils').select('pseudo, avatar, formule').eq('id', userId).maybeSingle()
+  const { data, error } = await supabase.from('profils').select('pseudo, avatar, formule, formule_fin').eq('id', userId).maybeSingle()
   if (error) throw error
   let avatarUrl = null
   if (data?.avatar) {
     const { data: lien } = await supabase.storage.from(BUCKET).createSignedUrl(data.avatar, 60 * 60)
     avatarUrl = lien?.signedUrl || null
   }
-  return { pseudo: data?.pseudo || '', avatar: data?.avatar || null, avatarUrl, formule: data?.formule || 'gratuit' }
+  return { pseudo: data?.pseudo || '', avatar: data?.avatar || null, avatarUrl, formule: data?.formule || 'gratuit', formuleFin: data?.formule_fin || null }
 }
 
 export async function pseudoDisponible(pseudo) {

@@ -9,6 +9,7 @@ import Resultat from './screens/Resultat.jsx'
 import Partage from './screens/Partage.jsx'
 import MesAnnonces from './screens/MesAnnonces.jsx'
 import Conseils from './screens/Conseils.jsx'
+import MonAbonnement from './screens/MonAbonnement.jsx'
 import Profil from './screens/Profil.jsx'
 import Connexion from './screens/Connexion.jsx'
 import Bienvenue from './screens/Bienvenue.jsx'
@@ -256,6 +257,7 @@ export default function App() {
       profil: 'accueil',
       fidelite: 'profil',
       abonnements: abosDepuis,
+      'mon-abonnement': 'profil',
       connexion: connexion.retour,
     }
     if (ecran === 'accueil' || ecran === 'bienvenue') AppNative.exitApp()
@@ -350,6 +352,7 @@ export default function App() {
           onVoirAnnonces={() => setEcran('annonces')}
           onFidelite={() => setEcran('fidelite')}
           onAbonnements={() => ouvrirAbonnements('profil')}
+          onMonAbonnement={() => setEcran('mon-abonnement')}
           notifier={notifier}
         />
       )
@@ -370,6 +373,11 @@ export default function App() {
       break
     case 'abonnements':
       contenu = <Abonnements session={session} onRetour={quitterAbonnements} notifier={notifier} />
+      break
+    case 'mon-abonnement':
+      contenu = (
+        <MonAbonnement session={session} onRetour={() => setEcran('profil')} onOffres={() => ouvrirAbonnements('mon-abonnement')} />
+      )
       break
     case 'fidelite':
       contenu = <Fidelite onRetour={() => setEcran('profil')} />

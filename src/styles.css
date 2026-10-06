@@ -2618,52 +2618,243 @@ html.camera-native .viseur {
   gap: 6px;
 }
 
-/* ---------- Mon abonnement (profil) ---------- */
+/* ---------- Gérer mon compte (profil) ---------- */
 
-.carte-abonnement {
+.gerer-compte {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  margin: -4px 0 14px;
-  padding: 8px 14px 8px 8px;
-  text-align: left;
+  flex-direction: column;
+  gap: 8px;
+  margin: -4px 0 6px;
+}
+
+.gerer-compte h2 {
+  margin: 0 4px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--chocolat);
+}
+
+.liste-compte {
+  display: flex;
+  flex-direction: column;
   border-radius: var(--rayon);
   background: var(--blanc-casse);
   border: 1px solid var(--bordure);
   box-shadow: var(--ombre);
+  overflow: hidden;
 }
 
-.carte-abonnement img {
+.liste-compte > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 8px 14px 8px 10px;
+  text-align: left;
+  color: var(--texte-doux);
+}
+
+.liste-compte > button + button {
+  border-top: 1px solid var(--bordure);
+}
+
+.liste-compte > button:active {
+  background: var(--bleu-voile);
+}
+
+.liste-compte img,
+.icone-compte {
   flex: none;
-  width: 64px;
-  height: 52px;
+  width: 56px;
+  height: 44px;
+}
+
+.liste-compte img {
   object-fit: contain;
   object-position: bottom;
 }
 
-.carte-abonnement span {
+.icone-compte {
+  display: grid;
+  place-items: center;
+  color: var(--bleu-texte);
+}
+
+.liste-compte span:not(.icone-compte) {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.carte-abonnement small {
+.liste-compte small {
   font-size: 12px;
   color: var(--texte-doux);
 }
 
-.carte-abonnement strong {
+.liste-compte strong {
   font-family: var(--serif);
   font-weight: 400;
   font-size: 18px;
   color: var(--chocolat);
 }
 
-.carte-abonnement em {
-  font-style: normal;
+.liste-compte .danger strong,
+.liste-compte .danger .icone-compte {
+  color: #a8432e;
+}
+
+.bouton-danger {
+  background: #a8432e;
+  color: #fff;
+}
+
+/* ---------- Mon abonnement ---------- */
+
+.page-mon-abo {
+  background:
+    radial-gradient(80% 30% at 50% 0%, #e6f0f6 0%, transparent 70%),
+    var(--creme);
+}
+
+.mon-abo-haut {
+  position: relative;
+  text-align: center;
+}
+
+.mon-abo-haut .abos-retour {
+  left: -6px;
+}
+
+.mon-abo-haut h1 {
+  margin: 2px 0 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 38px;
+  color: var(--chocolat);
+}
+
+.mon-abo-carte {
+  --abo-fond: #fdeef2;
+  --abo-bord: #f6cbd8;
+  --abo-accent: #e5487a;
+  --abo-pastille: #fbdbe5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 6px;
+  border-radius: 24px;
+  background: var(--abo-fond);
+  border: 2px solid var(--abo-accent);
+  box-shadow: var(--ombre);
+}
+
+.mon-abo-carte.abo-mensuel {
+  --abo-fond: #e9f2f8;
+  --abo-accent: var(--bleu-texte);
+  --abo-pastille: #d3e6f2;
+}
+
+.mon-abo-carte.abo-annuel {
+  --abo-fond: #fbeee3;
+  --abo-accent: var(--chocolat);
+  --abo-pastille: #f8e0cc;
+}
+
+.mon-abo-carte img {
+  display: block;
+  width: 62%;
+  height: auto;
+  margin: 8px auto -14px;
+}
+
+.mon-abo-corps {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 0 8px 8px;
+  padding: 14px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.75);
+  text-align: center;
+}
+
+.mon-abo-corps small {
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+
+.mon-abo-corps h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--chocolat);
+}
+
+.mon-abo-prix {
+  margin: 2px 0;
+  padding: 2px 16px;
+  border-radius: 999px;
+  background: var(--abo-pastille);
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--abo-accent);
+}
+
+.mon-abo-statut {
+  margin: 0;
   font-size: 13px;
   font-weight: 600;
+  color: var(--texte-doux);
+}
+
+.mon-abo-inclus {
+  padding: 14px 16px;
+  border-radius: var(--rayon);
+  background: var(--blanc-casse);
+  border: 1px solid var(--bordure);
+}
+
+.mon-abo-inclus h3 {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 18px;
+  color: var(--chocolat);
+}
+
+.mon-abo-inclus ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mon-abo-inclus li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--texte);
+}
+
+.mon-abo-inclus li svg {
+  flex: none;
+  padding: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #3e9b52;
+  color: #fff;
+}
+
+.mon-abo-inclus strong {
   color: var(--bleu-texte);
 }
 

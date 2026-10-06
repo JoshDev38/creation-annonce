@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { IconCamera, IconEdit } from '../components/Icons.jsx'
+import { IconCamera, IconChevron, IconEdit, IconSparkle, IconTrash } from '../components/Icons.jsx'
 import { listerAnnoncesCloud, supprimerCompte } from '../lib/annoncesCloud.js'
 import { changerAvatar, changerPseudo, lireProfil, PSEUDO_VALIDE } from '../lib/profil.js'
 import { photoCarree } from '../lib/stockage.js'
@@ -7,7 +7,7 @@ import { chargerFidelite } from '../lib/fidelite.js'
 import { formule } from '../lib/formules.jsx'
 import { supabase } from '../lib/supabase.js'
 
-export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelite, onAbonnements, notifier }) {
+export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelite, onAbonnements, onMonAbonnement, notifier }) {
   const [annonces, setAnnonces] = useState(null)
   const [fidelite, setFidelite] = useState(null)
   const [attente, setAttente] = useState(false)
@@ -15,6 +15,7 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelit
   const [editionPseudo, setEditionPseudo] = useState(false)
   const [pseudo, setPseudo] = useState('')
   const [envoiPhoto, setEnvoiPhoto] = useState(false)
+  const [confirmerSuppression, setConfirmerSuppression] = useState(false)
   const champPhoto = useRef(null)
 
   useEffect(() => {
@@ -92,7 +93,7 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelit
   }
 
   const supprimer = async () => {
-    if (!confirm('Supprimer définitivement votre compte, vos annonces et vos photos ?')) return
+    setConfirmerSuppression(false)
     setAttente(true)
     try {
       await supprimerCompte(session.user.id)
@@ -163,14 +164,37 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelit
           <em>Fidélité ›</em>
         </button>
       </div>
-      <button className="carte-abonnement" onClick={onAbonnements}>
-        <img src={formule(profil?.formule).ours} alt="" aria-hidden="true" />
-        <span>
-          <small>Mon abonnement</small>
-          <strong>{profil ? formule(profil.formule).nom : '…'}</strong>
-        </span>
-        <em>Voir les offres ›</em>
-      </button>
+      <section className="gerer-compte">
+        <h2>Gérer mon compte</h2>
+        <div className="liste-compte">
+          <button onClick={onMonAbonnement}>
+            <img src={formule(profil?.formule).ours} alt="" aria-hidden="true" />
+            <span>
+              <small>Mon abonnement</small>
+              <strong>{profil ? formule(profil.formule).nom : '…'}</strong>
+            </span>
+            <IconChevron width={18} height={18} />
+          </button>
+          <button onClick={onAbonnements}>
+            <span className="icone-compte">
+              <IconSparkle width={22} height={22} />
+            </span>
+            <span>
+              <strong>Voir les offres</strong>
+            </span>
+            <IconChevron width={18} height={18} />
+          </button>
+          <button className="danger" onClick={() => setConfirmerSuppression(true)} disabled={attente}>
+            <span className="icone-compte">
+              <IconTrash width={22} height={22} />
+            </span>
+            <span>
+              <strong>{attente ? 'Suppression…' : 'Supprimer mon compte Malow'}</strong>
+            </span>
+            <IconChevron width={18} height={18} />
+          </button>
+        </div>
+      </section>
       <p className="manuscrit centre">
         Une seconde vie
         <br />
@@ -180,13 +204,33 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelit
         <button className="bouton bouton-doux" onClick={deconnecter}>
           Se déconnecter
         </button>
-        <button className="bouton-lien danger" onClick={supprimer} disabled={attente}>
-          {attente ? 'Suppression…' : 'Supprimer mon compte'}
-        </button>
         <a className="lien-discret" href="https://malow.app/confidentialite.html" target="_blank" rel="noreferrer">
           Règles de confidentialité
         </a>
       </div>
+
+      {confirmerSuppression && (
+        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-suppression" onClick={() => setConfirmerSuppression(false)}>
+          <div className="modale" onClick={(e) => e.stopPropagation()}>
+            <h2 id="titre-suppression" className="titre-m">
+              Supprimer mon compte ?
+            </h2>
+            <p>Votre compte, vos annonces, vos photos et vos points de fidélité seront définitivement effacés.</p>
+            {profil && profil.formule !== 'gratuit' && (
+              <p className="petit">
+                La suppression ne résilie pas votre abonnement Google Play : pensez à vous désabonner d’abord depuis
+                «&nbsp;Mon abonnement&nbsp;».
+              </p>
+            )}
+            <button className="bouton bouton-danger" onClick={supprimer}>
+              Supprimer définitivement
+            </button>
+            <button className="bouton bouton-doux" onClick={() => setConfirmerSuppression(false)}>
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
