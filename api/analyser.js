@@ -17,14 +17,10 @@ const MODELE = 'claude-opus-5-5'
 const MAX_PHOTOS = 8
 const MAX_RECHERCHES = 3
 const MAX_REPRISES = 3 // relances après une pause du serveur (pause_turn)
+// L'analyse IA est réservée à l'appli : le site malow.app ne peut pas l'appeler.
 const ORIGINES = [
-  'https://malow.app',
-  'https://www.malow.app',
-  'https://creation-annonce.vercel.app',
   'https://localhost', // appli Android (Capacitor)
   'capacitor://localhost', // appli iOS (Capacitor)
-  'http://localhost:5173',
-  'http://localhost:4173',
 ]
 
 const OUTIL_ANNONCE = {
@@ -170,7 +166,7 @@ function autoriserOrigine(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   }
-  return !origine || ORIGINES.includes(origine)
+  return Boolean(origine) && ORIGINES.includes(origine)
 }
 
 // Un échange complet avec Claude. Renvoie l'annonce (arguments de rediger_annonce)
@@ -229,7 +225,7 @@ export default async function handler(req, res) {
   const origineOk = autoriserOrigine(req, res)
   if (req.method === 'OPTIONS') return res.status(204).end()
   if (req.method !== 'POST') return res.status(405).json({ erreur: 'Méthode non autorisée' })
-  if (!origineOk) return res.status(403).json({ erreur: 'Origine non autorisée' })
+  if (!origineOk) return res.status(403).json({ erreur: 'L’analyse IA est disponible uniquement dans l’appli Malow' })
   if (!process.env.ANTHROPIC_API_KEY) {
     return res.status(503).json({ erreur: 'Analyse IA non configurée' })
   }

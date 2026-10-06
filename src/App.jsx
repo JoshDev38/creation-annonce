@@ -27,6 +27,9 @@ import { ecouterRetourGoogle } from './lib/connexionGoogle.js'
 
 const AVEC_ONGLETS = ['accueil', 'partage', 'annonces', 'conseils', 'profil']
 
+// Créer une annonce : dans l'appli seulement (le serveur refuse aussi les appels du site).
+const CREATION_DISPONIBLE = estAppliNative() || import.meta.env.DEV
+
 // Logo Malow à l'ouverture de l'appli (Android, ou site installé sur l'écran d'accueil).
 const DUREE_LANCEMENT = 3000
 const AVEC_LANCEMENT =
@@ -76,15 +79,24 @@ export default function App() {
 
   // Écran d'où l'on a lancé une nouvelle annonce (accueil, mes annonces…) : « Retour » y ramène.
   const depart = useRef('accueil')
+  // La création d'annonces (analyse IA) est réservée à l'appli : sur le site, on explique pourquoi.
+  const [modaleAppli, setModaleAppli] = useState(false)
+  const reserveeAppli = () => {
+    if (CREATION_DISPONIBLE) return false
+    setModaleAppli(true)
+    return true
+  }
+
   const allerPhotos = () => {
+    if (reserveeAppli()) return
     if (AVEC_ONGLETS.includes(ecran)) depart.current = ecran
     setEcran('photos')
   }
   const quitterPhotos = () => setEcran(depart.current)
 
   const ouvrirCamera = () => allerPhotos()
-  const cameraNative = () => champPhoto.current?.click()
-  const choisirGalerie = () => champGalerie.current?.click()
+  const cameraNative = () => reserveeAppli() || champPhoto.current?.click()
+  const choisirGalerie = () => reserveeAppli() || champGalerie.current?.click()
 
   const photosChoisies = async (e) => {
     const fichiers = Array.from(e.target.files || [])
@@ -104,6 +116,7 @@ export default function App() {
   }
 
   const lancerAnalyse = (texte) => {
+    if (reserveeAppli()) return
     if (!sessionRef.current) {
       setInfos(texte)
       exigerConnexion('Créez un compte gratuit ou connectez-vous pour lancer l’analyse IA.', () => lancerAnalyse(texte))
@@ -443,6 +456,21 @@ export default function App() {
         onChange={photosChoisies}
       />
       <input ref={champGalerie} type="file" accept="image/*" multiple hidden onChange={photosChoisies} />
+      {modaleAppli && (
+        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-appli" onClick={() => setModaleAppli(false)}>
+          <div className="modale" onClick={(e) => e.stopPropagation()}>
+            <img className="modale-logo" src="./icon-192.png" alt="" />
+            <h2 id="titre-appli" className="titre-m">
+              Créez vos annonces dans l’appli
+            </h2>
+            <p>La création d’annonces avec l’IA est réservée à l’application Malow, bientôt disponible sur Google Play.</p>
+            <p className="petit">Sur le site, vous pouvez retrouver vos annonces sauvegardées et gérer votre compte.</p>
+            <button className="bouton bouton-principal" onClick={() => setModaleAppli(false)}>
+              J’ai compris
+            </button>
+          </div>
+        </div>
+      )}
       {toast && <div className="toast" role="status">{toast}</div>}
       {lancement && (
         <div
