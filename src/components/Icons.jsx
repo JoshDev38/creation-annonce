@@ -73,3 +73,14 @@ export const IconCrown = make(<><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z" />
 export const IconMegaphone = make(<><path d="M3 10v4h3l8 5V5L6 10z" /><path d="M6 14l1.5 5.5h2.5L9 15M18 9a4 4 0 0 1 0 6" /></>)
 export const IconMegaphoneOff = make(<><path d="M3 10v4h3l8 5V5L6 10z" /><path d="M6 14l1.5 5.5h2.5L9 15M2 3l20 18" /></>)
 export const IconGift = make(<><rect x="3" y="9" width="18" height="12" rx="1.5" /><path d="M2 9h20M12 9v12M12 9C10 4 6 4 6.5 6.5S12 9 12 9zM12 9c2-5 6-5 5.5-2.5S12 9 12 9z" /></>)
+
+// Mon compte (icônes pleines)
+const plein = (paths) => (props) => (
+  <svg width={24} height={24} viewBox="0 0 24 24" fill="currentColor" {...props} aria-hidden="true">
+    {paths}
+  </svg>
+)
+export const IconUserFilled = plein(<><circle cx="12" cy="7.5" r="4.5" /><path d="M3.5 21c0-4.8 3.8-8 8.5-8s8.5 3.2 8.5 8z" /></>)
+export const IconPawFilled = plein(<><ellipse cx="6" cy="9.5" rx="2.1" ry="2.7" /><ellipse cx="10" cy="5.5" rx="2.1" ry="2.8" /><ellipse cx="14.5" cy="5.5" rx="2.1" ry="2.8" /><ellipse cx="18.4" cy="9.5" rx="2.1" ry="2.7" /><path d="M12.2 11c2.6 0 6 3.6 6 6.4 0 2-1.6 2.9-3.1 2.6-1.2-.2-1.9-.8-2.9-.8s-1.7.6-2.9.8c-1.5.3-3.1-.6-3.1-2.6 0-2.8 3.4-6.4 6-6.4z" /></>)
+export const IconCrownFilled = plein(<><path d="M2.5 7.5 7.5 12 12 4.5l4.5 7.5 5-4.5-1.8 10H4.3z" /><rect x="4.3" y="19" width="15.4" height="2.2" rx="1" /></>)
+export const IconGearFilled = plein(<path fillRule="evenodd" d="M10.3 2h3.4l.5 2.6c.7.2 1.3.5 1.9.9l2.3-1.4 2.4 2.4-1.4 2.3c.4.6.7 1.2.9 1.9l2.7.5v3.4l-2.7.5c-.2.7-.5 1.3-.9 1.9l1.4 2.3-2.4 2.4-2.3-1.4c-.6.4-1.2.7-1.9.9l-.5 2.6h-3.4l-.5-2.6c-.7-.2-1.3-.5-1.9-.9l-2.3 1.4-2.4-2.4 1.4-2.3c-.4-.6-.7-1.2-.9-1.9L2 13.7v-3.4l2.7-.5c.2-.7.5-1.3.9-1.9L4.2 5.6l2.4-2.4 2.3 1.4c.6-.4 1.2-.7 1.9-.9zM12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z" />)

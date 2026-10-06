@@ -1,11 +1,11 @@
-import { IconBulb, IconHome, IconHomeFilled, IconPlus, IconSearch, IconUser } from './Icons.jsx'
+import { IconBulb, IconHome, IconHomeFilled, IconPlus, IconSearch, IconUser, IconUserFilled } from './Icons.jsx'
 
 const ONGLETS = [
   { id: 'accueil', label: 'Accueil', Icone: IconHome, IconeActive: IconHomeFilled },
   { id: 'annonces', label: 'Mes annonces', Icone: IconSearch },
   { id: 'nouveau', label: 'Nouvelle', Icone: IconPlus, central: true },
   { id: 'conseils', label: 'Aide', Icone: IconBulb },
-  { id: 'profil', label: 'Profil', Icone: IconUser },
+  { id: 'profil', label: 'Profil', Icone: IconUser, IconeActive: IconUserFilled },
 ]
 
 export default function TabBar({ actif, onChange }) {

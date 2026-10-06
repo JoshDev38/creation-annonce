@@ -2618,22 +2618,7 @@ html.camera-native .viseur {
   gap: 6px;
 }
 
-/* ---------- Gérer mon compte (profil) ---------- */
-
-.gerer-compte {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: -4px 0 6px;
-}
-
-.gerer-compte h2 {
-  margin: 0 4px;
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: 20px;
-  color: var(--chocolat);
-}
+/* ---------- Mon compte (profil) ---------- */
 
 .liste-compte {
   display: flex;
@@ -2645,7 +2630,9 @@ html.camera-native .viseur {
   overflow: hidden;
 }
 
-.liste-compte > button {
+.liste-compte > button,
+.liste-compte > a {
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -2655,18 +2642,18 @@ html.camera-native .viseur {
   color: var(--texte-doux);
 }
 
-.liste-compte > button + button {
+.liste-compte > * + * {
   border-top: 1px solid var(--bordure);
 }
 
-.liste-compte > button:active {
+.liste-compte > :active {
   background: var(--bleu-voile);
 }
 
 .liste-compte img,
 .icone-compte {
   flex: none;
-  width: 56px;
+  width: 44px;
   height: 44px;
 }
 
@@ -2702,6 +2689,212 @@ html.camera-native .viseur {
 .liste-compte .danger strong,
 .liste-compte .danger .icone-compte {
   color: #a8432e;
+}
+
+.page-compte {
+  gap: 12px;
+  padding-top: 0;
+  overflow-x: hidden;
+}
+
+.compte-haut {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin: 0 -20px -26px;
+  padding: max(26px, env(safe-area-inset-top)) 0 0 22px;
+  min-height: 236px;
+  background:
+    radial-gradient(60% 70% at 92% 45%, #dfecf5 0%, transparent 70%),
+    linear-gradient(180deg, #fbf6f0, var(--creme));
+}
+
+.compte-haut > div {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  align-self: flex-start;
+  padding-bottom: 38px;
+}
+
+.compte-haut h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(38px, 11vw, 48px);
+  line-height: 0.98;
+  color: var(--chocolat);
+}
+
+.compte-haut h1 span {
+  color: var(--bleu-texte);
+}
+
+.compte-haut h1::after {
+  content: '';
+  display: block;
+  width: 70px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background: var(--bleu);
+}
+
+.compte-haut p {
+  margin: 12px 0 0;
+  max-width: 200px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--texte);
+}
+
+.compte-haut img {
+  flex: none;
+  width: 52%;
+  max-width: 230px;
+  height: auto;
+  margin-left: -16px;
+}
+
+.menu-compte {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-compte > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 8px 12px 12px;
+  text-align: left;
+  border-radius: var(--rayon);
+  background: var(--blanc-casse);
+  border: 1px solid #f1e8de;
+  box-shadow: var(--ombre);
+  color: var(--chocolat);
+}
+
+.menu-compte > button:active {
+  transform: scale(0.99);
+}
+
+.menu-compte > button.bleu {
+  background: #eaf3f9;
+  border-color: #dbe9f3;
+}
+
+.pastille-compte {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #f3e6d8;
+  color: #8b4a32;
+}
+
+.bleu .pastille-compte,
+.bleu-icone .pastille-compte {
+  background: #d6e7f2;
+}
+
+.bleu-icone .pastille-compte {
+  color: var(--chocolat);
+}
+
+.texte-compte {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.texte-compte strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 1.15;
+  color: var(--chocolat);
+}
+
+.texte-compte small {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--bleu-texte);
+}
+
+.texte-compte em {
+  align-self: flex-start;
+  margin: 2px 0 4px;
+  padding: 3px 16px;
+  border-radius: 999px;
+  background: #d6e7f2;
+  font-family: var(--serif);
+  font-style: normal;
+  font-size: 16px;
+  color: var(--bleu-texte);
+}
+
+.jauge-compte {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.jauge-compte .jauge {
+  flex: 1;
+  height: 9px;
+  border-radius: 99px;
+  background: #f3e6d8;
+  overflow: hidden;
+}
+
+.jauge-compte .jauge span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--bleu-fonce);
+}
+
+.jauge-compte b {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--chocolat);
+  white-space: nowrap;
+}
+
+.menu-compte > button > svg {
+  flex: none;
+  color: var(--chocolat);
+}
+
+.page-sous-compte {
+  gap: 16px;
+}
+
+.sous-compte-haut {
+  position: relative;
+  text-align: center;
+}
+
+.sous-compte-haut .abos-retour {
+  left: -6px;
+}
+
+.sous-compte-haut h1 {
+  margin: 2px 0 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 38px;
+  color: var(--chocolat);
 }
 
 .supprimer-compte {

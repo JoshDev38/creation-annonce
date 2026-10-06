@@ -10,6 +10,8 @@ import Partage from './screens/Partage.jsx'
 import MesAnnonces from './screens/MesAnnonces.jsx'
 import Conseils from './screens/Conseils.jsx'
 import MonAbonnement from './screens/MonAbonnement.jsx'
+import MonProfil from './screens/MonProfil.jsx'
+import Parametres from './screens/Parametres.jsx'
 import Profil from './screens/Profil.jsx'
 import Connexion from './screens/Connexion.jsx'
 import Bienvenue from './screens/Bienvenue.jsx'
@@ -258,6 +260,8 @@ export default function App() {
       fidelite: 'profil',
       abonnements: abosDepuis,
       'mon-abonnement': 'profil',
+      'mon-profil': 'profil',
+      parametres: 'profil',
       connexion: connexion.retour,
     }
     if (ecran === 'accueil' || ecran === 'bienvenue') AppNative.exitApp()
@@ -349,11 +353,11 @@ export default function App() {
         <Profil
           session={session}
           onConnexion={(mode) => exigerConnexion('', null, mode)}
-          onVoirAnnonces={() => setEcran('annonces')}
+          onMonProfil={() => setEcran('mon-profil')}
           onFidelite={() => setEcran('fidelite')}
-          onAbonnements={() => ouvrirAbonnements('profil')}
           onMonAbonnement={() => setEcran('mon-abonnement')}
-          notifier={notifier}
+          onAide={() => setEcran('conseils')}
+          onParametres={() => setEcran('parametres')}
         />
       )
       break
@@ -373,6 +377,27 @@ export default function App() {
       break
     case 'abonnements':
       contenu = <Abonnements session={session} onRetour={quitterAbonnements} notifier={notifier} />
+      break
+    case 'mon-profil':
+      contenu = (
+        <MonProfil
+          session={session}
+          onRetour={() => setEcran('profil')}
+          onVoirAnnonces={() => setEcran('annonces')}
+          onFidelite={() => setEcran('fidelite')}
+          notifier={notifier}
+        />
+      )
+      break
+    case 'parametres':
+      contenu = (
+        <Parametres
+          session={session}
+          onRetour={() => setEcran('profil')}
+          onQuitte={() => setEcran('profil')}
+          notifier={notifier}
+        />
+      )
       break
     case 'mon-abonnement':
       contenu = (

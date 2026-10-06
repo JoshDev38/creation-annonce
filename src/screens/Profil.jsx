@@ -1,69 +1,25 @@
-import { useEffect, useRef, useState } from 'react'
-import { IconCamera, IconChevron, IconEdit, IconSparkle } from '../components/Icons.jsx'
-import { listerAnnoncesCloud, supprimerCompte } from '../lib/annoncesCloud.js'
-import { changerAvatar, changerPseudo, lireProfil, PSEUDO_VALIDE } from '../lib/profil.js'
-import { photoCarree } from '../lib/stockage.js'
+import { useEffect, useState } from 'react'
+import {
+  IconBulb,
+  IconChevron,
+  IconCrownFilled,
+  IconGearFilled,
+  IconPawFilled,
+  IconUserFilled,
+} from '../components/Icons.jsx'
 import { chargerFidelite } from '../lib/fidelite.js'
-import { formule } from '../lib/formules.jsx'
-import { supabase } from '../lib/supabase.js'
+import oursCompte from '../assets/compte/ours-compte.png'
 
-export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelite, onAbonnements, onMonAbonnement, notifier }) {
-  const [annonces, setAnnonces] = useState(null)
+// Onglet « Profil » : le menu « Mon compte ».
+export default function Profil({ session, onConnexion, onMonProfil, onFidelite, onMonAbonnement, onAide, onParametres }) {
   const [fidelite, setFidelite] = useState(null)
-  const [attente, setAttente] = useState(false)
-  const [profil, setProfil] = useState(null)
-  const [editionPseudo, setEditionPseudo] = useState(false)
-  const [pseudo, setPseudo] = useState('')
-  const [envoiPhoto, setEnvoiPhoto] = useState(false)
-  const [confirmerSuppression, setConfirmerSuppression] = useState(false)
-  const champPhoto = useRef(null)
 
   useEffect(() => {
     if (!session) return
-    listerAnnoncesCloud()
-      .then(setAnnonces)
-      .catch(() => setAnnonces([]))
     chargerFidelite()
       .then(setFidelite)
       .catch(() => setFidelite(null))
-    lireProfil(session.user.id)
-      .then(setProfil)
-      .catch(() => setProfil({ pseudo: '', avatar: null, avatarUrl: null }))
   }, [session])
-
-  const enregistrerPseudo = async () => {
-    const p = pseudo.trim()
-    if (!PSEUDO_VALIDE.test(p)) {
-      notifier('Pseudo : 2 à 30 caractères (lettres, chiffres, espace, point, tiret)')
-      return
-    }
-    try {
-      await changerPseudo(session.user.id, p)
-      setProfil((x) => ({ ...x, pseudo: p }))
-      setEditionPseudo(false)
-      notifier('Pseudo enregistré')
-    } catch (e) {
-      notifier(e.message === 'Ce pseudo est déjà pris.' ? e.message : 'Enregistrement impossible')
-    }
-  }
-
-  const photoChoisie = async (e) => {
-    const fichier = e.target.files?.[0]
-    e.target.value = ''
-    if (!fichier) return
-    setEnvoiPhoto(true)
-    try {
-      const image = await photoCarree(fichier)
-      const chemin = await changerAvatar(session.user.id, image, profil?.avatar)
-      setProfil((x) => ({ ...x, avatar: chemin, avatarUrl: image }))
-      notifier('Photo de profil mise à jour')
-    } catch (err) {
-      console.error(err)
-      notifier('Impossible d’envoyer la photo')
-    } finally {
-      setEnvoiPhoto(false)
-    }
-  }
 
   if (!session) {
     return (
@@ -86,145 +42,96 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelit
     )
   }
 
-
-  const deconnecter = async () => {
-    await supabase.auth.signOut()
-    notifier('Vous êtes déconnecté')
-  }
-
-  const supprimer = async () => {
-    setConfirmerSuppression(false)
-    setAttente(true)
-    try {
-      await supprimerCompte(session.user.id)
-      notifier('Votre compte a été supprimé')
-    } catch (e) {
-      console.error(e)
-      notifier('La suppression a échoué. Réessayez.')
-    } finally {
-      setAttente(false)
-    }
-  }
+  const reste = fidelite?.suivant ? fidelite.suivant.points_min - fidelite.total : 0
 
   return (
-    <main className="page">
-      <div className="carte-profil">
-        <button
-          className="avatar"
-          onClick={() => champPhoto.current?.click()}
-          aria-label="Changer la photo de profil"
-          disabled={envoiPhoto}
-        >
-          {profil?.avatarUrl || session.user.user_metadata?.avatar_url ? (
-            <img src={profil?.avatarUrl || session.user.user_metadata.avatar_url} alt="" referrerPolicy="no-referrer" />
-          ) : (
-            <span className="initiale">{(profil?.pseudo || session.user.email || '?').charAt(0).toUpperCase()}</span>
-          )}
-          <span className="avatar-camera">{envoiPhoto ? '…' : <IconCamera width={16} height={16} />}</span>
-        </button>
-        <input ref={champPhoto} type="file" accept="image/*" hidden onChange={photoChoisie} />
-
-        {editionPseudo ? (
-          <div className="edition-pseudo">
-            <input
-              className="champ"
-              value={pseudo}
-              maxLength={30}
-              autoFocus
-              onChange={(e) => setPseudo(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && enregistrerPseudo()}
-            />
-            <button className="bouton-petit" onClick={enregistrerPseudo}>
-              OK
-            </button>
-          </div>
-        ) : (
-          <button
-            className="nom-profil"
-            onClick={() => {
-              setPseudo(profil?.pseudo || '')
-              setEditionPseudo(true)
-            }}
-          >
-            <span>{profil ? profil.pseudo || 'Choisir un pseudo' : '…'}</span>
-            <IconEdit width={16} height={16} />
-          </button>
-        )}
-        <p className="petit">{session.user.email}</p>
-      </div>
-      <div className="stats">
-        <button onClick={onVoirAnnonces}>
-          <strong>{annonces ? annonces.length : '…'}</strong>
-          <span>annonce{annonces?.length > 1 ? 's' : ''} sauvegardée{annonces?.length > 1 ? 's' : ''}</span>
-          <em>Voir ›</em>
-        </button>
-        <button onClick={onFidelite}>
-          <strong>{fidelite ? `Niv. ${fidelite.actuel?.niveau ?? 1}` : '…'}</strong>
-          <span>{fidelite ? `${fidelite.actuel?.nom} · ${fidelite.total} pts` : 'fidélité'}</span>
-          <em>Fidélité ›</em>
-        </button>
-      </div>
-      <section className="gerer-compte">
-        <h2>Gérer mon compte</h2>
-        <div className="liste-compte">
-          <button onClick={onMonAbonnement}>
-            <img src={formule(profil?.formule).ours} alt="" aria-hidden="true" />
-            <span>
-              <small>Mon abonnement</small>
-              <strong>{profil ? formule(profil.formule).nom : '…'}</strong>
-            </span>
-            <IconChevron width={18} height={18} />
-          </button>
-          <button onClick={onAbonnements}>
-            <span className="icone-compte">
-              <IconSparkle width={22} height={22} />
-            </span>
-            <span>
-              <strong>Voir les abonnements</strong>
-            </span>
-            <IconChevron width={18} height={18} />
-          </button>
+    <main className="page page-compte">
+      <header className="compte-haut">
+        <div>
+          <h1>
+            Mon
+            <br />
+            <span>compte</span>
+          </h1>
+          <p>Tout en un seul endroit pour gérer votre utilisation de Malow.</p>
         </div>
-      </section>
-      <p className="manuscrit centre">
-        Une seconde vie
-        <br />
-        pour de belles histoires ♡
-      </p>
-      <div className="actions">
-        <button className="bouton bouton-doux" onClick={deconnecter}>
-          Se déconnecter
-        </button>
-        <a className="lien-discret" href="https://malow.app/confidentialite.html" target="_blank" rel="noreferrer">
-          Règles de confidentialité
-        </a>
-        <button className="bouton-lien danger supprimer-compte" onClick={() => setConfirmerSuppression(true)} disabled={attente}>
-          {attente ? 'Suppression…' : 'Supprimer mon compte Malow'}
-        </button>
-      </div>
+        <img src={oursCompte} alt="" aria-hidden="true" />
+      </header>
 
-      {confirmerSuppression && (
-        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-suppression" onClick={() => setConfirmerSuppression(false)}>
-          <div className="modale" onClick={(e) => e.stopPropagation()}>
-            <h2 id="titre-suppression" className="titre-m">
-              Supprimer mon compte ?
-            </h2>
-            <p>Votre compte, vos annonces, vos photos et vos points de fidélité seront définitivement effacés.</p>
-            {profil && profil.formule !== 'gratuit' && (
-              <p className="petit">
-                La suppression ne résilie pas votre abonnement Google Play : pensez à vous désabonner d’abord depuis
-                «&nbsp;Mon abonnement&nbsp;».
-              </p>
+      <nav className="menu-compte">
+        <button onClick={onMonProfil}>
+          <span className="pastille-compte">
+            <IconUserFilled width={30} height={30} />
+          </span>
+          <span className="texte-compte">
+            <strong>Mon profil</strong>
+            <small>Voir et modifier mes informations</small>
+          </span>
+          <IconChevron width={22} height={22} />
+        </button>
+
+        <button className="bleu niveau-compte" onClick={onFidelite}>
+          <span className="pastille-compte">
+            <IconPawFilled width={32} height={32} />
+          </span>
+          <span className="texte-compte">
+            <strong>Mon niveau</strong>
+            <em>{fidelite?.actuel?.nom || '…'}</em>
+            {fidelite && (
+              <>
+                <span className="jauge-compte">
+                  <span className="jauge">
+                    <span style={{ width: `${Math.round(fidelite.progression * 100)}%` }} />
+                  </span>
+                  <b>
+                    {fidelite.total}
+                    {fidelite.suivant ? ` / ${fidelite.suivant.points_min}` : ''} pts
+                  </b>
+                </span>
+                <small>
+                  {fidelite.suivant
+                    ? `Plus que ${reste} point${reste > 1 ? 's' : ''} pour atteindre le niveau suivant !`
+                    : 'Vous avez atteint le plus haut niveau, bravo !'}
+                </small>
+              </>
             )}
-            <button className="bouton bouton-danger" onClick={supprimer}>
-              Supprimer définitivement
-            </button>
-            <button className="bouton bouton-doux" onClick={() => setConfirmerSuppression(false)}>
-              Annuler
-            </button>
-          </div>
-        </div>
-      )}
+          </span>
+          <IconChevron width={22} height={22} />
+        </button>
+
+        <button onClick={onMonAbonnement}>
+          <span className="pastille-compte">
+            <IconCrownFilled width={30} height={30} />
+          </span>
+          <span className="texte-compte">
+            <strong>Mon abonnement</strong>
+            <small>Voir mon offre et gérer mes options</small>
+          </span>
+          <IconChevron width={22} height={22} />
+        </button>
+
+        <button className="bleu-icone" onClick={onAide}>
+          <span className="pastille-compte">
+            <IconBulb width={30} height={30} />
+          </span>
+          <span className="texte-compte">
+            <strong>Aide et conseils</strong>
+            <small>Tous nos conseils pour bien utiliser Malow</small>
+          </span>
+          <IconChevron width={22} height={22} />
+        </button>
+
+        <button onClick={onParametres}>
+          <span className="pastille-compte">
+            <IconGearFilled width={30} height={30} />
+          </span>
+          <span className="texte-compte">
+            <strong>Paramètres</strong>
+            <small>Préférences de l’application</small>
+          </span>
+          <IconChevron width={22} height={22} />
+        </button>
+      </nav>
     </main>
   )
 }
