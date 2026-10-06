@@ -78,9 +78,9 @@ export default function SiteFerme() {
                 : 'Prenez une photo, Malow s’occupe de l’annonce. L’application est en préparation et sera bientôt disponible sur Google Play.'}
           </p>
           <p className="manuscrit centre">
-            Une seconde vie
+            Vos objets peuvent encore
             <br />
-            pour de belles histoires ♡
+            faire des heureux ♡
           </p>
         </>
       )}
