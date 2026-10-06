@@ -75,7 +75,7 @@ export default function MonAbonnement({ session, onRetour, onOffres }) {
 
       <div className="actions">
         <button className="bouton bouton-principal" onClick={onOffres}>
-          {payant ? 'Changer de formule' : 'Voir les offres'}
+          {payant ? 'Changer de formule' : 'Voir les abonnements'}
         </button>
         {payant ? (
           <button className="bouton-lien danger" onClick={() => setConfirmation(true)}>

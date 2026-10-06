@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { IconCamera, IconChevron, IconEdit, IconSparkle, IconTrash } from '../components/Icons.jsx'
+import { IconCamera, IconChevron, IconEdit, IconSparkle } from '../components/Icons.jsx'
 import { listerAnnoncesCloud, supprimerCompte } from '../lib/annoncesCloud.js'
 import { changerAvatar, changerPseudo, lireProfil, PSEUDO_VALIDE } from '../lib/profil.js'
 import { photoCarree } from '../lib/stockage.js'
@@ -180,16 +180,7 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelit
               <IconSparkle width={22} height={22} />
             </span>
             <span>
-              <strong>Voir les offres</strong>
-            </span>
-            <IconChevron width={18} height={18} />
-          </button>
-          <button className="danger" onClick={() => setConfirmerSuppression(true)} disabled={attente}>
-            <span className="icone-compte">
-              <IconTrash width={22} height={22} />
-            </span>
-            <span>
-              <strong>{attente ? 'Suppression…' : 'Supprimer mon compte Malow'}</strong>
+              <strong>Voir les abonnements</strong>
             </span>
             <IconChevron width={18} height={18} />
           </button>
@@ -207,6 +198,9 @@ export default function Profil({ session, onConnexion, onVoirAnnonces, onFidelit
         <a className="lien-discret" href="https://malow.app/confidentialite.html" target="_blank" rel="noreferrer">
           Règles de confidentialité
         </a>
+        <button className="bouton-lien danger supprimer-compte" onClick={() => setConfirmerSuppression(true)} disabled={attente}>
+          {attente ? 'Suppression…' : 'Supprimer mon compte Malow'}
+        </button>
       </div>
 
       {confirmerSuppression && (

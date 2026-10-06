@@ -2704,6 +2704,11 @@ html.camera-native .viseur {
   color: #a8432e;
 }
 
+.supprimer-compte {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
 .bouton-danger {
   background: #a8432e;
   color: #fff;
