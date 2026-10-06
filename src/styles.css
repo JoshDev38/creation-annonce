@@ -2798,13 +2798,8 @@ html.camera-native .viseur {
   color: #8b4a32;
 }
 
-.bleu .pastille-compte,
-.bleu-icone .pastille-compte {
+.bleu .pastille-compte {
   background: #d6e7f2;
-}
-
-.bleu-icone .pastille-compte {
-  color: var(--chocolat);
 }
 
 .texte-compte {

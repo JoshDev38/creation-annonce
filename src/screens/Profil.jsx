@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  IconBulb,
   IconChevron,
   IconCrownFilled,
   IconGearFilled,
@@ -11,7 +10,7 @@ import { chargerFidelite } from '../lib/fidelite.js'
 import oursCompte from '../assets/compte/ours-compte.png'
 
 // Onglet « Profil » : le menu « Mon compte ».
-export default function Profil({ session, onConnexion, onMonProfil, onFidelite, onMonAbonnement, onAide, onParametres }) {
+export default function Profil({ session, onConnexion, onMonProfil, onFidelite, onMonAbonnement, onParametres }) {
   const [fidelite, setFidelite] = useState(null)
 
   useEffect(() => {
@@ -106,17 +105,6 @@ export default function Profil({ session, onConnexion, onMonProfil, onFidelite, 
           <span className="texte-compte">
             <strong>Mon abonnement</strong>
             <small>Voir mon offre et gérer mes options</small>
-          </span>
-          <IconChevron width={22} height={22} />
-        </button>
-
-        <button className="bleu-icone" onClick={onAide}>
-          <span className="pastille-compte">
-            <IconBulb width={30} height={30} />
-          </span>
-          <span className="texte-compte">
-            <strong>Aide et conseils</strong>
-            <small>Tous nos conseils pour bien utiliser Malow</small>
           </span>
           <IconChevron width={22} height={22} />
         </button>

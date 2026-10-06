@@ -356,7 +356,6 @@ export default function App() {
           onMonProfil={() => setEcran('mon-profil')}
           onFidelite={() => setEcran('fidelite')}
           onMonAbonnement={() => setEcran('mon-abonnement')}
-          onAide={() => setEcran('conseils')}
           onParametres={() => setEcran('parametres')}
         />
       )
