@@ -44,21 +44,42 @@ L'offre gratuite de **Vercel interdit l'usage commercial**. Plan retenu pour ram
    - **pas de sauvegardes automatiques** → sauvegarde de la base chaque nuit via GitHub Actions (le mot de passe de la base est à ajouter par Josh dans les secrets GitHub).
 3. Passer Supabase en Pro (≈ 23 € / mois) seulement au-delà d'environ 50 000 utilisateurs actifs, ou pour des sauvegardes gérées.
 
-## Avant le lancement (liste complète)
+## Avant le lancement (liste complète, mise à jour le 8 octobre 2026)
 
-- [ ] Optimisation des coûts IA : Premium 2 recherches, analyse Gratuite économique
-- [ ] Quotas côté serveur : 5 / mois en gratuit, 15 / mois en Premium, 2 Premium offertes à l'inscription
-- [ ] Plafond de dépense mensuel et alerte dans la console Anthropic (à faire par Josh)
-- [ ] Pub AdMob avec consentement RGPD (compte AdMob : Josh)
-- [x] Écran « Abonnements » (3 formules, Gratuit par défaut) ; colonne `formule` dans `profils`, modifiable seulement par le serveur
-- [ ] Abonnements via Google Play Billing + RevenueCat (compte marchand et SIRET : Josh) : les boutons « Choisir » affichent pour l’instant « bientôt disponible »
-- [ ] Migration de l'hébergement (voir plus haut)
-- [ ] Clé de signature de production pour le Play Store (la clé de test actuelle est publique dans le dépôt)
-- [ ] Protection contre les mots de passe piratés : Supabase → Authentication (case à cocher, Josh)
-- [ ] Double authentification sur GitHub, Vercel, Supabase, Anthropic, Google, Cloudflare
-- [ ] Juridique : mentions légales, CGU, politique de confidentialité à compléter (bulle, micro, photos dans la galerie, fidélité, Anthropic, Google), recherche INPI sur « Malow »
-- [ ] Play Store : compte développeur (25 $), **test fermé avec 12 testeurs pendant 14 jours**, déclarations (bulle SYSTEM_ALERT_WINDOW avec vidéo, service « specialUse », micro, caméra), formulaire Sécurité des données, page web de suppression de compte, fiche Store (visuels et textes)
+Déjà fait : écran Abonnements et rubrique d'aide, « Mon compte » (profil, niveau, abonnement, paramètres), lien de désabonnement vers Google Play, suppression du compte avec confirmation, IA réservée à l'appli (serveur), site malow.app fermé au public (page « bientôt », confirmation d'e-mail, nouveau mot de passe et confidentialité gardés).
+
+### 1. Dans l'appli (Claude)
+- [ ] Optimisation des coûts IA : Premium 2 recherches (≈ 0,12 €), Gratuit sans recherche ni prix sur un modèle économique (≈ 0,03 €)
+- [ ] Quotas côté serveur : 5 / mois en gratuit, 15 / mois en Malow+, 2 Premium offertes à l'inscription, compteur visible dans l'appli
+- [ ] Google Play Billing + RevenueCat : boutons « Choisir », formule mise à jour par le serveur, désabonnement
+- [ ] Pub AdMob (1 par annonce en gratuit) avec consentement RGPD
+- [ ] Play Integrity : l'IA ne répond qu'à l'appli officielle
+- [ ] Récompenses de fidélité (à choisir dans les propositions)
 - [ ] Suivi des plantages (Sentry)
-- [ ] Récompenses de fidélité à définir (tables `fidelite_*` dans Supabase)
+- [ ] Page web de demande de suppression de compte (exigée par Google, à garder ouverte sur malow.app)
 - [ ] Aide : ourson de la rubrique « Mon compte » (en attente de la maquette)
 - [ ] Décider du lien « Découvrir sans compte » (garder ou retirer)
+
+### 2. Comptes et réglages (Josh)
+- [ ] Plafond de dépense mensuel et alerte dans la console Anthropic
+- [ ] Double authentification sur GitHub, Vercel, Supabase, Anthropic, Google, Cloudflare
+- [ ] Supabase → Authentication : protection contre les mots de passe piratés
+- [ ] Micro-entreprise / SIRET, compte marchand Google Payments, compte AdMob, compte RevenueCat
+- [ ] Recherche INPI sur « Malow » (et dépôt de la marque si libre)
+
+### 3. Hébergement et sécurité (ensemble)
+- [ ] Migration : site sur Cloudflare Pages, fonction IA sur Supabase Edge Functions, photos sur Cloudflare R2
+- [ ] Sauvegarde de la base chaque nuit (GitHub Actions)
+- [ ] Clé de signature de production (la clé de test actuelle est publique dans le dépôt)
+
+### 4. Juridique (Claude rédige, Josh valide)
+- [ ] Mentions légales, CGU / conditions de vente des abonnements
+- [ ] Politique de confidentialité complète : bulle, micro, photos dans la galerie, fidélité, Anthropic, Google, AdMob, RevenueCat
+
+### 5. Google Play
+- [ ] Compte développeur (25 $, vérification d'identité)
+- [ ] Fiche Store : icône, captures d'écran, bannière, textes
+- [ ] Déclarations : bulle (SYSTEM_ALERT_WINDOW, avec vidéo), service « specialUse », micro, caméra, formulaire Sécurité des données, classification du contenu
+- [ ] Test fermé : 12 testeurs pendant 14 jours d'affilée, obligatoire pour un nouveau compte personnel
+- [ ] Demande d'accès en production, puis publication
+- [ ] Rouvrir malow.app en vitrine (lien Google Play)
