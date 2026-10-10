@@ -1,12 +1,12 @@
-# E-mails Malow (Supabase)
+# E-mails Nalow (Supabase)
 
 À coller dans Supabase : *Authentication → Emails → Templates*.
 
 | Modèle Supabase | Objet (Subject) | Fichier |
 |---|---|---|
-| Confirm signup | Confirmez votre compte Malow | `confirmation.html` |
-| Reset password | Votre nouveau mot de passe Malow | `mot-de-passe.html` |
-| Change email address | Confirmez votre nouvelle adresse Malow | `changement-email.html` |
+| Confirm signup | Confirmez votre compte Nalow | `confirmation.html` |
+| Reset password | Votre nouveau mot de passe Nalow | `mot-de-passe.html` |
+| Change email address | Confirmez votre nouvelle adresse Nalow | `changement-email.html` |
 
 Pour chaque modèle : remplacer l’objet, puis coller tout le contenu du fichier dans *Message body* et enregistrer.
 Le lien `{{ .ConfirmationURL }}` est rempli automatiquement par Supabase.
