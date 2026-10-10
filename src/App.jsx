@@ -51,6 +51,7 @@ export default function App() {
   }, [])
   const [photos, setPhotos] = useState([])
   const [infos, setInfos] = useState('')
+  const [objetNeuf, setObjetNeuf] = useState(false)
   const [annonce, setAnnonce] = useState(null)
   const [toast, setToast] = useState(null)
   const [origine, setOrigine] = useState('detail')
@@ -126,14 +127,14 @@ export default function App() {
     allerPhotos()
   }
 
-  const lancerAnalyse = (texte) => {
+  const lancerAnalyse = (texte, neuf = false) => {
     if (reserveeAppli()) return
+    setInfos(texte)
+    setObjetNeuf(neuf)
     if (!sessionRef.current) {
-      setInfos(texte)
-      exigerConnexion('Créez un compte gratuit ou connectez-vous pour lancer l’analyse IA.', () => lancerAnalyse(texte))
+      exigerConnexion('Créez un compte gratuit ou connectez-vous pour lancer l’analyse IA.', () => lancerAnalyse(texte, neuf))
       return
     }
-    setInfos(texte)
     // Quota épuisé : on le dit tout de suite (le serveur vérifie aussi).
     if (quota && !quota.prochaine) {
       setModaleQuota(quota)
@@ -143,7 +144,7 @@ export default function App() {
     setResultat(null)
     setEcran('analyse')
     const numero = ++analyseEnCours.current
-    analyserAvecIA(photos, texte)
+    analyserAvecIA(photos, texte, neuf)
       .then((r) => ({ ...r, source: 'ia' }))
       .catch((e) => {
         if (e.code === 'quota') {
@@ -255,6 +256,7 @@ export default function App() {
   const nouvelleAnnonce = () => {
     setPhotos([])
     setInfos('')
+    setObjetNeuf(false)
     setAnnonce(null)
     allerPhotos()
   }
@@ -335,6 +337,7 @@ export default function App() {
       contenu = (
         <Detail
           valeurInitiale={infos}
+          neufInitial={objetNeuf}
           onRetour={() => setEcran('photos')}
           onValider={lancerAnalyse}
           quota={quota}

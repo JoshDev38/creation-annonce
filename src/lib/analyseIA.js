@@ -7,7 +7,7 @@ import { supabase } from './supabase.js'
 // Dans l'appli installée, la page est servie en local : on vise le site en ligne.
 const BASE = import.meta.env.VITE_API_URL ?? (estAppliNative() ? 'https://nalow.app' : '')
 
-export async function analyserAvecIA(photos, infos) {
+export async function analyserAvecIA(photos, infos, neuf = false) {
   // Photos réduites : suffisant pour l'IA, et léger à envoyer.
   const legeres = await Promise.all(photos.map((p) => allegerPhoto(p, 1024, 0.8)))
   // L'analyse est réservée aux utilisateurs connectés : on joint le jeton de session.
@@ -20,7 +20,7 @@ export async function analyserAvecIA(photos, infos) {
     const rep = await fetch(`${BASE}/api/analyser`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jeton}` },
-      body: JSON.stringify({ photos: legeres, infos }),
+      body: JSON.stringify({ photos: legeres, infos, neuf }),
       signal: controle.signal,
     })
     const donnees = await rep.json().catch(() => ({}))

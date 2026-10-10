@@ -4,9 +4,10 @@ import { demarrerDictee, dicteeDisponible } from '../lib/dictee.js'
 import { IconChat, IconChevron, IconKeyboard, IconMic, IconSparkle, IconStop } from '../components/Icons.jsx'
 
 import { phraseQuota } from '../lib/quota.js'
-export default function Detail({ valeurInitiale, onRetour, onValider, quota }) {
+export default function Detail({ valeurInitiale, neufInitial = false, onRetour, onValider, quota }) {
   const [mode, setMode] = useState(valeurInitiale ? 'ecrit' : null)
   const [texte, setTexte] = useState(valeurInitiale)
+  const [neuf, setNeuf] = useState(neufInitial)
   const [ecoute, setEcoute] = useState(false)
   const [erreur, setErreur] = useState('')
   const reco = useRef(null)
@@ -44,7 +45,7 @@ export default function Detail({ valeurInitiale, onRetour, onValider, quota }) {
 
   const valider = () => {
     reco.current?.annuler()
-    onValider(texte.trim())
+    onValider(texte.trim(), neuf)
   }
 
   return (
@@ -68,6 +69,14 @@ export default function Detail({ valeurInitiale, onRetour, onValider, quota }) {
       <p className="texte-bleu centre">
         Vous pouvez nous donner quelques informations par la voix ou par écrit.
       </p>
+
+      <label className="case-neuf">
+        <input type="checkbox" checked={neuf} onChange={(e) => setNeuf(e.target.checked)} />
+        <span>
+          <strong>Objet neuf</strong>
+          <small>Jamais utilisé (avec ou sans étiquette). Sinon, il est considéré d’occasion.</small>
+        </span>
+      </label>
 
       {!mode && (
         <div className="liste-cartes">
@@ -136,7 +145,7 @@ export default function Detail({ valeurInitiale, onRetour, onValider, quota }) {
       {phraseQuota(quota) && <p className="quota-info">{phraseQuota(quota)}</p>}
 
       <div className="actions">
-        <button className="bouton bouton-doux" onClick={() => onValider('')}>
+        <button className="bouton bouton-doux" onClick={() => onValider('', neuf)}>
           Passer cette étape <IconChevron width={18} height={18} />
         </button>
       </div>

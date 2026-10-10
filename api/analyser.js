@@ -40,13 +40,22 @@ const OUTIL_ANNONCE = {
         type: 'string',
         description: 'Description en paragraphes par thème (Description, État, Taille / dimensions, Livraison), séparés par une ligne vide',
       },
-      prix_conseille: { type: 'integer', description: 'Prix conseillé en euros' },
-      prix_rapide: { type: 'integer', description: 'Prix pour vendre en quelques jours' },
-      prix_haut: { type: 'integer', description: 'Prix haut, pour un acheteur patient' },
+      prix_neuf: {
+        type: 'integer',
+        description: "Prix neuf actuel en euros dans une boutique en ligne (même modèle, ou le plus proche) ; 0 si introuvable",
+      },
+      source_prix_neuf: { type: 'string', description: 'Boutique où ce prix neuf a été relevé (ex. « Darty ») ; vide si prix_neuf vaut 0' },
+      etat: {
+        type: 'string',
+        enum: ['neuf', 'tres_bon', 'bon', 'correct'],
+        description: "État d'après les photos et le vendeur : neuf (jamais utilisé), très bon, bon, ou correct (usure ou défauts visibles)",
+      },
+      prix_conseille: { type: 'integer', description: 'Prix conseillé en euros, utilisé seulement si prix_neuf vaut 0' },
+      prix_rapide: { type: 'integer', description: 'Prix pour vendre en quelques jours (si prix_neuf vaut 0)' },
+      prix_haut: { type: 'integer', description: 'Prix haut, pour un acheteur patient (si prix_neuf vaut 0)' },
       explication_prix: {
         type: 'string',
-        description:
-          "Une phrase pour le vendeur expliquant d'où vient le prix (ex. « Des articles similaires se vendent entre 12 et 20 € sur Vinted. »)",
+        description: "Une phrase pour le vendeur expliquant l'estimation, utilisée seulement si prix_neuf vaut 0",
       },
       tags: { type: 'array', items: { type: 'string' }, description: '5 à 8 mots-clés' },
       marque_probable: {
@@ -75,6 +84,9 @@ const OUTIL_ANNONCE = {
     required: [
       'titre',
       'description',
+      'prix_neuf',
+      'source_prix_neuf',
+      'etat',
       'prix_conseille',
       'prix_rapide',
       'prix_haut',
@@ -90,7 +102,7 @@ const OUTIL_ANNONCE = {
 }
 
 // Version standard (gratuite) : mêmes champs, sans le prix.
-const CHAMPS_PRIX = ['prix_conseille', 'prix_rapide', 'prix_haut', 'explication_prix']
+const CHAMPS_PRIX = ['prix_neuf', 'source_prix_neuf', 'etat', 'prix_conseille', 'prix_rapide', 'prix_haut', 'explication_prix']
 const OUTIL_ANNONCE_SIMPLE = {
   ...OUTIL_ANNONCE,
   input_schema: {
@@ -151,21 +163,41 @@ Termine toujours en appelant l'outil rediger_annonce avec l'annonce finale.`
 
 const SYSTEME_PREMIUM = consignes(`Recherches web : quand l'outil web_search est disponible, fais 1 ou 2 recherches courtes (${MAX_RECHERCHES} au plus) :
   - Si la marque et le modèle ou la référence sont lisibles sur les photos ou donnés par le vendeur : \
-une seule recherche, celle du prix (l'objet avec sa marque et son modèle, « occasion », sur des sites français \
-comme Leboncoin ou Vinted).
+une seule recherche, celle du prix neuf (ex. « Moulinex Bread of the World prix »).
   - Sinon, d'abord une recherche d'identification (marque et inscriptions visibles : nom de gamme, nombre de \
-programmes, puissance, référence…) pour trouver les modèles possibles, puis la recherche du prix avec le modèle \
+programmes, puissance, référence…) pour trouver les modèles possibles, puis la recherche du prix neuf du modèle \
 le plus probable. Sers-toi de l'identification pour marque_probable, modele_probable, autres_marques et \
 autres_modeles : ne propose que des modèles réels qui correspondent à ce qui est visible.
 
-Prix : c'est essentiel pour le vendeur. Base prix_conseille sur le milieu de la fourchette observée pour des articles \
-comparables dans le même état (ne le sous-estime pas : le vendeur peut toujours baisser), en tenant compte de la marque, \
-du modèle exact, des accessoires et de la demande. En euros entiers, prix_rapide < prix_conseille < prix_haut. \
-Résume en une phrase dans explication_prix ce qui justifie le prix (fourchette observée et source, ou estimation si tu n'as rien trouvé).
+Prix : relève dans prix_neuf le prix actuel de l'objet neuf dans une boutique en ligne française (site de la marque, \
+Amazon, Fnac, Darty, Decathlon…), et la boutique dans source_prix_neuf. S'il n'est plus vendu, prends le prix neuf \
+du modèle équivalent le plus proche. Indique l'état dans etat (« neuf » seulement si le vendeur dit que l'objet est \
+neuf). Le prix de vente sera calculé à partir de ces deux informations. Si tu ne trouves vraiment aucun prix neuf, \
+mets prix_neuf à 0 et estime toi-même prix_conseille, prix_rapide, prix_haut (euros entiers, \
+prix_rapide < prix_conseille < prix_haut) avec une phrase dans explication_prix.
 Va droit au but : pas de recherche supplémentaire, rédige l'annonce dès que tu as ces informations.
 
 `)
 const SYSTEME_STANDARD = consignes('')
+
+// Prix conseillé = prix neuf en boutique × pourcentage selon l'état (vente rapide / prix haut autour).
+// À ajuster ici selon les retours des vendeurs.
+const DECOTE = {
+  neuf: { libelle: 'neuf, jamais utilisé', conseille: 0.7, rapide: 0.6, haut: 0.8 },
+  tres_bon: { libelle: "en très bon état d'occasion", conseille: 0.5, rapide: 0.4, haut: 0.6 },
+  bon: { libelle: "en bon état d'occasion", conseille: 0.4, rapide: 0.3, haut: 0.5 },
+  correct: { libelle: "d'occasion avec des traces d'usure", conseille: 0.25, rapide: 0.2, haut: 0.35 },
+}
+
+function prixDepuisNeuf(prixNeuf, etat, source) {
+  const d = DECOTE[etat] || DECOTE.bon
+  const arrondi = (taux) => Math.max(1, Math.round(prixNeuf * taux))
+  const pourcent = Math.round(d.conseille * 100)
+  return {
+    prix: { conseille: arrondi(d.conseille), rapide: arrondi(d.rapide), haut: arrondi(d.haut) },
+    explication: `Prix neuf constaté : environ ${prixNeuf} €${source ? ` (${source})` : ''}. Pour un objet ${d.libelle}, on conseille ${pourcent} % de ce prix.`,
+  }
+}
 
 // Réglages de chaque niveau d'analyse.
 const NIVEAUX = {
@@ -303,7 +335,7 @@ export default async function handler(req, res) {
   if (errAuth || !auth?.user) return res.status(401).json({ erreur: 'Session expirée, reconnectez-vous' })
   const utilisateur = auth.user.id
 
-  const { photos = [], infos = '' } = req.body || {}
+  const { photos = [], infos = '', neuf = false } = req.body || {}
   if (!Array.isArray(photos) || photos.length === 0 || photos.length > MAX_PHOTOS) {
     return res.status(400).json({ erreur: `Envoyez entre 1 et ${MAX_PHOTOS} photos` })
   }
@@ -320,6 +352,12 @@ export default async function handler(req, res) {
       text: String(infos).trim()
         ? `Informations du vendeur : ${String(infos).slice(0, 2000)}`
         : "Le vendeur n'a pas donné d'informations : appuie-toi sur les photos.",
+    },
+    {
+      type: 'text',
+      text: neuf === true
+        ? 'Le vendeur a coché « objet neuf » : il est neuf, jamais utilisé.'
+        : "Le vendeur n'a pas coché « objet neuf » : c'est un objet d'occasion.",
     },
   ]
 
@@ -395,11 +433,23 @@ export default async function handler(req, res) {
     if (!validee) return res.status(409).json({ erreur: 'Analyse annulée, réessayez' })
 
     const a = resultat.annonce
+    // Prix : prix neuf × pourcentage selon l'état (case « neuf » du vendeur, sinon état estimé, jamais « neuf »).
+    let prix = null
+    let explicationPrix = ''
+    if (niveau.outil === OUTIL_ANNONCE) {
+      const etat = neuf === true ? 'neuf' : a.etat === 'neuf' ? 'tres_bon' : a.etat
+      if (a.prix_neuf > 0) {
+        ;({ prix, explication: explicationPrix } = prixDepuisNeuf(a.prix_neuf, etat, a.source_prix_neuf))
+      } else {
+        prix = { conseille: a.prix_conseille, rapide: a.prix_rapide, haut: a.prix_haut }
+        explicationPrix = a.explication_prix || ''
+      }
+    }
     return res.status(200).json({
       titre: a.titre,
       description: formaterDescription(a.description),
-      prix: niveau.outil === OUTIL_ANNONCE ? { conseille: a.prix_conseille, rapide: a.prix_rapide, haut: a.prix_haut } : null,
-      explicationPrix: a.explication_prix || '',
+      prix,
+      explicationPrix,
       tags: a.tags,
       marqueProbable: a.marque_probable || '',
       autresMarques: a.marque_probable ? (a.autres_marques || []).filter((m) => m && m !== a.marque_probable).slice(0, 5) : [],
