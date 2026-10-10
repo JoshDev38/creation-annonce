@@ -102,7 +102,14 @@ const OUTIL_ANNONCE_SIMPLE = {
   },
 }
 
-const RECHERCHE_WEB = { type: 'web_search_20260209', name: 'web_search', max_uses: MAX_RECHERCHES }
+// Recherche web classique (sans filtrage dynamique) : les résultats arrivent tels quels à l'IA.
+// La version avec filtrage dynamique (web_search_20260209) renvoyait des résultats inexploitables.
+const RECHERCHE_WEB = {
+  type: 'web_search_20250305',
+  name: 'web_search',
+  max_uses: MAX_RECHERCHES,
+  user_location: { type: 'approximate', country: 'FR', timezone: 'Europe/Paris' },
+}
 
 const consignes = (PRIX) => `Tu rédiges des annonces de vente d'objets d'occasion pour des particuliers en France \
 (Vinted, Leboncoin, Facebook Marketplace).
@@ -221,6 +228,16 @@ async function demanderAnnonce(client, contenuUtilisateur, niveau, avecRecherche
     if (reponse.stop_reason !== 'pause_turn') break
     messages.push({ role: 'assistant', content: reponse.content })
   }
+
+  // Journal des recherches web : nombre de résultats ou code d'erreur (les erreurs ne lèvent pas d'exception).
+  const resultatsRecherche = reponse.content
+    .filter((b) => b.type.endsWith('_tool_result'))
+    .map((b) => ({
+      type: b.type,
+      resultats: Array.isArray(b.content) ? b.content.length : undefined,
+      erreur: Array.isArray(b.content) ? undefined : b.content?.error_code || b.content?.type,
+    }))
+  if (resultatsRecherche.length) console.log(JSON.stringify({ analyse: 'recherche', utilisateur, resultatsRecherche }))
 
   // Journal : modèle qui a réellement répondu (un repli peut changer de modèle).
   console.log(
