@@ -20,7 +20,7 @@ export const config = { maxDuration: 120 }
 const MODELE_PREMIUM = 'claude-opus-5-5'
 const MODELE_STANDARD = 'claude-sonnet-5-5'
 const MAX_PHOTOS = 8
-const MAX_RECHERCHES = 2
+const MAX_RECHERCHES = 3
 const MAX_REPRISES = 3 // relances après une pause du serveur (pause_turn)
 // L'analyse IA est réservée à l'appli : le site nalow.app ne peut pas l'appeler.
 const ORIGINES = [
@@ -102,10 +102,11 @@ const OUTIL_ANNONCE_SIMPLE = {
   },
 }
 
-// Recherche web classique (sans filtrage dynamique) : les résultats arrivent tels quels à l'IA.
-// La version avec filtrage dynamique (web_search_20260209) renvoyait des résultats inexploitables.
+// Recherche web avec filtrage dynamique : l'IA trie les résultats avant de les lire, ce qui
+// coûte moins cher que la version classique (web_search_20250305). Début octobre 2026, elle a
+// parfois rendu des résultats inexploitables : le journal « recherche » permet de le repérer.
 const RECHERCHE_WEB = {
-  type: 'web_search_20250305',
+  type: 'web_search_20260209',
   name: 'web_search',
   max_uses: MAX_RECHERCHES,
   user_location: { type: 'approximate', country: 'FR', timezone: 'Europe/Paris' },
@@ -141,12 +142,13 @@ séparés par une ligne vide, dans cet ordre :
 
 Termine toujours en appelant l'outil rediger_annonce avec l'annonce finale.`
 
-const SYSTEME_PREMIUM = consignes(`Recherches web : quand l'outil web_search est disponible, fais toujours exactement ${MAX_RECHERCHES} recherches courtes, dans cet ordre :
+const SYSTEME_PREMIUM = consignes(`Recherches web : quand l'outil web_search est disponible, fais toujours 2 ou 3 recherches courtes (${MAX_RECHERCHES} au plus), dans cet ordre :
   1. Identification : la marque et les inscriptions visibles (nom de gamme, nombre de programmes, puissance, \
 référence…) pour trouver le modèle exact et sa référence. Sers-t'en pour marque_probable, modele_probable, \
 autres_marques et autres_modeles : ne propose que des modèles réels qui correspondent à ce qui est visible.
   2. Prix : l'objet avec le modèle trouvé (marque, modèle, taille) et « occasion », sur des sites français comme Leboncoin ou Vinted, \
 pour voir à quel prix des articles comparables se vendent en ce moment.
+  3. Seulement si les résultats sont insuffisants : une recherche de plus (autre site d'occasion, ou prix neuf).
 
 Prix : c'est essentiel pour le vendeur. Base prix_conseille sur le milieu de la fourchette observée pour des articles \
 comparables dans le même état (ne le sous-estime pas : le vendeur peut toujours baisser), en tenant compte de la marque, \
@@ -236,13 +238,16 @@ async function demanderAnnonce(client, contenuUtilisateur, niveau, avecRecherche
     messages.push({ role: 'assistant', content: reponse.content })
   }
 
-  // Journal des recherches web : nombre de résultats ou code d'erreur (les erreurs ne lèvent pas d'exception).
+  // Journal des recherches web et du filtrage (exécution de code) : nombre de résultats ou code
+  // d'erreur (les erreurs des outils serveur ne lèvent pas d'exception).
   const resultatsRecherche = reponse.content
     .filter((b) => b.type.endsWith('_tool_result'))
     .map((b) => ({
       type: b.type,
       resultats: Array.isArray(b.content) ? b.content.length : undefined,
-      erreur: Array.isArray(b.content) ? undefined : b.content?.error_code || b.content?.type,
+      erreur: Array.isArray(b.content)
+        ? undefined
+        : b.content?.error_code || (b.content?.return_code ? `code ${b.content.return_code}` : undefined),
     }))
   if (resultatsRecherche.length) console.log(JSON.stringify({ analyse: 'recherche', utilisateur, resultatsRecherche }))
 
