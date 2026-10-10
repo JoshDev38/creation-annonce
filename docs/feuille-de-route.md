@@ -10,6 +10,8 @@ L'ancien nom « Malow » est une marque de l'Union européenne déjà enregistr�
 - [x] nalow.app acheté et branché (Cloudflare → Vercel) ; appli, serveur IA et liens des e-mails sur nalow.app ; malow.app redirige vers nalow.app
 - [ ] Supabase → Authentication → URL Configuration : Site URL https://nalow.app, Redirect URLs https://nalow.app et app.nalow://auth (Josh)
 - [ ] Adresse contact@nalow.app (Cloudflare Email Routing) ; en attendant les textes gardent contact@malow.app
+- [ ] malow.app gardé jusqu'à son échéance (redirection vers nalow.app via vercel.json) : désactiver le renouvellement automatique dans Cloudflare ; à l'échéance, retirer malow.app de Vercel et la redirection de vercel.json
+- [ ] Nettoyage : domaine malow.app et ancienne clé API dans Resend ; enregistrements Resend de malow.app dans Cloudflare ; https://malow.app/** et app.malow://auth dans les Redirect URLs Supabase (après désinstallation de l'ancienne appli)
 - [ ] nalow.fr (libre le 10 octobre 2026) : à acheter pour protéger le nom
 - [x] Nouveau logo « Nalow » (icônes, écran d'ouverture) et oursons d'abonnement « NALOW+ »
 - [x] Identifiant Android `app.malow` → `app.nalow` ; APK : .../releases/download/derniere-version/nalow.apk
