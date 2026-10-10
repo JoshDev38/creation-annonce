@@ -30,12 +30,12 @@ export async function analyserAvecIA(photos, infos, neuf = false) {
       if (donnees.code === 'quota') Object.assign(err, { code: 'quota', quota: donnees.quota })
       throw err
     }
-    const { titre, description, prix = null, tags, marqueProbable = '', autresMarques = [], modeleProbable = '', autresModeles = [], explicationPrix = '', modele = '', typeAnalyse = '' } = donnees
+    const { titre, marque = '', description, prix = null, tags, marqueProbable = '', autresMarques = [], modeleProbable = '', autresModeles = [], explicationPrix = '', modele = '', typeAnalyse = '' } = donnees
     // Analyse standard (formule gratuite) : pas d'estimation de prix.
     if (!titre || !description || !Array.isArray(tags) || (typeAnalyse !== 'standard' && !prix?.conseille)) {
       throw new Error('Réponse incomplète')
     }
-    return { titre, description, prix, tags, marqueProbable, autresMarques, modeleProbable, autresModeles, explicationPrix, modele, typeAnalyse }
+    return { titre, marque, description, prix, tags, marqueProbable, autresMarques, modeleProbable, autresModeles, explicationPrix, modele, typeAnalyse }
   } finally {
     clearTimeout(minuteur)
   }

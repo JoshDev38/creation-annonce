@@ -90,11 +90,21 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
     if (!nom) return onChange({ ...annonce, [drapeau]: true })
     const t = annonce.titre
     let titre
-    const posMarque = type === 'modele' && annonce.marqueChoisie ? t.toLowerCase().indexOf(annonce.marqueChoisie.toLowerCase()) : -1
+    // marque choisie par le vendeur, ou marque certaine écrite par l'IA
+    const marqueTitre = annonce.marqueChoisie || annonce.marque
+    const posMarque = type === 'modele' && marqueTitre ? t.toLowerCase().indexOf(marqueTitre.toLowerCase()) : -1
     if (posMarque >= 0) {
-      // le modèle se place juste après la marque
-      const fin = posMarque + annonce.marqueChoisie.length
-      titre = `${t.slice(0, fin)} ${nom}${t.slice(fin)}`
+      // le modèle se place juste après la marque ; les mots déjà en tête du modèle ne sont pas répétés
+      // (« Nike Air » + « Air Force 1 » → « Nike Air Force 1 »)
+      const fin = posMarque + marqueTitre.length
+      let suite = t.slice(fin)
+      const motsModele = nom.toLowerCase().split(/\s+/)
+      for (const mot of motsModele) {
+        const m = suite.match(/^\s+(\S+)/)
+        if (!m || m[1].toLowerCase() !== mot) break
+        suite = suite.slice(m[0].length)
+      }
+      titre = `${t.slice(0, fin)} ${nom}${suite}`
     } else {
       // juste après le type d'objet : avant le premier détail chiffré (« 19 programmes », « 8 ans »…)
       // ou le premier séparateur (« , » suivi d'un espace, pas la virgule d'un nombre comme « 1,5 kg »)

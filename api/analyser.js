@@ -13,7 +13,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 import { SUPABASE_CLE_PUBLIQUE, SUPABASE_URL } from '../src/lib/configSupabase.js'
-import { formaterDescription } from '../src/lib/paragraphes.js'
+import { paragraphes } from '../src/lib/paragraphes.js'
 
 export const config = { maxDuration: 120 }
 
@@ -35,7 +35,11 @@ const OUTIL_ANNONCE = {
   input_schema: {
     type: 'object',
     properties: {
-      titre: { type: 'string', description: 'Titre court et vendeur, 70 caractères maximum' },
+      titre: { type: 'string', description: 'Titre court et vendeur, 60 caractères maximum, sans répétition' },
+      marque: {
+        type: 'string',
+        description: "Marque écrite dans le titre (certaine : logo lisible ou info du vendeur), sans le modèle, ex. « Nike » ; chaîne vide sinon",
+      },
       description: {
         type: 'string',
         description: 'Description en paragraphes par thème (Description, État, Taille / dimensions, Livraison), séparés par une ligne vide',
@@ -83,6 +87,7 @@ const OUTIL_ANNONCE = {
     },
     required: [
       'titre',
+      'marque',
       'description',
       'prix_neuf',
       'source_prix_neuf',
@@ -149,15 +154,20 @@ photos et du vendeur : en cas de différence avec la recherche, ce qui est visib
 - Les informations du vendeur priment sur ce que tu crois voir.
 
 ${PRIX}Rédaction, en français :
-- Titre : court, avec les mots que les acheteurs tapent (type d'objet, marque, taille, état).
+- Titre : 60 caractères au plus, avec les mots que les acheteurs tapent (type d'objet, marque, modèle certain, \
+taille, couleur, état), dans cet ordre. Chaque information une seule fois : pas de synonymes qui se répètent \
+(« neuves, jamais portées », « basses Low »).
 - Description : des paragraphes courts par thème, chacun commençant par son intitulé suivi de « : », \
 séparés par une ligne vide, dans cet ordre :
   Description : l'objet, ce qui le rend intéressant, ses détails (1 à 3 phrases chaleureuses).
   État : l'état réel, avec les défauts visibles ou signalés (1 à 2 phrases).
   Taille / dimensions : seulement si la taille, la pointure ou les dimensions sont connues.
   Livraison : envoi soigné, remise en main propre possible (1 phrase).
-  Pas d'emoji, pas de majuscules inutiles, pas de listes à puces.
-- Mots-clés : 5 à 8, courts, sans « # ».
+  Chaque paragraphe commence par une majuscule après l'intitulé. Pas d'emoji, pas de majuscules inutiles au \
+milieu des phrases, pas de listes à puces. Ne décris que ce qui est visible sur les photos ou dit par le vendeur, \
+avec des mots précis (pas d'approximations comme « type air »).
+- Mots-clés : 5 à 8 termes que les acheteurs recherchent (type d'objet, marque, modèle certain, couleur, public, \
+matière), sans « # », sans mot isolé qui n'a pas de sens seul (ex. « air » pour une Nike Air).
 
 Termine toujours en appelant l'outil rediger_annonce avec l'annonce finale.`
 
@@ -179,6 +189,16 @@ Va droit au but : pas de recherche supplémentaire, rédige l'annonce dès que t
 
 `)
 const SYSTEME_STANDARD = consignes('')
+
+// Majuscule après chaque intitulé ; retire la rubrique Taille quand l'IA l'écrit sans taille connue
+// (« la pointure n'est pas précisée… »).
+const TAILLE_INCONNUE = /\b(n'est pas|ne sont pas|non|pas)\s+(précisée?s?|indiquée?s?|connue?s?|visibles?|lisibles?)\b|inconnue?s?/i
+function nettoyerDescription(texte) {
+  return paragraphes(texte)
+    .filter((p) => !(/^Taille\b/i.test(p) && TAILLE_INCONNUE.test(p)))
+    .map((p) => p.replace(/^([^:\n]{1,40}:\s*)(\p{Ll})/u, (_, debut, lettre) => debut + lettre.toUpperCase()))
+    .join('\n\n')
+}
 
 // Prix conseillé = prix neuf en boutique × pourcentage selon l'état (vente rapide / prix haut autour).
 // À ajuster ici selon les retours des vendeurs.
@@ -447,7 +467,8 @@ export default async function handler(req, res) {
     }
     return res.status(200).json({
       titre: a.titre,
-      description: formaterDescription(a.description),
+      marque: a.marque || '',
+      description: nettoyerDescription(a.description),
       prix,
       explicationPrix,
       tags: a.tags,
