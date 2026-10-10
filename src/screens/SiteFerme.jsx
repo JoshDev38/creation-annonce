@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { messageErreur, supabase } from '../lib/supabase.js'
 
-// Site malow.app fermé au public pendant la préparation du lancement : seule l'appli
+// Site nalow.app fermé au public pendant la préparation du lancement : seule l'appli
 // fonctionne. Le site garde deux usages liés aux e-mails de compte :
 // la confirmation d'adresse et le choix d'un nouveau mot de passe.
 // Lien lu avant que Supabase ne nettoie l'adresse (voir index.html).

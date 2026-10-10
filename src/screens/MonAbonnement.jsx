@@ -7,7 +7,7 @@ import { lireProfil } from '../lib/profil.js'
 
 // Les abonnements passent par Google Play : la résiliation se fait sur sa page
 // « Abonnements », qu'on ouvre directement sur Nalow.
-const PAGE_ABONNEMENTS_PLAY = 'https://play.google.com/store/account/subscriptions?package=app.malow'
+const PAGE_ABONNEMENTS_PLAY = 'https://play.google.com/store/account/subscriptions?package=app.nalow'
 
 const dateLongue = (iso) =>
   new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })

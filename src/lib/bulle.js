@@ -1,6 +1,6 @@
 // Bulle flottante Nalow (appli Android) : elle reste par-dessus Vinted ou
 // Leboncoin et permet de copier le titre, la description ou le prix.
-// Code natif : android/app/src/main/java/app/malow/BullePlugin.java
+// Code natif : android/app/src/main/java/app/nalow/BullePlugin.java
 import { registerPlugin } from '@capacitor/core'
 import { estAppliNative } from './cameraNative.js'
 

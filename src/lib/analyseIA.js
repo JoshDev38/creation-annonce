@@ -5,7 +5,7 @@ import { allegerPhoto } from './stockage.js'
 import { supabase } from './supabase.js'
 
 // Dans l'appli installée, la page est servie en local : on vise le site en ligne.
-const BASE = import.meta.env.VITE_API_URL ?? (estAppliNative() ? 'https://malow.app' : '')
+const BASE = import.meta.env.VITE_API_URL ?? (estAppliNative() ? 'https://nalow.app' : '')
 
 export async function analyserAvecIA(photos, infos) {
   // Photos réduites : suffisant pour l'IA, et léger à envoyer.

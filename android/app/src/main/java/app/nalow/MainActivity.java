@@ -1,4 +1,4 @@
-package app.malow;
+package app.nalow;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;

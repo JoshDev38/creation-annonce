@@ -17,7 +17,7 @@ const MODELE = 'claude-opus-5-5'
 const MAX_PHOTOS = 8
 const MAX_RECHERCHES = 3
 const MAX_REPRISES = 3 // relances après une pause du serveur (pause_turn)
-// L'analyse IA est réservée à l'appli : le site malow.app ne peut pas l'appeler.
+// L'analyse IA est réservée à l'appli : le site nalow.app ne peut pas l'appeler.
 const ORIGINES = [
   'https://localhost', // appli Android (Capacitor)
   'capacitor://localhost', // appli iOS (Capacitor)

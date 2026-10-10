@@ -48,7 +48,7 @@ export default function Parametres({ session, onRetour, onQuitte, notifier }) {
       </header>
 
       <div className="liste-compte">
-        <a href="https://malow.app/confidentialite.html" target="_blank" rel="noreferrer">
+        <a href="https://nalow.app/confidentialite.html" target="_blank" rel="noreferrer">
           <span className="icone-compte">
             <IconDoc width={22} height={22} />
           </span>

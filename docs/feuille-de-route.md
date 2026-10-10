@@ -7,9 +7,12 @@ Dernière mise à jour : 4 octobre 2026. Ce fichier garde en mémoire ce qui a �
 L'ancien nom « Malow » est une marque de l'Union européenne déjà enregistrée en classes 9, 35 et 42 (logiciels) par MALOW Sp. z o.o. (fabricant polonais de mobilier). Josh a choisi **Nalow**, en connaissant le risque de ressemblance restant (une seule lettre de différence).
 
 - [x] Textes de l'appli, du site et de l'APK passés à « Nalow » (offres « Nalow Gratuit » et « Nalow+ »)
-- [ ] Acheter **nalow.app** et **nalow.fr** (libres le 10 octobre 2026 ; nalow.com est pris), puis : serveur IA, liens des e-mails Supabase, adresse contact@, redirection de malow.app
-- [ ] Nouveau logo « Nalow » (icône, écran de lancement) et images où « Malow » est écrit (pancarte « MALOW+ » des oursons d'abonnement…)
-- [ ] Identifiant Android `app.malow` → `app.nalow` (avant la première publication sur le Play Store)
+- [x] nalow.app acheté et branché (Cloudflare → Vercel) ; appli, serveur IA et liens des e-mails sur nalow.app ; malow.app redirige vers nalow.app
+- [ ] Supabase → Authentication → URL Configuration : Site URL https://nalow.app, Redirect URLs https://nalow.app et app.nalow://auth (Josh)
+- [ ] Adresse contact@nalow.app (Cloudflare Email Routing) ; en attendant les textes gardent contact@malow.app
+- [ ] nalow.fr (libre le 10 octobre 2026) : à acheter pour protéger le nom
+- [x] Nouveau logo « Nalow » (icônes, écran d'ouverture) et oursons d'abonnement « NALOW+ »
+- [x] Identifiant Android `app.malow` → `app.nalow` ; APK : .../releases/download/derniere-version/nalow.apk
 - [ ] Recherche INPI / EUIPO « Nalow », puis dépôt de la marque (classes 9, 42, 35)
 
 ## Offres (plaquette « Mes abonnements »)

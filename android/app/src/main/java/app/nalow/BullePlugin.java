@@ -1,4 +1,4 @@
-package app.malow;
+package app.nalow;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;

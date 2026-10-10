@@ -1,6 +1,6 @@
 // Orientation réelle du téléphone dans l'appli Android (verrouillée en portrait) :
 // 0, 90, 180 ou 270 degrés dans le sens des aiguilles d'une montre.
-// Plugin natif : android/app/src/main/java/app/malow/OrientationPlugin.java
+// Plugin natif : android/app/src/main/java/app/nalow/OrientationPlugin.java
 import { registerPlugin } from '@capacitor/core'
 import { estAppliNative } from './cameraNative.js'
 

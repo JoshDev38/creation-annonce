@@ -1,4 +1,4 @@
-package app.malow;
+package app.nalow;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -42,7 +42,7 @@ import java.util.ArrayList;
 public class BulleService extends Service {
 
     private static final String CANAL = "bulle";
-    private static final String ACTION_FERMER = "app.malow.FERMER_BULLE";
+    private static final String ACTION_FERMER = "app.nalow.FERMER_BULLE";
     private static final int NOTIFICATION = 7;
 
     private static final int MARRON = Color.parseColor("#7A4532");

@@ -1,14 +1,14 @@
 // Connexion avec un compte Google (via Supabase).
 // - Site web : redirection classique vers Google, puis retour sur le site.
 // - Appli Android : Google interdit la connexion dans une WebView, on ouvre donc le
-//   navigateur du téléphone ; Google renvoie ensuite vers app.malow://auth, que
+//   navigateur du téléphone ; Google renvoie ensuite vers app.nalow://auth, que
 //   l'appli intercepte pour récupérer la session.
 import { App as AppNative } from '@capacitor/app'
 import { Browser } from '@capacitor/browser'
 import { estAppliNative } from './cameraNative.js'
 import { supabase } from './supabase.js'
 
-const RETOUR_APPLI = 'app.malow://auth'
+const RETOUR_APPLI = 'app.nalow://auth'
 
 export async function connexionGoogle() {
   if (!estAppliNative()) {

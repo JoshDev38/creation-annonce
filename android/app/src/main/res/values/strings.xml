@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Nalow</string>
     <string name="title_activity_main">Nalow</string>
-    <string name="package_name">app.malow</string>
-    <string name="custom_url_scheme">app.malow</string>
+    <string name="package_name">app.nalow</string>
+    <string name="custom_url_scheme">app.nalow</string>
 </resources>
