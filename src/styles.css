@@ -2460,12 +2460,31 @@ html.camera-native .viseur {
 
 .aide-haut.sans-ours .aide-titres {
   max-width: none;
+  text-align: center;
+}
+
+/* retour rond à gauche, titres centrés (maquette « Les abonnements ») */
+.aide-haut.sans-ours .aide-retour {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  left: 14px;
+  width: 42px;
+  height: 42px;
+  margin: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--ombre);
+}
+
+.aide-haut.sans-ours .aide-titres .titre-l {
+  padding: 0 40px;
 }
 
 .aa-intro {
   position: relative;
   z-index: 1;
   margin: 0 0 12px;
+  text-align: center;
   font-size: 14px;
   line-height: 1.4;
   color: var(--texte-doux);
@@ -2582,17 +2601,26 @@ html.camera-native .viseur {
 }
 
 .aa-cadeau {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
   margin-top: auto;
-  padding: 10px 9px;
+  padding: 10px 8px;
   border-radius: 16px;
-  background: #fff;
+  background: #fbe3ea;
   border: 1px solid var(--aa-bord);
   color: var(--aa-accent);
 }
 
+.aa-cadeau > svg {
+  flex: none;
+  width: 26px;
+  height: 26px;
+}
+
 .aa-cadeau strong {
   display: block;
-  margin: 4px 0 4px;
+  margin: 0 0 4px;
   font-size: 13px;
   line-height: 1.25;
 }
@@ -2674,6 +2702,8 @@ html.camera-native .viseur {
   position: relative;
   z-index: 1;
   margin: 12px -10px 0;
+  background: #fdf3e7;
+  border-color: #f3e2cc;
 }
 
 .aa-voir {
@@ -2681,6 +2711,9 @@ html.camera-native .viseur {
   z-index: 1;
   margin: 14px 0 4px;
   gap: 6px;
+  background: linear-gradient(180deg, #2f6db5, #1d4f94);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(29, 79, 148, 0.25);
 }
 
 /* ---------- Mon compte (profil) ---------- */

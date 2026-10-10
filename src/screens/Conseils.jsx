@@ -203,11 +203,13 @@ function PageAbonnements({ onAbonnements }) {
           <Avantages liste={GRATUIT} />
           <div className="aa-cadeau">
             <IconGift width={30} height={30} />
-            <strong>À votre inscription, nous vous offrons 2 annonces Premium</strong>
-            <p>
-              pour découvrir les fonctionnalités avancées de Nalow, comme l’estimation du prix de vente et la recherche
-              des prix du marché.
-            </p>
+            <div>
+              <strong>À votre inscription, nous vous offrons 2 annonces Premium</strong>
+              <p>
+                pour découvrir les fonctionnalités avancées de Nalow, comme l’estimation du prix de vente et la
+                recherche des prix du marché.
+              </p>
+            </div>
           </div>
         </section>
         <section className="aa-carte aa-plus">
