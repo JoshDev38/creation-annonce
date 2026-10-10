@@ -173,8 +173,7 @@ export function texteAnnonce(annonce) {
     '',
     formaterDescription(annonce.description),
     '',
-    `Prix : ${annonce.prix.conseille} €`,
-    '',
+    ...(annonce.prix?.conseille ? [`Prix : ${annonce.prix.conseille} €`, ''] : []),
     annonce.tags.map((t) => `#${t.replace(/[\s/]+/g, '')}`).join(' '),
   ].join('\n')
 }

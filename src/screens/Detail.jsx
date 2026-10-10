@@ -3,7 +3,8 @@ import Entete from '../components/Entete.jsx'
 import { demarrerDictee, dicteeDisponible } from '../lib/dictee.js'
 import { IconChat, IconChevron, IconKeyboard, IconMic, IconSparkle, IconStop } from '../components/Icons.jsx'
 
-export default function Detail({ valeurInitiale, onRetour, onValider }) {
+import { phraseQuota } from '../lib/quota.js'
+export default function Detail({ valeurInitiale, onRetour, onValider, quota }) {
   const [mode, setMode] = useState(valeurInitiale ? 'ecrit' : null)
   const [texte, setTexte] = useState(valeurInitiale)
   const [ecoute, setEcoute] = useState(false)
@@ -131,6 +132,8 @@ export default function Detail({ valeurInitiale, onRetour, onValider }) {
           </button>
         </div>
       )}
+
+      {phraseQuota(quota) && <p className="quota-info">{phraseQuota(quota)}</p>}
 
       <div className="actions">
         <button className="bouton bouton-doux" onClick={() => onValider('')}>

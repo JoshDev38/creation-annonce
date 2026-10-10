@@ -1455,6 +1455,28 @@ html.camera-native .viseur {
   color: var(--bleu-fonce);
 }
 
+.lien-estimation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--bleu-texte);
+}
+
+.quota-info {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--bleu-voile);
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--bleu-texte);
+  text-align: center;
+}
+
 .prix-edition {
   display: flex;
   align-items: center;
@@ -3010,6 +3032,28 @@ html.camera-native .viseur {
   font-size: 13px;
   font-weight: 600;
   color: var(--texte-doux);
+}
+
+.mon-abo-quota {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: var(--rayon);
+  background: var(--blanc-casse);
+  border: 1px solid var(--bordure);
+}
+
+.mon-abo-quota h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 18px;
+  color: var(--chocolat);
+}
+
+.mon-abo-quota .petit {
+  margin: 0;
 }
 
 .mon-abo-inclus {

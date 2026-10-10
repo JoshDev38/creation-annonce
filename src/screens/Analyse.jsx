@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import mascotte from '../assets/mascotte.png'
 import { IconCamera, IconCheck, IconDoc, IconSearch, IconSparkle, IconTag } from '../components/Icons.jsx'
 
-const ETAPES = [
+const TOUTES_ETAPES = [
   { Icone: IconCamera, texte: 'J’analyse votre objet…' },
   { Icone: IconSearch, texte: 'Je recherche les informations…' },
   { Icone: IconTag, texte: 'J’estime son prix…' },
@@ -12,8 +12,10 @@ const ETAPES = [
 const DUREE_ETAPE = 1200
 
 // Les premières étapes avancent seules ; la dernière attend que l'annonce soit prête.
-export default function Analyse({ pret, onFini }) {
+export default function Analyse({ pret, onFini, sansPrix = false }) {
   const [faites, setFaites] = useState(0)
+  // Formule gratuite : pas d'estimation du prix, donc pas d'étape « prix ».
+  const ETAPES = sansPrix ? TOUTES_ETAPES.filter((e) => e.Icone !== IconTag) : TOUTES_ETAPES
 
   useEffect(() => {
     if (faites < ETAPES.length - 1 || (faites === ETAPES.length - 1 && pret)) {
@@ -23,7 +25,7 @@ export default function Analyse({ pret, onFini }) {
     if (faites < ETAPES.length) return
     const t = setTimeout(onFini, 400)
     return () => clearTimeout(t)
-  }, [faites, pret, onFini])
+  }, [faites, pret, onFini, ETAPES.length])
 
   return (
     <main className="page page-analyse">

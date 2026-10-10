@@ -68,7 +68,8 @@ export default function MesAnnonces({ session, onOuvrir, onNouvelle, onConnexion
                 <span className="carte-texte">
                   <strong>{a.titre}</strong>
                   <small>
-                    {a.prix?.conseille} € · {new Date(a.date).toLocaleDateString('fr-FR')}
+                    {a.prix?.conseille ? `${a.prix.conseille} € · ` : ''}
+                    {new Date(a.date).toLocaleDateString('fr-FR')}
                   </small>
                 </span>
               </button>

@@ -3,9 +3,13 @@
 // demande l'annonce à Claude et la renvoie au format attendu par l'appli.
 // La clé ANTHROPIC_API_KEY reste côté serveur (variable d'environnement Vercel).
 //
-// Claude Opus 5.5 regarde les photos, cherche sur le web le prix d'articles
-// similaires d'occasion (3 recherches au plus), puis rédige l'annonce en
-// appelant l'outil « rediger_annonce » (arguments au format strict).
+// Deux niveaux d'analyse, selon la formule et le quota de l'utilisateur (base Supabase) :
+// - Premium (Nalow+ et les 2 annonces « découverte ») : Claude Opus 5.5 regarde les photos,
+//   cherche sur le web le prix d'articles similaires d'occasion (2 recherches au plus)
+//   et estime le prix ;
+// - Standard (formule gratuite) : Claude Sonnet 5.5 rédige l'annonce, sans recherche
+//   ni estimation de prix.
+// L'annonce est rendue par l'outil « rediger_annonce » (arguments au format strict).
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 import { SUPABASE_CLE_PUBLIQUE, SUPABASE_URL } from '../src/lib/configSupabase.js'
@@ -13,9 +17,10 @@ import { formaterDescription } from '../src/lib/paragraphes.js'
 
 export const config = { maxDuration: 120 }
 
-const MODELE = 'claude-opus-5-5'
+const MODELE_PREMIUM = 'claude-opus-5-5'
+const MODELE_STANDARD = 'claude-sonnet-5-5'
 const MAX_PHOTOS = 8
-const MAX_RECHERCHES = 3
+const MAX_RECHERCHES = 2
 const MAX_REPRISES = 3 // relances après une pause du serveur (pause_turn)
 // L'analyse IA est réservée à l'appli : le site nalow.app ne peut pas l'appeler.
 const ORIGINES = [
@@ -84,9 +89,22 @@ const OUTIL_ANNONCE = {
   },
 }
 
+// Version standard (gratuite) : mêmes champs, sans le prix.
+const CHAMPS_PRIX = ['prix_conseille', 'prix_rapide', 'prix_haut', 'explication_prix']
+const OUTIL_ANNONCE_SIMPLE = {
+  ...OUTIL_ANNONCE,
+  input_schema: {
+    ...OUTIL_ANNONCE.input_schema,
+    properties: Object.fromEntries(
+      Object.entries(OUTIL_ANNONCE.input_schema.properties).filter(([cle]) => !CHAMPS_PRIX.includes(cle)),
+    ),
+    required: OUTIL_ANNONCE.input_schema.required.filter((cle) => !CHAMPS_PRIX.includes(cle)),
+  },
+}
+
 const RECHERCHE_WEB = { type: 'web_search_20260209', name: 'web_search', max_uses: MAX_RECHERCHES }
 
-const SYSTEME = `Tu rédiges des annonces de vente d'objets d'occasion pour des particuliers en France \
+const consignes = (PRIX) => `Tu rédiges des annonces de vente d'objets d'occasion pour des particuliers en France \
 (Vinted, Leboncoin, Facebook Marketplace).
 
 À partir des photos et des informations du vendeur :
@@ -103,13 +121,7 @@ la marque) et les autres modèles possibles de la même marque dans autres_model
 - Évalue l'état d'après les photos et les infos, et mentionne honnêtement les défauts visibles ou signalés.
 - Les informations du vendeur priment sur ce que tu crois voir.
 
-Prix : c'est essentiel pour le vendeur. Quand l'outil web_search est disponible, fais 1 à ${MAX_RECHERCHES} \
-recherches ciblées (type d'objet, marque, modèle, taille, « occasion », sites français comme Vinted ou Leboncoin) \
-pour voir à quel prix se vendent des articles similaires d'occasion en ce moment. \
-Tiens compte de l'état, de la marque et de la demande. En euros entiers, prix_rapide < prix_conseille < prix_haut. \
-Résume en une phrase dans explication_prix ce qui justifie le prix (fourchette observée, ou estimation si tu n'as rien trouvé).
-
-Rédaction, en français :
+${PRIX}Rédaction, en français :
 - Titre : court, avec les mots que les acheteurs tapent (type d'objet, marque, taille, état).
 - Description : des paragraphes courts par thème, chacun commençant par son intitulé suivi de « : », \
 séparés par une ligne vide, dans cet ordre :
@@ -122,6 +134,21 @@ séparés par une ligne vide, dans cet ordre :
 
 Termine toujours en appelant l'outil rediger_annonce avec l'annonce finale.`
 
+const SYSTEME_PREMIUM = consignes(`Prix : c'est essentiel pour le vendeur. Quand l'outil web_search est disponible, fais 1 à ${MAX_RECHERCHES} \
+recherches ciblées (type d'objet, marque, modèle, taille, « occasion », sites français comme Vinted ou Leboncoin) \
+pour voir à quel prix se vendent des articles similaires d'occasion en ce moment. \
+Tiens compte de l'état, de la marque et de la demande. En euros entiers, prix_rapide < prix_conseille < prix_haut. \
+Résume en une phrase dans explication_prix ce qui justifie le prix (fourchette observée, ou estimation si tu n'as rien trouvé).
+
+`)
+const SYSTEME_STANDARD = consignes('')
+
+// Réglages de chaque niveau d'analyse.
+const NIVEAUX = {
+  premium: { modele: MODELE_PREMIUM, systeme: SYSTEME_PREMIUM, outil: OUTIL_ANNONCE, recherche: true, effort: 'high' },
+  standard: { modele: MODELE_STANDARD, systeme: SYSTEME_STANDARD, outil: OUTIL_ANNONCE_SIMPLE, recherche: false, effort: 'medium' },
+}
+
 // Tarifs Anthropic en dollars par million de jetons (cache : écriture 5 min = 1,25 × l'entrée,
 // lecture = 0,1 × l'entrée) et par recherche web (10 $ les 1 000). Un repli de sécurité peut
 // faire répondre un autre modèle : on applique alors son tarif.
@@ -133,14 +160,14 @@ const TARIFS = {
 }
 const PRIX_RECHERCHE = 0.01
 
-function nouveauCompteur() {
-  return { appels: 0, entree: 0, sortie: 0, cacheLecture: 0, cacheEcriture: 0, recherches: 0, cout: 0, modele: MODELE }
+function nouveauCompteur(modele) {
+  return { appels: 0, entree: 0, sortie: 0, cacheLecture: 0, cacheEcriture: 0, recherches: 0, cout: 0, modele }
 }
 
 // Ajoute la consommation d'une réponse de l'API au compteur de l'analyse.
 function compter(compteur, reponse) {
   const u = reponse.usage || {}
-  const t = TARIFS[reponse.model] || TARIFS[MODELE]
+  const t = TARIFS[reponse.model] || TARIFS[compteur.modele] || TARIFS[MODELE_PREMIUM]
   const entree = u.input_tokens || 0
   const sortie = u.output_tokens || 0
   const lecture = u.cache_read_input_tokens || 0
@@ -171,20 +198,20 @@ function autoriserOrigine(req, res) {
 
 // Un échange complet avec Claude. Renvoie l'annonce (arguments de rediger_annonce)
 // ou null si Claude n'a pas appelé l'outil.
-async function demanderAnnonce(client, contenuUtilisateur, avecRecherche, utilisateur, compteur) {
+async function demanderAnnonce(client, contenuUtilisateur, niveau, avecRecherche, utilisateur, compteur) {
   const messages = [{ role: 'user', content: contenuUtilisateur }]
-  const tools = avecRecherche ? [RECHERCHE_WEB, OUTIL_ANNONCE] : [OUTIL_ANNONCE]
+  const tools = avecRecherche ? [RECHERCHE_WEB, niveau.outil] : [niveau.outil]
   const debut = Date.now()
   let reponse
 
   for (let reprise = 0; reprise <= MAX_REPRISES; reprise++) {
     reponse = await client.beta.messages.create({
-      model: MODELE,
+      model: niveau.modele,
       max_tokens: 16000,
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
-      output_config: { effort: 'high' },
-      system: SYSTEME,
+      output_config: { effort: niveau.effort },
+      system: niveau.systeme,
       tools,
       messages,
     })
@@ -200,9 +227,9 @@ async function demanderAnnonce(client, contenuUtilisateur, avecRecherche, utilis
     JSON.stringify({
       analyse: 'terminee',
       utilisateur,
-      modele_demande: MODELE,
+      modele_demande: niveau.modele,
       modele_utilise: reponse.model,
-      repli: reponse.model !== MODELE,
+      repli: reponse.model !== niveau.modele,
       recherche_web: avecRecherche,
       recherches_effectuees: reponse.usage?.server_tool_use?.web_search_requests ?? 0,
       jetons_entree: reponse.usage?.input_tokens,
@@ -217,7 +244,7 @@ async function demanderAnnonce(client, contenuUtilisateur, avecRecherche, utilis
     err.refus = true
     throw err
   }
-  const appel = reponse.content.find((b) => b.type === 'tool_use' && b.name === OUTIL_ANNONCE.name)
+  const appel = reponse.content.find((b) => b.type === 'tool_use' && b.name === niveau.outil.name)
   return appel ? { annonce: appel.input, modele: reponse.model } : null
 }
 
@@ -259,18 +286,37 @@ export default async function handler(req, res) {
     },
   ]
 
+  // Client Supabase agissant au nom de l'utilisateur (quota, coûts).
+  const base = createClient(SUPABASE_URL, SUPABASE_CLE_PUBLIQUE, {
+    auth: { persistSession: false },
+    global: { headers: { Authorization: `Bearer ${jeton}` } },
+  })
+
+  // Quota : réserve une analyse (découverte, premium ou standard) avant d'appeler l'IA.
+  const { data: reservation, error: errQuota } = await base.rpc('reserver_analyse')
+  if (errQuota) {
+    console.error('Quota indisponible :', errQuota.message)
+    return res.status(503).json({ erreur: 'Service momentanément indisponible, réessayez' })
+  }
+  if (!reservation?.ok) {
+    return res.status(402).json({ erreur: 'Quota d’annonces atteint', code: 'quota', quota: reservation?.quota })
+  }
+  const typeAnalyse = reservation.type // 'decouverte' | 'premium' | 'standard'
+  const niveau = typeAnalyse === 'standard' ? NIVEAUX.standard : NIVEAUX.premium
+  const annuler = () =>
+    base.rpc('annuler_analyse', { p_id: reservation.id }).then(
+      ({ error }) => error && console.error('Annulation impossible :', error.message),
+    )
+
   const client = new Anthropic()
-  const compteur = nouveauCompteur()
+  const compteur = nouveauCompteur(niveau.modele)
   const debut = Date.now()
   // Enregistre le coût réel de l'analyse (table couts_analyses), sans bloquer la réponse en cas d'échec.
   const noterCout = async (reussie) => {
     if (!compteur.appels) return
     console.log(JSON.stringify({ analyse: 'cout', utilisateur, cout_usd: +compteur.cout.toFixed(5), ...compteur }))
     try {
-      const { error } = await createClient(SUPABASE_URL, SUPABASE_CLE_PUBLIQUE, {
-        auth: { persistSession: false },
-        global: { headers: { Authorization: `Bearer ${jeton}` } },
-      })
+      const { error } = await base
         .from('couts_analyses')
         .insert({
           user_id: utilisateur,
@@ -294,22 +340,28 @@ export default async function handler(req, res) {
   try {
     let resultat = null
     try {
-      resultat = await demanderAnnonce(client, contenu, true, utilisateur, compteur)
+      resultat = await demanderAnnonce(client, contenu, niveau, niveau.recherche, utilisateur, compteur)
     } catch (e) {
       // Si la requête avec recherche web est rejetée, on retente sans recherche.
       if (!(e instanceof Anthropic.BadRequestError)) throw e
       console.error('Recherche web refusée, nouvel essai sans recherche :', e.message)
     }
     // Claude n'a pas appelé l'outil (ou la recherche a échoué) : un essai sans recherche.
-    if (!resultat) resultat = await demanderAnnonce(client, contenu, false, utilisateur, compteur)
+    if (!resultat) resultat = await demanderAnnonce(client, contenu, niveau, false, utilisateur, compteur)
     await noterCout(Boolean(resultat))
-    if (!resultat) return res.status(502).json({ erreur: 'L’IA n’a pas rédigé l’annonce' })
+    if (!resultat) {
+      await annuler()
+      return res.status(502).json({ erreur: 'L’IA n’a pas rédigé l’annonce' })
+    }
+    // L'analyse est décomptée seulement maintenant qu'elle a réussi.
+    const { data: validee } = await base.rpc('valider_analyse', { p_id: reservation.id })
+    if (!validee) return res.status(409).json({ erreur: 'Analyse annulée, réessayez' })
 
     const a = resultat.annonce
     return res.status(200).json({
       titre: a.titre,
       description: formaterDescription(a.description),
-      prix: { conseille: a.prix_conseille, rapide: a.prix_rapide, haut: a.prix_haut },
+      prix: niveau.outil === OUTIL_ANNONCE ? { conseille: a.prix_conseille, rapide: a.prix_rapide, haut: a.prix_haut } : null,
       explicationPrix: a.explication_prix || '',
       tags: a.tags,
       marqueProbable: a.marque_probable || '',
@@ -317,9 +369,11 @@ export default async function handler(req, res) {
       modeleProbable: a.modele_probable || '',
       autresModeles: a.modele_probable ? (a.autres_modeles || []).filter((m) => m && m !== a.modele_probable).slice(0, 5) : [],
       modele: resultat.modele,
+      typeAnalyse,
     })
   } catch (e) {
     await noterCout(false)
+    await annuler()
     if (e.refus) return res.status(422).json({ erreur: 'L’IA n’a pas pu analyser ces photos' })
     if (e instanceof Anthropic.RateLimitError) {
       return res.status(429).json({ erreur: 'Trop de demandes, réessayez dans un instant' })

@@ -19,6 +19,7 @@ import Fidelite from './screens/Fidelite.jsx'
 import Abonnements from './screens/Abonnements.jsx'
 import { genererAnnonce } from './lib/generateur.js'
 import { analyserAvecIA } from './lib/analyseIA.js'
+import { lireQuota } from './lib/quota.js'
 import { estAppliNative } from './lib/cameraNative.js'
 import { lireAnnonces, reduirePhoto, supprimerAnnonce } from './lib/stockage.js'
 import { supabase } from './lib/supabase.js'
@@ -81,6 +82,16 @@ export default function App() {
   const depart = useRef('accueil')
   // La création d'annonces (analyse IA) est réservée à l'appli : sur le site, on explique pourquoi.
   const [modaleAppli, setModaleAppli] = useState(false)
+  // Quota d'annonces IA : lu à l'écran de description, pour l'afficher et prévenir avant l'analyse.
+  const [quota, setQuota] = useState(null)
+  const [modaleQuota, setModaleQuota] = useState(null)
+  const [analyseSansPrix, setAnalyseSansPrix] = useState(false)
+  useEffect(() => {
+    if (ecran !== 'detail' || !sessionRef.current) return
+    lireQuota()
+      .then(setQuota)
+      .catch(() => setQuota(null))
+  }, [ecran])
   const reserveeAppli = () => {
     if (CREATION_DISPONIBLE) return false
     setModaleAppli(true)
@@ -123,17 +134,31 @@ export default function App() {
       return
     }
     setInfos(texte)
+    // Quota épuisé : on le dit tout de suite (le serveur vérifie aussi).
+    if (quota && !quota.prochaine) {
+      setModaleQuota(quota)
+      return
+    }
+    setAnalyseSansPrix(quota?.prochaine === 'standard')
     setResultat(null)
     setEcran('analyse')
     const numero = ++analyseEnCours.current
     analyserAvecIA(photos, texte)
       .then((r) => ({ ...r, source: 'ia' }))
       .catch((e) => {
+        if (e.code === 'quota') {
+          if (numero === analyseEnCours.current) {
+            setModaleQuota(e.quota || quota || {})
+            setEcran('detail')
+          }
+          return null
+        }
         console.warn('Analyse IA indisponible :', e.message)
         return { ...genererAnnonce(texte), source: 'local' }
       })
       .then((r) => {
-        if (numero === analyseEnCours.current) setResultat(r)
+        setQuota(null) // relu à la prochaine annonce
+        if (r && numero === analyseEnCours.current) setResultat(r)
       })
   }
 
@@ -312,11 +337,12 @@ export default function App() {
           valeurInitiale={infos}
           onRetour={() => setEcran('photos')}
           onValider={lancerAnalyse}
+          quota={quota}
         />
       )
       break
     case 'analyse':
-      contenu = <Analyse pret={Boolean(resultat)} onFini={analyseTerminee} />
+      contenu = <Analyse pret={Boolean(resultat)} onFini={analyseTerminee} sansPrix={analyseSansPrix} />
       break
     case 'resultat':
       contenu = (
@@ -326,6 +352,7 @@ export default function App() {
           onCopie={() => notifier('Annonce copiée')}
           onSuivant={() => setEcran('partage')}
           onRetour={() => setEcran(origine)}
+          onAbonnements={() => ouvrirAbonnements('resultat')}
         />
       )
       break
@@ -468,6 +495,46 @@ export default function App() {
             <button className="bouton bouton-principal" onClick={() => setModaleAppli(false)}>
               J’ai compris
             </button>
+          </div>
+        </div>
+      )}
+      {modaleQuota && (
+        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-quota" onClick={() => setModaleQuota(null)}>
+          <div className="modale" onClick={(e) => e.stopPropagation()}>
+            <img className="modale-logo" src="./icon-192.png" alt="" />
+            {modaleQuota.formule === 'mensuel' || modaleQuota.formule === 'annuel' ? (
+              <>
+                <h2 id="titre-quota" className="titre-m">
+                  Vos {modaleQuota.limite ?? 15} annonces du mois sont utilisées
+                </h2>
+                <p>Votre compteur repart à zéro le 1er du mois prochain. Merci de votre fidélité !</p>
+                <button className="bouton bouton-principal" onClick={() => setModaleQuota(null)}>
+                  J’ai compris
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 id="titre-quota" className="titre-m">
+                  Vos {modaleQuota.limite ?? 5} annonces gratuites du mois sont utilisées
+                </h2>
+                <p>
+                  Passez à Nalow+ : 15 annonces par mois, avec l’estimation du prix de vente et sans publicité.
+                </p>
+                <p className="petit">Sinon, votre compteur repart à zéro le 1er du mois prochain.</p>
+                <button
+                  className="bouton bouton-principal"
+                  onClick={() => {
+                    setModaleQuota(null)
+                    ouvrirAbonnements('detail')
+                  }}
+                >
+                  Voir les abonnements
+                </button>
+                <button className="bouton bouton-doux" onClick={() => setModaleQuota(null)}>
+                  Plus tard
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -24,12 +24,18 @@ export async function analyserAvecIA(photos, infos) {
       signal: controle.signal,
     })
     const donnees = await rep.json().catch(() => ({}))
-    if (!rep.ok) throw new Error(donnees.erreur || `Erreur ${rep.status}`)
-    const { titre, description, prix, tags, marqueProbable = '', autresMarques = [], modeleProbable = '', autresModeles = [], explicationPrix = '', modele = '' } = donnees
-    if (!titre || !description || !prix?.conseille || !Array.isArray(tags)) {
+    if (!rep.ok) {
+      const err = new Error(donnees.erreur || `Erreur ${rep.status}`)
+      // Quota d'annonces épuisé : l'appli propose les abonnements au lieu de l'annonce sans IA.
+      if (donnees.code === 'quota') Object.assign(err, { code: 'quota', quota: donnees.quota })
+      throw err
+    }
+    const { titre, description, prix = null, tags, marqueProbable = '', autresMarques = [], modeleProbable = '', autresModeles = [], explicationPrix = '', modele = '', typeAnalyse = '' } = donnees
+    // Analyse standard (formule gratuite) : pas d'estimation de prix.
+    if (!titre || !description || !Array.isArray(tags) || (typeAnalyse !== 'standard' && !prix?.conseille)) {
       throw new Error('Réponse incomplète')
     }
-    return { titre, description, prix, tags, marqueProbable, autresMarques, modeleProbable, autresModeles, explicationPrix, modele }
+    return { titre, description, prix, tags, marqueProbable, autresMarques, modeleProbable, autresModeles, explicationPrix, modele, typeAnalyse }
   } finally {
     clearTimeout(minuteur)
   }

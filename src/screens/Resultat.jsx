@@ -69,7 +69,7 @@ function QuestionIdentite({ question, proposition, autres = [], intitule, onChoi
   )
 }
 
-export default function Resultat({ annonce, onChange, onCopie, onSuivant, onRetour }) {
+export default function Resultat({ annonce, onChange, onCopie, onSuivant, onRetour, onAbonnements }) {
   const [edition, setEdition] = useState(false)
   const [tagsTexte, setTagsTexte] = useState(annonce.tags.join(', '))
   const [active, setActive] = useState(0)
@@ -171,6 +171,7 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
         ) : (
           <div className="vignette vide" />
         )}
+        {annonce.prix?.conseille && annonce.typeAnalyse !== 'standard' ? (
         <div className="carte-prix">
           <IconSparkle className="etincelle" width={22} height={22} />
           <span>Prix conseillé</span>
@@ -191,6 +192,28 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
           <small>Vente rapide : <b>{annonce.prix.rapide} €</b></small>
           <small>Prix haut : <b>{annonce.prix.haut} €</b></small>
         </div>
+        ) : (
+          // Formule gratuite : pas d'estimation, le vendeur saisit son prix.
+          <div className="carte-prix sans-estimation">
+            <span>Votre prix</span>
+            <label className="prix-edition">
+              <input
+                type="number"
+                inputMode="numeric"
+                min="0"
+                placeholder="—"
+                value={annonce.prix?.conseille || ''}
+                onChange={(e) => majPrix(e.target.value)}
+              />
+              €
+            </label>
+            {onAbonnements && (
+              <button className="lien-estimation" onClick={onAbonnements}>
+                <IconSparkle width={14} height={14} /> Estimation du prix avec Nalow+
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {annonce.explicationPrix && !edition && <p className="explication-prix">{annonce.explicationPrix}</p>}

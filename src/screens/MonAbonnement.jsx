@@ -4,6 +4,7 @@ import { IconBack, IconCheck } from '../components/Icons.jsx'
 import { estAppliNative } from '../lib/cameraNative.js'
 import { formule } from '../lib/formules.jsx'
 import { lireProfil } from '../lib/profil.js'
+import { lireQuota } from '../lib/quota.js'
 
 // Les abonnements passent par Google Play : la résiliation se fait sur sa page
 // « Abonnements », qu'on ouvre directement sur Nalow.
@@ -15,12 +16,16 @@ const dateLongue = (iso) =>
 export default function MonAbonnement({ session, onRetour, onOffres }) {
   const [profil, setProfil] = useState(null)
   const [confirmation, setConfirmation] = useState(false)
+  const [quota, setQuota] = useState(null)
 
   useEffect(() => {
     if (!session) return
     lireProfil(session.user.id)
       .then(setProfil)
       .catch(() => setProfil({ formule: 'gratuit', formuleFin: null }))
+    lireQuota()
+      .then(setQuota)
+      .catch(() => setQuota(null))
   }, [session])
 
   const f = formule(profil?.formule)
@@ -58,6 +63,27 @@ export default function MonAbonnement({ session, onRetour, onOffres }) {
           </p>
         </div>
       </section>
+
+      {quota && (
+        <section className="mon-abo-quota">
+          <h3>Ce mois-ci</h3>
+          <div className="jauge-compte">
+            <span className="jauge">
+              <span style={{ width: `${Math.min(100, Math.round((quota.utilisees / quota.limite) * 100))}%` }} />
+            </span>
+            <b>
+              {quota.utilisees} / {quota.limite} annonces
+            </b>
+          </div>
+          {quota.decouverte_restantes > 0 && (
+            <p className="petit">
+              🎁 Offre découverte : encore {quota.decouverte_restantes} annonce
+              {quota.decouverte_restantes > 1 ? 's' : ''} Premium offerte{quota.decouverte_restantes > 1 ? 's' : ''}, avec
+              estimation du prix.
+            </p>
+          )}
+        </section>
+      )}
 
       <section className="mon-abo-inclus">
         <h3>Ce qui est inclus</h3>
