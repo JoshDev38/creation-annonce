@@ -96,8 +96,9 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
       const fin = posMarque + annonce.marqueChoisie.length
       titre = `${t.slice(0, fin)} ${nom}${t.slice(fin)}`
     } else {
-      // avant le premier séparateur (« , » suivi d'un espace, pas la virgule d'un nombre comme « 1,5 kg »)
-      const coupe = t.search(/, | – | - /)
+      // juste après le type d'objet : avant le premier détail chiffré (« 19 programmes », « 8 ans »…)
+      // ou le premier séparateur (« , » suivi d'un espace, pas la virgule d'un nombre comme « 1,5 kg »)
+      const coupe = t.search(/ \d|, | – | - /)
       titre = coupe > 0 ? `${t.slice(0, coupe)} ${nom}${t.slice(coupe)}` : `${t} ${nom}`
     }
     // « Marque : … » / « Modèle : … » à la fin du paragraphe Description
