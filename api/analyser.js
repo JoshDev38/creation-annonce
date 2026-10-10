@@ -141,18 +141,25 @@ séparés par une ligne vide, dans cet ordre :
 
 Termine toujours en appelant l'outil rediger_annonce avec l'annonce finale.`
 
-const SYSTEME_PREMIUM = consignes(`Prix : c'est essentiel pour le vendeur. Quand l'outil web_search est disponible, fais 1 à ${MAX_RECHERCHES} \
-recherches ciblées (type d'objet, marque, modèle, taille, « occasion », sites français comme Vinted ou Leboncoin) \
-pour voir à quel prix se vendent des articles similaires d'occasion en ce moment. \
-Tiens compte de l'état, de la marque et de la demande. En euros entiers, prix_rapide < prix_conseille < prix_haut. \
-Résume en une phrase dans explication_prix ce qui justifie le prix (fourchette observée, ou estimation si tu n'as rien trouvé).
+const SYSTEME_PREMIUM = consignes(`Recherches web : quand l'outil web_search est disponible, fais toujours exactement ${MAX_RECHERCHES} recherches courtes, dans cet ordre :
+  1. Identification : la marque et les inscriptions visibles (nom de gamme, nombre de programmes, puissance, \
+référence…) pour trouver le modèle exact et sa référence. Sers-t'en pour marque_probable, modele_probable, \
+autres_marques et autres_modeles : ne propose que des modèles réels qui correspondent à ce qui est visible.
+  2. Prix : l'objet avec le modèle trouvé (marque, modèle, taille) et « occasion », sur des sites français comme Leboncoin ou Vinted, \
+pour voir à quel prix des articles comparables se vendent en ce moment.
+
+Prix : c'est essentiel pour le vendeur. Base prix_conseille sur le milieu de la fourchette observée pour des articles \
+comparables dans le même état (ne le sous-estime pas : le vendeur peut toujours baisser), en tenant compte de la marque, \
+du modèle exact, des accessoires et de la demande. En euros entiers, prix_rapide < prix_conseille < prix_haut. \
+Résume en une phrase dans explication_prix ce qui justifie le prix (fourchette observée et source, ou estimation si tu n'as rien trouvé).
+Va droit au but : pas de recherche supplémentaire, rédige l'annonce dès que tu as ces informations.
 
 `)
 const SYSTEME_STANDARD = consignes('')
 
 // Réglages de chaque niveau d'analyse.
 const NIVEAUX = {
-  premium: { modele: MODELE_PREMIUM, systeme: SYSTEME_PREMIUM, outil: OUTIL_ANNONCE, recherche: true, effort: 'high' },
+  premium: { modele: MODELE_PREMIUM, systeme: SYSTEME_PREMIUM, outil: OUTIL_ANNONCE, recherche: true, effort: 'medium' },
   standard: { modele: MODELE_STANDARD, systeme: SYSTEME_STANDARD, outil: OUTIL_ANNONCE_SIMPLE, recherche: false, effort: 'medium' },
 }
 
