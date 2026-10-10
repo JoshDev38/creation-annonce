@@ -43,7 +43,7 @@ export default function SiteFerme() {
 
   return (
     <main className="page site-ferme">
-      <img className="site-ferme-logo" src="/icon-192.png" alt="Malow" />
+      <img className="site-ferme-logo" src="/icon-192.png" alt="Nalow" />
       {mode === 'mdp' ? (
         <>
           <h1 className="titre-l centre">Nouveau mot de passe</h1>
@@ -68,14 +68,14 @@ export default function SiteFerme() {
       ) : (
         <>
           <h1 className="titre-l centre">
-            {mode === 'mdp-ok' ? 'Mot de passe modifié' : mode === 'confirme' ? 'Adresse confirmée !' : 'Malow arrive bientôt'}
+            {mode === 'mdp-ok' ? 'Mot de passe modifié' : mode === 'confirme' ? 'Adresse confirmée !' : 'Nalow arrive bientôt'}
           </h1>
           <p className="texte-bleu centre">
             {mode === 'mdp-ok'
-              ? 'Vous pouvez vous reconnecter dans l’appli Malow avec votre nouveau mot de passe.'
+              ? 'Vous pouvez vous reconnecter dans l’appli Nalow avec votre nouveau mot de passe.'
               : mode === 'confirme'
-                ? 'Votre compte est prêt : retournez dans l’appli Malow pour vous connecter.'
-                : 'Prenez une photo, Malow s’occupe de l’annonce. L’application est en préparation et sera bientôt disponible sur Google Play.'}
+                ? 'Votre compte est prêt : retournez dans l’appli Nalow pour vous connecter.'
+                : 'Prenez une photo, Nalow s’occupe de l’annonce. L’application est en préparation et sera bientôt disponible sur Google Play.'}
           </p>
           <p className="manuscrit centre">
             Vos objets peuvent encore

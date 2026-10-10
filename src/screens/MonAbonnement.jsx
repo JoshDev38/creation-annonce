@@ -6,7 +6,7 @@ import { formule } from '../lib/formules.jsx'
 import { lireProfil } from '../lib/profil.js'
 
 // Les abonnements passent par Google Play : la résiliation se fait sur sa page
-// « Abonnements », qu'on ouvre directement sur Malow.
+// « Abonnements », qu'on ouvre directement sur Nalow.
 const PAGE_ABONNEMENTS_PLAY = 'https://play.google.com/store/account/subscriptions?package=app.malow'
 
 const dateLongue = (iso) =>
@@ -99,8 +99,8 @@ export default function MonAbonnement({ session, onRetour, onOffres }) {
             </p>
             <p className="petit">
               {profil?.formuleFin
-                ? `Vous gardez ${f.nom} jusqu’au ${dateLongue(profil.formuleFin)}, puis vous repassez sur Malow Gratuit.`
-                : 'Vous gardez votre formule jusqu’à la fin de la période payée, puis vous repassez sur Malow Gratuit.'}
+                ? `Vous gardez ${f.nom} jusqu’au ${dateLongue(profil.formuleFin)}, puis vous repassez sur Nalow Gratuit.`
+                : 'Vous gardez votre formule jusqu’à la fin de la période payée, puis vous repassez sur Nalow Gratuit.'}
             </p>
             <button className="bouton bouton-principal" onClick={ouvrirGooglePlay}>
               Continuer vers Google Play

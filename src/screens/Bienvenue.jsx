@@ -5,8 +5,8 @@ export default function Bienvenue({ onInscription, onConnexion, onDecouvrir, not
   return (
     <main className="page page-bienvenue">
       <div className="bienvenue-haut">
-        <img className="logo-bienvenue" src="./icon-512.png" alt="Malow" />
-        <h1 className="titre-xl">Bienvenue sur Malow</h1>
+        <img className="logo-bienvenue" src="./icon-512.png" alt="Nalow" />
+        <h1 className="titre-xl">Bienvenue sur Nalow</h1>
         <p className="accroche-sous">
           Prenez une photo,
           <br />

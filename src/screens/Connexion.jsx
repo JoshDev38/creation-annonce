@@ -91,7 +91,7 @@ export default function Connexion({ modeInitial = 'connexion', raison, onRetour,
   return (
     <main className="page page-connexion">
       <Entete onRetour={onRetour} />
-      <img className="logo-connexion" src="./icon-192.png" alt="Malow" />
+      <img className="logo-connexion" src="./icon-192.png" alt="Nalow" />
       <h1 className="titre-l centre">{TITRES[mode]}</h1>
       {raison && mode !== 'nouveau' && <p className="texte-bleu centre">{raison}</p>}
 

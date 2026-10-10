@@ -61,13 +61,13 @@ const THEMES = [
         Icone: IconTag,
         titre: 'Choisissez le bon prix',
         texte:
-          'Un prix juste augmente vos chances de vendre rapidement. Malow vous aide à trouver une estimation adaptée à votre objet.',
+          'Un prix juste augmente vos chances de vendre rapidement. Nalow vous aide à trouver une estimation adaptée à votre objet.',
       },
       {
         Icone: IconMessage,
         titre: 'Misez sur les bons mots-clés',
         texte:
-          'Marque, taille, couleur, matière, modèle… Malow les intègre pour rendre votre annonce plus facile à trouver.',
+          'Marque, taille, couleur, matière, modèle… Nalow les intègre pour rendre votre annonce plus facile à trouver.',
       },
       {
         Icone: IconChatDots,
@@ -85,7 +85,7 @@ const THEMES = [
   },
   {
     id: 'fonctionnement',
-    titre: 'Comment fonctionne Malow ?',
+    titre: 'Comment fonctionne Nalow ?',
     resume: 'Les 5 étapes pour créer votre annonce',
     ours: oursTelephone,
     items: [
@@ -102,9 +102,9 @@ const THEMES = [
       },
       {
         image: fonctionne3,
-        titre: 'Malow s’occupe du reste',
+        titre: 'Nalow s’occupe du reste',
         texte:
-          'Malow analyse vos photos et vos informations pour créer votre annonce et estimer un prix adapté.',
+          'Nalow analyse vos photos et vos informations pour créer votre annonce et estimer un prix adapté.',
       },
       {
         image: fonctionne4,
@@ -122,7 +122,7 @@ const THEMES = [
   {
     id: 'abonnements',
     titre: 'Les abonnements',
-    resume: 'Gratuit ou Malow+ : quelle formule choisir ?',
+    resume: 'Gratuit ou Nalow+ : quelle formule choisir ?',
     ours: oursPlus,
     page: PageAbonnements, // mise en page dédiée (deux colonnes)
   },
@@ -154,10 +154,10 @@ const THEMES = [
   },
 ]
 
-// Rubrique « Les abonnements » : Gratuit et Malow+ côte à côte, puis le lien vers le choix de formule.
+// Rubrique « Les abonnements » : Gratuit et Nalow+ côte à côte, puis le lien vers le choix de formule.
 const GRATUIT = [
   [IconDoc, 'Jusqu’à 5 annonces par mois', 'Vous pouvez créer un titre, une description et ajouter vos photos.'],
-  [IconCamera, 'Analyse standard de vos photos', 'Malow reconnaît votre objet et rédige l’annonce.'],
+  [IconCamera, 'Analyse standard de vos photos', 'Nalow reconnaît votre objet et rédige l’annonce.'],
   [IconMegaphone, 'Une publicité est affichée', 'Pour chaque annonce créée.'],
 ]
 const PLUS = [
@@ -191,13 +191,13 @@ function PageAbonnements({ onAbonnements }) {
   return (
     <>
       <p className="aa-intro">
-        Découvrez ici comment fonctionnent les abonnements Malow et lequel est le plus adapté à vos besoins.
+        Découvrez ici comment fonctionnent les abonnements Nalow et lequel est le plus adapté à vos besoins.
       </p>
       <div className="aa-colonnes">
         <section className="aa-carte aa-gratuit">
           <img className="aa-ours" src={oursGratuit} alt="" aria-hidden="true" />
           <header className="aa-nom">
-            <h2>Malow Gratuit</h2>
+            <h2>Nalow Gratuit</h2>
             <p>Pour commencer simplement</p>
           </header>
           <Avantages liste={GRATUIT} />
@@ -205,7 +205,7 @@ function PageAbonnements({ onAbonnements }) {
             <IconGift width={30} height={30} />
             <strong>À votre inscription, nous vous offrons 2 annonces Premium</strong>
             <p>
-              pour découvrir les fonctionnalités avancées de Malow, comme l’estimation du prix de vente et la recherche
+              pour découvrir les fonctionnalités avancées de Nalow, comme l’estimation du prix de vente et la recherche
               des prix du marché.
             </p>
           </div>
@@ -213,7 +213,7 @@ function PageAbonnements({ onAbonnements }) {
         <section className="aa-carte aa-plus">
           <img className="aa-ours" src={oursPlus} alt="" aria-hidden="true" />
           <header className="aa-nom">
-            <h2>Malow+</h2>
+            <h2>Nalow+</h2>
             <p>Pour aller plus loin</p>
           </header>
           <Avantages liste={PLUS} />

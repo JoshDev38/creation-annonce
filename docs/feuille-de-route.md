@@ -1,14 +1,24 @@
-# Malow : feuille de route et décisions
+# Nalow : feuille de route et décisions
 
 Dernière mise à jour : 4 octobre 2026. Ce fichier garde en mémoire ce qui a été décidé et ce qui reste à faire.
+
+## Nom de l'appli : Nalow (choisi le 10 octobre 2026)
+
+L'ancien nom « Malow » est une marque de l'Union européenne déjà enregistrée en classes 9, 35 et 42 (logiciels) par MALOW Sp. z o.o. (fabricant polonais de mobilier). Josh a choisi **Nalow**, en connaissant le risque de ressemblance restant (une seule lettre de différence).
+
+- [x] Textes de l'appli, du site et de l'APK passés à « Nalow » (offres « Nalow Gratuit » et « Nalow+ »)
+- [ ] Acheter **nalow.app** et **nalow.fr** (libres le 10 octobre 2026 ; nalow.com est pris), puis : serveur IA, liens des e-mails Supabase, adresse contact@, redirection de malow.app
+- [ ] Nouveau logo « Nalow » (icône, écran de lancement) et images où « Malow » est écrit (pancarte « MALOW+ » des oursons d'abonnement…)
+- [ ] Identifiant Android `app.malow` → `app.nalow` (avant la première publication sur le Play Store)
+- [ ] Recherche INPI / EUIPO « Nalow », puis dépôt de la marque (classes 9, 42, 35)
 
 ## Offres (plaquette « Mes abonnements »)
 
 | Offre | Prix | Contenu |
 |---|---|---|
-| Malow Gratuit | 0 € | 5 annonces / mois, analyse standard (sans estimation de prix ni recherche du marché), 1 pub par annonce |
-| Malow+ Mensuel | 5,99 € / mois | 15 annonces / mois, analyse avancée, estimation du prix, recherche du marché, sans pub |
-| Malow+ Annuel | 54,99 € / an (4,58 € / mois, −23 %) | Comme le mensuel |
+| Nalow Gratuit | 0 € | 5 annonces / mois, analyse standard (sans estimation de prix ni recherche du marché), 1 pub par annonce |
+| Nalow+ Mensuel | 5,99 € / mois | 15 annonces / mois, analyse avancée, estimation du prix, recherche du marché, sans pub |
+| Nalow+ Annuel | 54,99 € / an (4,58 € / mois, −23 %) | Comme le mensuel |
 
 - Plafond Premium retenu : **15 annonces par mois** (mensuel et annuel).
 - Conseil : mettre les « 2 annonces Premium offertes à l'inscription » sur la carte **Gratuit** plutôt que sur les cartes payantes.

@@ -225,7 +225,7 @@ export default async function handler(req, res) {
   const origineOk = autoriserOrigine(req, res)
   if (req.method === 'OPTIONS') return res.status(204).end()
   if (req.method !== 'POST') return res.status(405).json({ erreur: 'Méthode non autorisée' })
-  if (!origineOk) return res.status(403).json({ erreur: 'L’analyse IA est disponible uniquement dans l’appli Malow' })
+  if (!origineOk) return res.status(403).json({ erreur: 'L’analyse IA est disponible uniquement dans l’appli Nalow' })
   if (!process.env.ANTHROPIC_API_KEY) {
     return res.status(503).json({ erreur: 'Analyse IA non configurée' })
   }

@@ -30,7 +30,7 @@ const AVEC_ONGLETS = ['accueil', 'partage', 'annonces', 'conseils', 'profil']
 // Créer une annonce : dans l'appli seulement (le serveur refuse aussi les appels du site).
 const CREATION_DISPONIBLE = estAppliNative() || import.meta.env.DEV
 
-// Logo Malow à l'ouverture de l'appli (Android, ou site installé sur l'écran d'accueil).
+// Logo Nalow à l'ouverture de l'appli (Android, ou site installé sur l'écran d'accueil).
 const DUREE_LANCEMENT = 3000
 const AVEC_LANCEMENT =
   estAppliNative() || (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches)
@@ -463,7 +463,7 @@ export default function App() {
             <h2 id="titre-appli" className="titre-m">
               Créez vos annonces dans l’appli
             </h2>
-            <p>La création d’annonces avec l’IA est réservée à l’application Malow, bientôt disponible sur Google Play.</p>
+            <p>La création d’annonces avec l’IA est réservée à l’application Nalow, bientôt disponible sur Google Play.</p>
             <p className="petit">Sur le site, vous pouvez retrouver vos annonces sauvegardées et gérer votre compte.</p>
             <button className="bouton bouton-principal" onClick={() => setModaleAppli(false)}>
               J’ai compris

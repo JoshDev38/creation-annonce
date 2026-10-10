@@ -54,7 +54,7 @@ export default function Parametres({ session, onRetour, onQuitte, notifier }) {
           </span>
           <span>
             <strong>Règles de confidentialité</strong>
-            <small>Comment Malow protège vos données</small>
+            <small>Comment Nalow protège vos données</small>
           </span>
           <IconChevron width={18} height={18} />
         </a>
@@ -79,7 +79,7 @@ export default function Parametres({ session, onRetour, onQuitte, notifier }) {
           onClick={() => setConfirmerSuppression(true)}
           disabled={attente}
         >
-          {attente ? 'Suppression…' : 'Supprimer mon compte Malow'}
+          {attente ? 'Suppression…' : 'Supprimer mon compte Nalow'}
         </button>
       </div>
 

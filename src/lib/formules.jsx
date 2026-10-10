@@ -7,7 +7,7 @@ import oursAnnuel from '../assets/abonnements/abo-annuel.png'
 export const FORMULES = [
   {
     id: 'gratuit',
-    nom: 'Malow Gratuit',
+    nom: 'Nalow Gratuit',
     court: 'Gratuit',
     prix: '0 €',
     ours: oursGratuit,
@@ -23,8 +23,8 @@ export const FORMULES = [
   },
   {
     id: 'mensuel',
-    nom: 'Malow+ Mensuel',
-    court: 'Malow+ Mensuel',
+    nom: 'Nalow+ Mensuel',
+    court: 'Nalow+ Mensuel',
     prix: '5,99 €/mois',
     ours: oursMensuel,
     accroche: 'Vendez plus, plus vite avec toutes les fonctionnalités.',
@@ -40,13 +40,13 @@ export const FORMULES = [
   },
   {
     id: 'annuel',
-    nom: 'Malow+ Annuel',
-    court: 'Malow+ Annuel',
+    nom: 'Nalow+ Annuel',
+    court: 'Nalow+ Annuel',
     prix: '54,99 €/an',
     soit: 'Soit 4,59 €/mois',
     economie: '-23 %',
     ours: oursAnnuel,
-    accroche: 'Les mêmes fonctionnalités que Malow+ Mensuel, à un prix encore plus doux !',
+    accroche: 'Les mêmes fonctionnalités que Nalow+ Mensuel, à un prix encore plus doux !',
     bouton: 'Choisir Annuel',
     avantages: [
       [true, <>Jusqu’à <strong>15 annonces</strong> par mois</>],

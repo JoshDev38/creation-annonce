@@ -79,7 +79,7 @@ public class DicteePlugin extends Plugin {
 
     @Override
     protected void handleOnPause() {
-        // Malow n'est plus à l'écran : on arrête d'écouter.
+        // Nalow n'est plus à l'écran : on arrête d'écouter.
         if (continuer) {
             continuer = false;
             if (reconnaisseur != null) reconnaisseur.stopListening();

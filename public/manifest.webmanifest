@@ -1,7 +1,7 @@
 {
-  "name": "Malow – Créez votre annonce",
-  "short_name": "Malow",
-  "description": "Prenez une photo, Malow s’occupe de l’annonce.",
+  "name": "Nalow – Créez votre annonce",
+  "short_name": "Nalow",
+  "description": "Prenez une photo, Nalow s’occupe de l’annonce.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",

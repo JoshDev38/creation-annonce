@@ -1183,7 +1183,7 @@ html.camera-native .viseur {
 
 .zone-mascotte {
   position: relative;
-  margin-top: 92px; /* place pour Malow */
+  margin-top: 92px; /* place pour Nalow */
 }
 
 .mascotte-analyse {
@@ -1200,7 +1200,7 @@ html.camera-native .viseur {
   filter: drop-shadow(0 3px 4px rgba(122, 69, 50, 0.16));
 }
 
-/* Malow apparaît… */
+/* Nalow apparaît… */
 @keyframes surgir {
   from {
     opacity: 0;

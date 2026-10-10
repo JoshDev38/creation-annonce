@@ -1,4 +1,4 @@
-// Bulle flottante Malow (appli Android) : elle reste par-dessus Vinted ou
+// Bulle flottante Nalow (appli Android) : elle reste par-dessus Vinted ou
 // Leboncoin et permet de copier le titre, la description ou le prix.
 // Code natif : android/app/src/main/java/app/malow/BullePlugin.java
 import { registerPlugin } from '@capacitor/core'
@@ -24,7 +24,7 @@ export async function autoriserBulle() {
   }
 }
 
-// photos : chemins des photos déjà enregistrées dans la galerie (album « Malow »).
+// photos : chemins des photos déjà enregistrées dans la galerie (album « Nalow »).
 export const afficherBulle = ({ titre, description, prix, photos = [] }) =>
   Bulle.afficher({ titre, description, prix: prix == null ? '' : String(prix), photos })
 

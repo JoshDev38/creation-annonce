@@ -82,7 +82,7 @@ export async function partagerAnnonce(titre, texte, photos) {
 
 // ----- Vinted, Leboncoin -----
 // Ces applis n'apparaissent pas dans le partage d'Android : on copie le texte,
-// on range les photos dans l'album « Malow » de la galerie, puis on ouvre l'appli.
+// on range les photos dans l'album « Nalow » de la galerie, puis on ouvre l'appli.
 export const PLATEFORMES = {
   vinted: { nom: 'Vinted', genre: 'Mode, enfants, maison', lettres: 'V', paquet: 'fr.vinted', site: 'https://www.vinted.fr/items/new' },
   leboncoin: { nom: 'Leboncoin', genre: 'Tout, près de chez vous', lettres: 'lbc', paquet: 'fr.leboncoin', site: 'https://www.leboncoin.fr/deposer-une-annonce' },
@@ -94,7 +94,7 @@ export const PLATEFORMES = {
   selency: { nom: 'Selency', genre: 'Meubles et déco', lettres: 'S', paquet: 'com.selency.app', site: 'https://www.selency.fr/' },
 }
 
-// Icônes à essayer dans l'ordre : logo intégré à Malow (net), grande icône
+// Icônes à essayer dans l'ordre : logo intégré à Nalow (net), grande icône
 // du site (apple-touch-icon), puis favicon via Google. Les images trop petites
 // (floues) sont écartées par l'écran.
 export const iconesSite = (cle) => {
@@ -119,9 +119,9 @@ export async function applisInstallees() {
   return Object.fromEntries(entrees)
 }
 
-const ALBUM = 'Malow'
+const ALBUM = 'Nalow'
 
-async function albumMalow() {
+async function albumNalow() {
   const { path } = await Media.getAlbumsPath()
   const identifiant = `${path}/${ALBUM}`
   const { albums } = await Media.getAlbums()
@@ -136,14 +136,14 @@ async function albumMalow() {
 // ainsi la plus récente, en tête de la galerie.
 export async function rangerPhotosGalerie(photos, idAnnonce) {
   if (!estAppliNative() || !photos.length) return []
-  const albumIdentifier = await albumMalow()
+  const albumIdentifier = await albumNalow()
   const prefixe = String(idAnnonce || Date.now()).slice(0, 8)
   const chemins = []
   for (let i = photos.length - 1; i >= 0; i--) {
     const { filePath } = await Media.savePhoto({
       path: `data:image/jpeg;base64,${await enBase64(photos[i])}`,
       albumIdentifier,
-      fileName: `malow-${prefixe}-${i + 1}`,
+      fileName: `nalow-${prefixe}-${i + 1}`,
     })
     chemins[i] = filePath
   }

@@ -52,7 +52,7 @@ export default function Profil({ session, onConnexion, onMonProfil, onFidelite, 
             <br />
             <span>compte</span>
           </h1>
-          <p>Tout en un seul endroit pour gérer votre utilisation de Malow.</p>
+          <p>Tout en un seul endroit pour gérer votre utilisation de Nalow.</p>
         </div>
         <img src={oursCompte} alt="" aria-hidden="true" />
       </header>

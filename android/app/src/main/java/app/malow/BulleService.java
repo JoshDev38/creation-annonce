@@ -36,7 +36,7 @@ import android.widget.TextView;
 import androidx.core.app.NotificationCompat;
 import java.util.ArrayList;
 
-// Bulle flottante : un rond avec l'icône Malow, déplaçable. Un appui ouvre un
+// Bulle flottante : un rond avec l'icône Nalow, déplaçable. Un appui ouvre un
 // panneau « Titre / Description / Prix » ; un appui sur un champ le copie,
 // le panneau se replie et on peut coller dans Vinted ou Leboncoin.
 public class BulleService extends Service {
@@ -133,7 +133,7 @@ public class BulleService extends Service {
     private void demarrerPremierPlan() {
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(CANAL) == null) {
-            NotificationChannel canal = new NotificationChannel(CANAL, "Bulle Malow", NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel canal = new NotificationChannel(CANAL, "Bulle Nalow", NotificationManager.IMPORTANCE_LOW);
             canal.setDescription("Bulle pour copier votre annonce dans Vinted ou Leboncoin");
             nm.createNotificationChannel(canal);
         }
@@ -146,7 +146,7 @@ public class BulleService extends Service {
         );
         Notification n = new NotificationCompat.Builder(this, CANAL)
             .setSmallIcon(android.R.drawable.ic_menu_edit)
-            .setContentTitle("Bulle Malow active")
+            .setContentTitle("Bulle Nalow active")
             .setContentText("Touchez la bulle pour copier votre annonce")
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -304,7 +304,7 @@ public class BulleService extends Service {
         tete.setOrientation(LinearLayout.HORIZONTAL);
         tete.setGravity(Gravity.CENTER_VERTICAL);
         TextView nom = new TextView(this);
-        nom.setText("Votre annonce Malow");
+        nom.setText("Votre annonce Nalow");
         nom.setTextColor(MARRON);
         nom.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
         nom.setTypeface(Typeface.SERIF, Typeface.BOLD);
@@ -333,7 +333,7 @@ public class BulleService extends Service {
     }
 
     // Les photos ne peuvent pas être glissées d'une appli à l'autre : on les montre
-    // en rappel, elles sont déjà en tête de la galerie (album « Malow »).
+    // en rappel, elles sont déjà en tête de la galerie (album « Nalow »).
     private void ajouterPhotos(LinearLayout parent) {
         LinearLayout carte = new LinearLayout(this);
         carte.setOrientation(LinearLayout.VERTICAL);
@@ -390,7 +390,7 @@ public class BulleService extends Service {
         carte.addView(defilement, lpDef);
 
         TextView aide = new TextView(this);
-        aide.setText("Dans l’appli, touchez « Ajouter des photos » : elles sont en tête de votre galerie, dans cet ordre (album « Malow »).");
+        aide.setText("Dans l’appli, touchez « Ajouter des photos » : elles sont en tête de votre galerie, dans cet ordre (album « Nalow »).");
         aide.setTextColor(TEXTE);
         aide.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         aide.setPadding(0, dp(6), 0, 0);
@@ -450,7 +450,7 @@ public class BulleService extends Service {
 
         carte.setOnClickListener(v -> {
             ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            cm.setPrimaryClip(ClipData.newPlainText("Malow – " + nom, aCopier));
+            cm.setPrimaryClip(ClipData.newPlainText("Nalow – " + nom, aCopier));
             etiquette.setText("✓  COPIÉ : MAINTENANT, COLLEZ");
             etiquette.setTextColor(VERT);
             handler.postDelayed(() -> {

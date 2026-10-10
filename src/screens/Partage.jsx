@@ -84,7 +84,7 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
 
   // Vinted et Leboncoin ont des champs séparés (titre, description, prix) et ne
   // se laissent pas remplir par une autre appli. Dans l'appli Android, une bulle
-  // Malow reste par-dessus pour copier chaque champ. Sinon (site, ou bulle
+  // Nalow reste par-dessus pour copier chaque champ. Sinon (site, ou bulle
   // refusée), on copie la description.
   const publierSur = async (cle, avecBulle) => {
     const nom = PLATEFORMES[cle].nom
@@ -95,7 +95,7 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
     } catch (e) {
       console.error('Photos non enregistrées dans la galerie', e)
     }
-    const photosPretes = rangees.length ? 'photos dans l’album « Malow »' : ''
+    const photosPretes = rangees.length ? 'photos dans l’album « Nalow »' : ''
 
     let bulle = false
     if (avecBulle) {
@@ -114,13 +114,13 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
     // Le titre est le premier champ demandé : on le copie d'avance.
     const copie = await copierTexte(bulle ? annonce.titre : descriptionPlateforme)
     const etapes = [
-      bulle ? 'titre copié, la bulle Malow a le reste' : copie && 'description copiée',
+      bulle ? 'titre copié, la bulle Nalow a le reste' : copie && 'description copiée',
       photosPretes,
     ].filter(Boolean)
     notifier(etapes.length ? `${etapes.join(' · ')} : ouverture de ${nom}…` : `Ouverture de ${nom}…`)
     // Fidélité : points de publication (seulement pour une annonce sauvegardée dans le compte).
     gagnerPoints('annonce_publiee', annonce.id).catch(() => {})
-    // Laisse le temps de lire le message avant de quitter Malow.
+    // Laisse le temps de lire le message avant de quitter Nalow.
     setTimeout(() => {
       ouvrirPlateforme(cle).catch((e) => notifier(`Impossible d’ouvrir ${nom} (${e?.message || e})`))
     }, 1400)
@@ -225,7 +225,7 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
             </button>
             <p className="note-publication">
               {estAppliNative()
-                ? 'Les photos vont dans l’album « Malow » de votre galerie, et la bulle Malow garde le titre, la description et le prix à portée de main.'
+                ? 'Les photos vont dans l’album « Nalow » de votre galerie, et la bulle Nalow garde le titre, la description et le prix à portée de main.'
                 : 'La description est copiée : collez-la dans le formulaire du site.'}
             </p>
             {!estAppliNative() && (
@@ -250,12 +250,12 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
             </div>
             <h2 id="titre-bulle" className="titre-m">Une bulle pour copier-coller</h2>
             <p>
-              Pendant que vous remplissez votre annonce sur {PLATEFORMES[demandeBulle].nom}, une petite bulle Malow reste
+              Pendant que vous remplissez votre annonce sur {PLATEFORMES[demandeBulle].nom}, une petite bulle Nalow reste
               au bord de l’écran. Touchez-la : titre, description et prix sont là, un appui pour copier, un appui long
               dans {PLATEFORMES[demandeBulle].nom} pour coller.
             </p>
             <p className="petit">
-              Android va vous demander d’autoriser Malow à « s’afficher par-dessus les autres applis ». Activez
+              Android va vous demander d’autoriser Nalow à « s’afficher par-dessus les autres applis ». Activez
               l’interrupteur, puis revenez avec la flèche retour.
             </p>
             <button className="bouton bouton-principal" onClick={() => reponseBulle(true)}>

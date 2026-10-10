@@ -21,7 +21,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-// Bulle Malow affichée par-dessus Vinted / Leboncoin : elle garde le titre,
+// Bulle Nalow affichée par-dessus Vinted / Leboncoin : elle garde le titre,
 // la description et le prix à portée de main pour les copier-coller.
 @CapacitorPlugin(name = "Bulle")
 public class BullePlugin extends Plugin {
@@ -110,7 +110,7 @@ public class BullePlugin extends Plugin {
                     b.compress(Bitmap.CompressFormat.PNG, 100, sortie);
                     icones.put(paquet, "data:image/png;base64," + Base64.encodeToString(sortie.toByteArray(), Base64.NO_WRAP));
                 } catch (Exception ignore) {
-                    // appli absente : l'appli Malow affichera l'icône du site
+                    // appli absente : l'appli Nalow affichera l'icône du site
                 }
             }
         }

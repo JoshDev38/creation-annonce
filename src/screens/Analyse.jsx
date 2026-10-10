@@ -47,7 +47,7 @@ export default function Analyse({ pret, onFini }) {
       </ul>
 
       <div className="zone-mascotte">
-        {/* Malow est accoudé à l'encadré */}
+        {/* Nalow est accoudé à l'encadré */}
         <img className="mascotte-analyse" src={mascotte} alt="" aria-hidden="true" />
         <div className="encart-info">
           <IconSparkle width={34} height={34} />

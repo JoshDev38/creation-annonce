@@ -34,7 +34,7 @@ export default function Abonnements({ session, onRetour, notifier }) {
 
   const choisir = (f) => {
     if (f.id === formuleActuelle) return
-    notifier('Le paiement arrivera avec la sortie de Malow sur le Play Store. Merci de votre patience !')
+    notifier('Le paiement arrivera avec la sortie de Nalow sur le Play Store. Merci de votre patience !')
   }
 
   return (
@@ -44,7 +44,7 @@ export default function Abonnements({ session, onRetour, notifier }) {
           <IconBack width={24} height={24} />
         </button>
         <h1>Abonnements</h1>
-        <p>Choisissez l’offre qui vous correspond et vendez plus facilement avec Malow !</p>
+        <p>Choisissez l’offre qui vous correspond et vendez plus facilement avec Nalow !</p>
       </header>
 
       <div className="abos-cartes" ref={defilement} onScroll={auDefilement}>

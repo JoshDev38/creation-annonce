@@ -5,7 +5,7 @@ import SiteFerme from './screens/SiteFerme.jsx'
 import { estAppliNative } from './lib/cameraNative.js'
 import './styles.css'
 
-// Pour l'instant, Malow ne s'utilise que dans l'appli : le site affiche « bientôt ».
+// Pour l'instant, Nalow ne s'utilise que dans l'appli : le site affiche « bientôt ».
 const SITE_OUVERT = estAppliNative() || import.meta.env.DEV
 
 createRoot(document.getElementById('root')).render(

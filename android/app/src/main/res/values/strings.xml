@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Malow</string>
-    <string name="title_activity_main">Malow</string>
+    <string name="app_name">Nalow</string>
+    <string name="title_activity_main">Nalow</string>
     <string name="package_name">app.malow</string>
     <string name="custom_url_scheme">app.malow</string>
 </resources>
