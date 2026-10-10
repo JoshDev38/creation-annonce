@@ -1,0 +1,10 @@
+{
+  "redirects": [
+    {
+      "source": "/:chemin*",
+      "has": [{ "type": "host", "value": "malow.app" }],
+      "destination": "https://nalow.app/:chemin*",
+      "permanent": true
+    }
+  ]
+}
