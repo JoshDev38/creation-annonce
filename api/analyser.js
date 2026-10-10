@@ -125,6 +125,10 @@ marques possibles, pour qu'il puisse choisir s'il répond non. Sinon, laisse les
 - Modèle : même principe, séparément de la marque. S'il est certain (inscription lisible, info du vendeur), \
 mets-le dans l'annonce. S'il est seulement probable, ne l'écris pas : indique-le dans modele_probable (sans \
 la marque) et les autres modèles possibles de la même marque dans autres_modeles.
+- Ce que tu trouves par une recherche web reste probable, pas certain : sans logo ni inscription lisible sur les \
+photos et sans information du vendeur, n'écris pas la marque ni le modèle dans le titre, la description ou les \
+mots-clés. Mets-les dans marque_probable / modele_probable (et les alternatives dans autres_marques / autres_modeles) : \
+le vendeur les confirmera. La recherche sert à proposer les bons choix et à estimer le prix.
 - N'invente rien d'autre : une taille n'apparaît que si elle est visible ou donnée par le vendeur.
 - Évalue l'état d'après les photos et les infos, et mentionne honnêtement les défauts visibles ou signalés.
 - Les informations du vendeur priment sur ce que tu crois voir.
