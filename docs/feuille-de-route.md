@@ -65,7 +65,8 @@ L'offre gratuite de **Vercel interdit l'usage commercial**. Plan retenu pour ram
 Déjà fait : écran Abonnements et rubrique d'aide, « Mon compte » (profil, niveau, abonnement, paramètres), lien de désabonnement vers Google Play, suppression du compte avec confirmation, IA réservée à l'appli (serveur), site malow.app fermé au public (page « bientôt », confirmation d'e-mail, nouveau mot de passe et confidentialité gardés).
 
 ### 1. Dans l'appli (Claude)
-- [x] Niveaux d'analyse : Premium = Opus 5.5 + 2 recherches web + estimation du prix ; Gratuit = Sonnet 5.5, sans recherche ni prix (effort medium)
+- [x] Niveaux d'analyse : Premium = Opus 5.5 (effort medium) + recherche web classique (1 recherche si la référence est lisible, 2 sinon) + estimation du prix ; Gratuit = Sonnet 5.5, sans recherche ni prix
+  - Mesures du 10/10/2026 : 2 recherches classiques ≈ 0,24 $ en 20 s ; recherche avec filtrage (web_search_20260209) ≈ 0,23-0,26 $ en 28-41 s, avec des échecs du filtrage → écartée
 - [x] Quotas côté serveur (table analyses_ia + fonctions reserver/valider/annuler_analyse, quota_analyses) : 2 annonces Premium « découverte » une seule fois, puis 5 / mois en gratuit ; 15 / mois en Nalow+ ; compteur sur l'écran de description et dans « Mon abonnement », fenêtre « quota atteint »
 - [ ] Mesurer le coût réel par annonce Premium et Gratuite (vue couts_par_jour) après quelques tests
 - [ ] Google Play Billing + RevenueCat : boutons « Choisir », formule mise à jour par le serveur, désabonnement
