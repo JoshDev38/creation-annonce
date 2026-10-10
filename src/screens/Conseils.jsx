@@ -147,8 +147,8 @@ const THEMES = [
       {
         Icone: IconChatDots,
         titre: 'Une question ?',
-        texte: 'Écrivez-nous à contact@malow.app, nous vous répondrons avec plaisir.',
-        lien: 'mailto:contact@malow.app',
+        texte: 'Écrivez-nous à contact@nalow.app, nous vous répondrons avec plaisir.',
+        lien: 'mailto:contact@nalow.app',
       },
     ],
   },

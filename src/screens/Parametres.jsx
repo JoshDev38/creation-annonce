@@ -58,13 +58,13 @@ export default function Parametres({ session, onRetour, onQuitte, notifier }) {
           </span>
           <IconChevron width={18} height={18} />
         </a>
-        <a href="mailto:contact@malow.app">
+        <a href="mailto:contact@nalow.app">
           <span className="icone-compte">
             <IconChatDots width={22} height={22} />
           </span>
           <span>
             <strong>Nous contacter</strong>
-            <small>contact@malow.app</small>
+            <small>contact@nalow.app</small>
           </span>
           <IconChevron width={18} height={18} />
         </a>

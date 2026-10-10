@@ -85,7 +85,7 @@ export default function SiteFerme() {
         </>
       )}
       <footer className="site-ferme-bas">
-        <a href="mailto:contact@malow.app">contact@malow.app</a>
+        <a href="mailto:contact@nalow.app">contact@nalow.app</a>
         <a href="/confidentialite.html">Règles de confidentialité</a>
       </footer>
     </main>
