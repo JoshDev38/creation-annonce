@@ -20,7 +20,7 @@ export const config = { maxDuration: 120 }
 const MODELE_PREMIUM = 'claude-opus-5-5'
 const MODELE_STANDARD = 'claude-sonnet-5-5'
 const MAX_PHOTOS = 8
-const MAX_RECHERCHES = 3
+const MAX_RECHERCHES = 2
 const MAX_REPRISES = 3 // relances après une pause du serveur (pause_turn)
 // L'analyse IA est réservée à l'appli : le site nalow.app ne peut pas l'appeler.
 const ORIGINES = [
@@ -102,11 +102,11 @@ const OUTIL_ANNONCE_SIMPLE = {
   },
 }
 
-// Recherche web avec filtrage dynamique : l'IA trie les résultats avant de les lire, ce qui
-// coûte moins cher que la version classique (web_search_20250305). Début octobre 2026, elle a
-// parfois rendu des résultats inexploitables : le journal « recherche » permet de le repérer.
+// Recherche web classique : les résultats arrivent tels quels à l'IA. Mesuré le 10 octobre 2026,
+// la version avec filtrage dynamique (web_search_20260209) n'était pas moins chère, était 2 fois
+// plus lente et son étape de filtrage échouait souvent.
 const RECHERCHE_WEB = {
-  type: 'web_search_20260209',
+  type: 'web_search_20250305',
   name: 'web_search',
   max_uses: MAX_RECHERCHES,
   user_location: { type: 'approximate', country: 'FR', timezone: 'Europe/Paris' },
@@ -146,13 +146,14 @@ séparés par une ligne vide, dans cet ordre :
 
 Termine toujours en appelant l'outil rediger_annonce avec l'annonce finale.`
 
-const SYSTEME_PREMIUM = consignes(`Recherches web : quand l'outil web_search est disponible, fais toujours 2 ou 3 recherches courtes (${MAX_RECHERCHES} au plus), dans cet ordre :
-  1. Identification : la marque et les inscriptions visibles (nom de gamme, nombre de programmes, puissance, \
-référence…) pour trouver le modèle exact et sa référence. Sers-t'en pour marque_probable, modele_probable, \
-autres_marques et autres_modeles : ne propose que des modèles réels qui correspondent à ce qui est visible.
-  2. Prix : l'objet avec le modèle trouvé (marque, modèle, taille) et « occasion », sur des sites français comme Leboncoin ou Vinted, \
-pour voir à quel prix des articles comparables se vendent en ce moment.
-  3. Seulement si les résultats sont insuffisants : une recherche de plus (autre site d'occasion, ou prix neuf).
+const SYSTEME_PREMIUM = consignes(`Recherches web : quand l'outil web_search est disponible, fais 1 ou 2 recherches courtes (${MAX_RECHERCHES} au plus) :
+  - Si la marque et le modèle ou la référence sont lisibles sur les photos ou donnés par le vendeur : \
+une seule recherche, celle du prix (l'objet avec sa marque et son modèle, « occasion », sur des sites français \
+comme Leboncoin ou Vinted).
+  - Sinon, d'abord une recherche d'identification (marque et inscriptions visibles : nom de gamme, nombre de \
+programmes, puissance, référence…) pour trouver les modèles possibles, puis la recherche du prix avec le modèle \
+le plus probable. Sers-toi de l'identification pour marque_probable, modele_probable, autres_marques et \
+autres_modeles : ne propose que des modèles réels qui correspondent à ce qui est visible.
 
 Prix : c'est essentiel pour le vendeur. Base prix_conseille sur le milieu de la fourchette observée pour des articles \
 comparables dans le même état (ne le sous-estime pas : le vendeur peut toujours baisser), en tenant compte de la marque, \
