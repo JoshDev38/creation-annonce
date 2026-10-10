@@ -5,6 +5,7 @@
   --bleu-voile: #e6f0f6;
   --chocolat: #7a4532;
   --chocolat-doux: #8b5a45;
+  --rouge-aide: #9e1b1f; /* titres de l'Aide & conseils */
   --beige-rose: #d9bfaf;
   --creme: #fbf6ee;
   --blanc-casse: #fffdf9;
@@ -2280,7 +2281,11 @@ html.camera-native .viseur {
 .aide-titres p {
   margin: 4px 0 0;
   font-size: 17px;
-  color: var(--chocolat);
+  color: var(--rouge-aide);
+}
+
+.aide-titres .titre-l {
+  color: var(--rouge-aide);
 }
 
 .aide-ours {
@@ -2340,12 +2345,18 @@ html.camera-native .viseur {
 
 .rubrique-aide img {
   flex: none;
-  width: 72px;
+  width: 76px;
   height: 64px;
   object-fit: contain;
   object-position: center bottom;
   border-radius: 14px;
   background: var(--bleu-voile);
+}
+
+.rubrique-aide img.illustration {
+  height: 72px;
+  object-fit: contain;
+  object-position: center;
 }
 
 .rubrique-aide span {
@@ -2360,7 +2371,7 @@ html.camera-native .viseur {
   font-family: var(--serif);
   font-weight: 400;
   font-size: 19px;
-  color: var(--chocolat);
+  color: var(--rouge-aide);
 }
 
 .rubrique-aide small {

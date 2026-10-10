@@ -9,6 +9,9 @@ import fonctionne5 from '../assets/aide/fonctionne-5.png'
 import oursGratuit from '../assets/aide/aide-gratuit.png'
 import oursPlus from '../assets/aide/aide-plus.png'
 import mascotte from '../assets/mascotte.png'
+import iconeSac from '../assets/aide/aide-sac.png'
+import iconeEtapes from '../assets/aide/aide-etapes.png'
+import iconeFormules from '../assets/aide/aide-formules.png'
 import { formule } from '../lib/formules.jsx'
 import {
   IconBulb,
@@ -37,6 +40,7 @@ const THEMES = [
   {
     id: 'annonces',
     titre: 'Réussir mes annonces',
+    icone: iconeSac, // illustration de la carte du menu
     resume: 'Photos, prix, mots-clés : nos conseils pour vendre vite',
     ours: oursPhoto,
     items: [
@@ -86,6 +90,7 @@ const THEMES = [
   {
     id: 'fonctionnement',
     titre: 'Comment fonctionne Nalow ?',
+    icone: iconeEtapes, // illustration de la carte du menu
     resume: 'Les 5 étapes pour créer votre annonce',
     ours: oursTelephone,
     items: [
@@ -122,6 +127,7 @@ const THEMES = [
   {
     id: 'abonnements',
     titre: 'Les abonnements',
+    icone: iconeFormules, // illustration de la carte du menu
     resume: 'Gratuit ou Nalow+ : quelle formule choisir ?',
     ours: oursPlus,
     page: PageAbonnements, // mise en page dédiée (deux colonnes)
@@ -345,7 +351,7 @@ export default function Conseils({ retourInterne, rubriqueInitiale = null, onRub
         {THEMES.map((t) => (
           <li key={t.id}>
             <button className="rubrique-aide" onClick={() => setRubrique(t.id)}>
-              <img src={t.ours || mascotte} alt="" aria-hidden="true" />
+              <img className={t.icone ? 'illustration' : ''} src={t.icone || t.ours || mascotte} alt="" aria-hidden="true" />
               <span>
                 <strong>{t.titre}</strong>
                 <small>{t.resume}</small>
