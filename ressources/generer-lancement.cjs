@@ -2,7 +2,7 @@ const { chromium } = require('playwright'); const fs=require('fs'); const path=r
 // Génère l'écran d'ouverture plein écran à partir du logo : node ressources/generer-lancement.cjs
 const RES=path.join(__dirname, '../android/app/src/main/res');
 (async()=>{const b=await chromium.launch();const p=await b.newPage();
-const src='data:image/webp;base64,'+fs.readFileSync(path.join(__dirname, 'logo-malow.webp')).toString('base64');
+const src='data:image/webp;base64,'+fs.readFileSync(path.join(__dirname, 'logo-nalow.webp')).toString('base64');
 const tailles={};for(const d of fs.readdirSync(RES).filter(d=>d.startsWith('drawable'))){const f=path.join(RES,d,'splash.png');if(fs.existsSync(f)){const buf=fs.readFileSync(f);tailles[d]=[buf.readUInt32BE(16),buf.readUInt32BE(20)]}}
 const out=await p.evaluate(async({src,tailles})=>{const img=new Image();img.src=src;await img.decode();
  const W=img.width,H=img.height;const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.drawImage(img,0,0);const d=g.getImageData(0,0,W,H).data;
