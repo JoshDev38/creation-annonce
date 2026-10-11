@@ -9,6 +9,7 @@ import {
   applisInstallees,
   iconesSite,
   ouvrirPlateforme,
+  envoyerPhotosPlateforme,
   partageDisponible,
   partagerAnnonce,
   rangerPhotosGalerie,
@@ -95,7 +96,6 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
     } catch (e) {
       console.error('Photos non enregistrées dans la galerie', e)
     }
-    const photosPretes = rangees.length ? 'photos dans l’album « Nalow »' : ''
 
     let bulle = false
     if (avecBulle) {
@@ -113,15 +113,16 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
     }
     // Le titre est le premier champ demandé : on le copie d'avance.
     const copie = await copierTexte(bulle ? annonce.titre : descriptionPlateforme)
-    const etapes = [
-      bulle ? 'titre copié, la bulle Nalow a le reste' : copie && 'description copiée',
-      photosPretes,
-    ].filter(Boolean)
+    const etapes = [bulle ? 'titre copié, la bulle Nalow a le reste' : copie && 'description copiée'].filter(Boolean)
     notifier(etapes.length ? `${etapes.join(' · ')} : ouverture de ${nom}…` : `Ouverture de ${nom}…`)
     // Fidélité : points de publication (seulement pour une annonce sauvegardée dans le compte).
     gagnerPoints('annonce_publiee', annonce.id).catch(() => {})
-    // Laisse le temps de lire le message avant de quitter Nalow.
-    setTimeout(() => {
+    // Laisse le temps de lire le message avant de quitter Nalow. Les photos sont
+    // envoyées directement à la plateforme ; si elle ne les accepte pas, on l'ouvre
+    // simplement et les photos attendent dans l'album « Nalow ».
+    setTimeout(async () => {
+      if (await envoyerPhotosPlateforme(cle, rangees)) return
+      if (rangees.length) notifier('Photos prêtes : dans la galerie, ouvrez l’album « Nalow »')
       ouvrirPlateforme(cle).catch((e) => notifier(`Impossible d’ouvrir ${nom} (${e?.message || e})`))
     }, 1400)
   }
@@ -225,7 +226,7 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
             </button>
             <p className="note-publication">
               {estAppliNative()
-                ? 'Les photos vont dans l’album « Nalow » de votre galerie, et la bulle Nalow garde le titre, la description et le prix à portée de main.'
+                ? 'Les photos sont envoyées directement à l’appli choisie (et rangées dans l’album « Nalow » de votre galerie), et la bulle Nalow garde le titre, la description et le prix à portée de main.'
                 : 'La description est copiée : collez-la dans le formulaire du site.'}
             </p>
             {!estAppliNative() && (

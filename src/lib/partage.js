@@ -6,6 +6,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 import { AppLauncher } from '@capacitor/app-launcher'
 import { Media } from '@capacitor-community/media'
+import { registerPlugin } from '@capacitor/core'
 import { estAppliNative } from './cameraNative.js'
 
 // Les photos sont soit des data URL (annonce toute neuve), soit des liens
@@ -148,6 +149,23 @@ export async function rangerPhotosGalerie(photos, idAnnonce) {
     chemins[i] = filePath
   }
   return chemins.filter(Boolean)
+}
+
+const EnvoiPhotos = registerPlugin('EnvoiPhotos')
+
+// Envoie les photos (chemins renvoyés par rangerPhotosGalerie) directement à
+// l'appli de la plateforme, qui ouvre son formulaire avec les photos ajoutées.
+// Renvoie false si l'appli n'est pas installée ou n'accepte pas l'envoi.
+export async function envoyerPhotosPlateforme(cle, chemins) {
+  if (!estAppliNative() || !chemins.length) return false
+  const { paquet } = PLATEFORMES[cle]
+  try {
+    await EnvoiPhotos.envoyer({ paquet, chemins })
+    return true
+  } catch (e) {
+    console.warn('Envoi direct des photos impossible', e)
+    return false
+  }
 }
 
 export async function ouvrirPlateforme(cle) {
