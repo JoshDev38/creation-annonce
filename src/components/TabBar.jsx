@@ -5,7 +5,7 @@ const ONGLETS = [
   { id: 'annonces', label: 'Mes annonces', Icone: IconSearch },
   { id: 'nouveau', label: 'Nouvelle', Icone: IconPlus, central: true },
   { id: 'conseils', label: 'Aide', Icone: IconBulb },
-  { id: 'profil', label: 'Profil', Icone: IconUser, IconeActive: IconUserFilled },
+  { id: 'profil', label: 'Mon compte', Icone: IconUser, IconeActive: IconUserFilled },
 ]
 
 export default function TabBar({ actif, onChange }) {
