@@ -464,13 +464,18 @@ img {
   min-height: 28px;
 }
 
+/* retour rond et blanc, comme dans l'aide */
 .lien-retour {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  color: var(--chocolat-doux);
-  font-size: 16px;
-  margin-left: -6px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--ombre);
+  color: var(--chocolat);
 }
 
 /* ---------- Accueil ---------- */
