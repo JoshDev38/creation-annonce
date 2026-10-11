@@ -41,8 +41,8 @@ export default function Parametres({ session, onRetour, onQuitte, notifier }) {
   return (
     <main className="page page-sous-compte">
       <header className="sous-compte-haut">
-        <button className="abos-retour" onClick={onRetour} aria-label="Retour">
-          <IconBack width={24} height={24} />
+        <button className="lien-retour abos-retour" onClick={onRetour}>
+          <IconBack width={20} height={20} /> Retour
         </button>
         <h1>Paramètres</h1>
       </header>

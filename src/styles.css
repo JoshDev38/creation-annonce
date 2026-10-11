@@ -2967,10 +2967,6 @@ html.camera-native .viseur {
   text-align: center;
 }
 
-.sous-compte-haut .abos-retour {
-  left: -6px;
-}
-
 .sous-compte-haut h1 {
   margin: 2px 0 0;
   font-family: var(--serif);
@@ -3001,10 +2997,6 @@ html.camera-native .viseur {
 .mon-abo-haut {
   position: relative;
   text-align: center;
-}
-
-.mon-abo-haut .abos-retour {
-  left: -6px;
 }
 
 .mon-abo-haut h1 {
@@ -3181,18 +3173,13 @@ html.camera-native .viseur {
   text-align: center;
 }
 
+/* « ‹ Retour » écrit (style .lien-retour), au-dessus du titre, à gauche */
 .abos-retour {
-  position: absolute;
-  left: 14px;
-  top: 0;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--texte);
-  box-shadow: var(--ombre);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: max-content;
+  margin: 0 0 6px -6px;
 }
 
 .abos-haut h1 {

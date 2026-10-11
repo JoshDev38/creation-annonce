@@ -40,8 +40,8 @@ export default function Abonnements({ session, onRetour, notifier }) {
   return (
     <main className="page page-abonnements">
       <header className="abos-haut">
-        <button className="abos-retour" onClick={onRetour} aria-label="Retour">
-          <IconBack width={24} height={24} />
+        <button className="lien-retour abos-retour" onClick={onRetour}>
+          <IconBack width={20} height={20} /> Retour
         </button>
         <h1>Abonnements</h1>
         <p>Choisissez l’offre qui vous correspond et vendez plus facilement avec Nalow !</p>

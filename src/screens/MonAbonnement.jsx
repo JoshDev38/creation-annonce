@@ -40,8 +40,8 @@ export default function MonAbonnement({ session, onRetour, onOffres }) {
   return (
     <main className="page page-mon-abo">
       <header className="mon-abo-haut">
-        <button className="abos-retour" onClick={onRetour} aria-label="Retour">
-          <IconBack width={24} height={24} />
+        <button className="lien-retour abos-retour" onClick={onRetour}>
+          <IconBack width={20} height={20} /> Retour
         </button>
         <h1>Mon abonnement</h1>
       </header>
