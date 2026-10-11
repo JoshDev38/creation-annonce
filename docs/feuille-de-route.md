@@ -47,18 +47,20 @@ L'ancien nom « Malow » est une marque de l'Union européenne déjà enregistr�
 | Annuel 74,99 € (reste 3,45 €/mois ; 6 ou 10 annonces) | +2,73 € | +2,25 € |
 | Nouvel inscrit (2 annonces découverte, une fois) | −0,24 € | −0,24 € |
 
-- Exemple à 1 000 utilisateurs (800 gratuits, 150 mensuels, 50 annuels, 100 nouveaux inscrits) : bénéfice ≈ **632 € / mois** en usage moyen, ≈ **536 €** en usage maximum, avec ≈ 18 € de frais fixes (Vercel Pro + domaine) ; ≈ 1 € après le départ de Vercel.
+- Exemple à 1 000 utilisateurs (800 gratuits, 150 mensuels, 50 annuels, 100 nouveaux inscrits) : bénéfice ≈ **632 € / mois** en usage moyen, ≈ **536 €** en usage maximum, avec ≈ 1 € de frais fixes (domaine), Vercel étant quitté.
 - Chiffres fiscaux à faire valider par un comptable ou l'URSSAF.
 
-## Hébergement : à faire plus tard
+## Hébergement (fait le 12 octobre 2026)
 
-L'offre gratuite de **Vercel interdit l'usage commercial**. Plan retenu pour ramener les frais fixes d'environ 43 € à environ 1 € par mois :
+Vercel est quitté (son offre gratuite interdit l'usage commercial) :
+- **Site nalow.app et www.nalow.app** : Cloudflare Pages, projet « nalow », relié au dépôt GitHub (branche `claude/friendly-cray-p8qvsx`, commande `npm run build`, dossier `dist`, `NODE_VERSION=22`). Chaque push redéploie le site.
+- **Analyse IA** : Supabase Edge Function `analyser` (supabase/functions/analyser, qui reprend api/analyser.js). Secret `ANTHROPIC_API_KEY` dans Supabase › Edge Functions › Secrets. Journaux : Supabase › Edge Functions › analyser › Logs.
+- **malow.app** : règle de redirection Cloudflare (301) vers nalow.app.
+- Frais fixes ramenés à ≈ 1 € / mois (domaine).
 
-1. **Quitter Vercel** : le site passe sur Cloudflare Pages (gratuit, domaine déjà chez Cloudflare) et la fonction d'analyse IA sur Supabase Edge Functions (gratuit, 150 s maximum). Environ 1 à 2 h de travail.
-2. **Rester sur Supabase gratuit** (usage commercial autorisé). Ses limites :
-   - **1 Go de fichiers** → déplacer les photos vers **Cloudflare R2** (10 Go gratuits) ;
-   - **pas de sauvegardes automatiques** → sauvegarde de la base chaque nuit via GitHub Actions (le mot de passe de la base est à ajouter par Josh dans les secrets GitHub).
-3. Passer Supabase en Pro (≈ 23 € / mois) seulement au-delà d'environ 50 000 utilisateurs actifs, ou pour des sauvegardes gérées.
+Reste à faire plus tard :
+- **Supabase gratuit** : 1 Go de fichiers → déplacer les photos vers **Cloudflare R2** (10 Go gratuits) quand ça approche ; pas de sauvegardes automatiques → sauvegarde de la base chaque nuit via GitHub Actions (mot de passe de la base à ajouter dans les secrets GitHub).
+- Passer Supabase en Pro (≈ 23 € / mois) seulement au-delà d'environ 50 000 utilisateurs actifs, ou pour des sauvegardes gérées.
 
 ## Avant le lancement (liste complète, mise à jour le 8 octobre 2026)
 

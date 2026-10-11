@@ -1,7 +1,7 @@
-// Fonction serveur Vercel : POST /api/analyser
+// Analyse IA : POST, servie par la fonction Supabase « analyser » (supabase/functions/analyser)
 // Reçoit les photos (JPEG en base64) et les infos dictées/écrites,
 // demande l'annonce à Claude et la renvoie au format attendu par l'appli.
-// La clé ANTHROPIC_API_KEY reste côté serveur (variable d'environnement Vercel).
+// La clé ANTHROPIC_API_KEY reste côté serveur (secret des Edge Functions Supabase).
 //
 // Deux niveaux d'analyse, selon la formule et le quota de l'utilisateur (base Supabase) :
 // - Premium (Nalow+ et les 2 annonces « découverte ») : Claude Opus 5.5 regarde les photos,
