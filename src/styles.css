@@ -2297,14 +2297,18 @@ html.camera-native .viseur {
   z-index: 0;
 }
 
+/* retour rond et blanc, sur toutes les pages de l'aide */
 .aide-retour {
   position: relative;
   z-index: 2;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  margin: 0 0 6px -8px;
+  width: 42px;
+  height: 42px;
+  margin: 0 0 10px -6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--ombre);
   color: var(--chocolat);
   transform: rotate(180deg);
 }
@@ -2479,12 +2483,7 @@ html.camera-native .viseur {
   position: absolute;
   top: max(16px, env(safe-area-inset-top));
   left: 14px;
-  width: 42px;
-  height: 42px;
   margin: 0;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: var(--ombre);
 }
 
 .aide-haut.sans-ours .aide-titres .titre-l {
