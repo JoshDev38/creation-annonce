@@ -14,6 +14,7 @@ import iconeEtapes from '../assets/aide/aide-etapes.png'
 import iconeFormules from '../assets/aide/aide-formules.png'
 import { formule } from '../lib/formules.jsx'
 import {
+  IconBack,
   IconBulb,
   IconCamera,
   IconChatDots,
@@ -269,8 +270,8 @@ function EnteteAide({ sousTitre, ours, onRetour }) {
         <path d="M0 0h400v150c-60-40-130 10-200-30S60 60 0 110z" />
       </svg>
       {onRetour && (
-        <button className="aide-retour" onClick={onRetour} aria-label="Retour">
-          <IconChevron width={26} height={26} />
+        <button className="lien-retour aide-retour" onClick={onRetour}>
+          <IconBack width={20} height={20} /> Retour
         </button>
       )}
       <div className="aide-titres">

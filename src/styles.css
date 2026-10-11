@@ -464,18 +464,13 @@ img {
   min-height: 28px;
 }
 
-/* retour rond et blanc, comme dans l'aide */
 .lien-retour {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 42px;
-  height: 42px;
-  margin-left: -4px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: var(--ombre);
-  color: var(--chocolat);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--chocolat-doux);
+  font-size: 16px;
+  margin-left: -6px;
 }
 
 /* ---------- Accueil ---------- */
@@ -2302,20 +2297,11 @@ html.camera-native .viseur {
   z-index: 0;
 }
 
-/* retour rond et blanc, sur toutes les pages de l'aide */
+/* « ‹ Retour » écrit, comme sur les autres écrans */
 .aide-retour {
   position: relative;
   z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  margin: 0 0 10px -6px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: var(--ombre);
-  color: var(--chocolat);
-  transform: rotate(180deg);
+  margin: 0 0 8px;
 }
 
 .aide-ours.mascotte {
@@ -2483,17 +2469,6 @@ html.camera-native .viseur {
   text-align: center;
 }
 
-/* retour rond à gauche, titres centrés (maquette « Les abonnements ») */
-.aide-haut.sans-ours .aide-retour {
-  position: absolute;
-  top: max(16px, env(safe-area-inset-top));
-  left: 14px;
-  margin: 0;
-}
-
-.aide-haut.sans-ours .aide-titres .titre-l {
-  padding: 0 40px;
-}
 
 .aa-intro {
   position: relative;
