@@ -2457,6 +2457,20 @@ html.camera-native .viseur {
   color: var(--bleu-texte);
 }
 
+/* étape « Publiez facilement » : grande illustration de la bulle à gauche */
+.items-aide .icone-aide.grande {
+  width: 118px;
+  height: auto;
+  align-self: center;
+  border-radius: 0;
+  background: none;
+}
+
+.item-grand p {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 /* ---------- Aide : rubrique « Les abonnements » ---------- */
 
 .aide-haut.sans-ours {

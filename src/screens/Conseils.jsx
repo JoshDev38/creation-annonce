@@ -5,7 +5,7 @@ import fonctionne1 from '../assets/aide/fonctionne-1.png'
 import fonctionne2 from '../assets/aide/fonctionne-2.png'
 import fonctionne3 from '../assets/aide/fonctionne-3.png'
 import fonctionne4 from '../assets/aide/fonctionne-4.png'
-import fonctionne5 from '../assets/aide/fonctionne-5.png'
+import illustrationPublier from '../assets/aide/aide-publier.png'
 import oursGratuit from '../assets/aide/aide-gratuit.png'
 import oursPlus from '../assets/aide/aide-plus.png'
 import mascotte from '../assets/mascotte.png'
@@ -118,10 +118,15 @@ const THEMES = [
         texte: 'Relisez le résultat et, si besoin, modifiez ce que vous souhaitez : titre, description, prix…',
       },
       {
-        image: fonctionne5,
-        titre: 'Votre annonce est prête !',
-        texte:
-          'Copiez votre annonce et publiez-la sur la plateforme de vente de votre choix (Vinted, Leboncoin, Facebook Marketplace…).',
+        image: illustrationPublier,
+        grande: true, // illustration de la bulle, plus grande, texte en plusieurs paragraphes
+        titre: 'Publiez facilement',
+        texte: [
+          'Appuyez sur « Publier » et choisissez la plateforme de votre choix. Vos photos vous attendent en tête de vos photos récentes.',
+          'Lors de votre première annonce, autorisez l’affichage de la bulle flottante Nalow.',
+          'Une fois la plateforme ouverte, touchez la bulle : une fenêtre affiche le titre, la description et le prix. Appuyez sur une rubrique pour copier son texte, puis collez-le sur le site choisi.',
+          'Pour copier une autre rubrique, rouvrez simplement la bulle. Elle sera disponible au besoin pour chaque nouvelle annonce.',
+        ],
       },
     ],
   },
@@ -322,10 +327,10 @@ export default function Conseils({ retourInterne, rubriqueInitiale = null, onRub
       <main className="page page-aide" key={theme.id}>
         <EnteteAide sousTitre={theme.titre} ours={theme.ours} onRetour={() => setRubrique(null)} />
         <ol className="items-aide">
-          {theme.items.map(({ Icone, image, titre, texte, lien }, i) => (
-            <li key={titre}>
+          {theme.items.map(({ Icone, image, grande, titre, texte, lien }, i) => (
+            <li key={titre} className={grande ? 'item-grand' : undefined}>
               {image ? (
-                <img className="icone-aide image" src={image} alt="" aria-hidden="true" />
+                <img className={`icone-aide image ${grande ? 'grande' : ''}`} src={image} alt="" aria-hidden="true" />
               ) : (
                 <span className={`icone-aide ${i % 2 ? 'beige' : ''}`}>
                   <Icone width={30} height={30} />
@@ -336,7 +341,11 @@ export default function Conseils({ retourInterne, rubriqueInitiale = null, onRub
                   <span className="num-aide">{i + 1}</span>
                   {titre}
                 </strong>
-                <p>{lien ? <a href={lien}>{texte}</a> : texte}</p>
+                {Array.isArray(texte) ? (
+                  texte.map((t) => <p key={t}>{t}</p>)
+                ) : (
+                  <p>{lien ? <a href={lien}>{texte}</a> : texte}</p>
+                )}
               </div>
             </li>
           ))}
