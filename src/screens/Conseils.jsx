@@ -162,12 +162,12 @@ const THEMES = [
 
 // Rubrique « Les abonnements » : Gratuit et Nalow+ côte à côte, puis le lien vers le choix de formule.
 const GRATUIT = [
-  [IconDoc, 'Jusqu’à 5 annonces par mois', 'Vous pouvez créer un titre, une description et ajouter vos photos.'],
+  [IconDoc, 'Jusqu’à 2 annonces par mois', 'Vous pouvez créer un titre, une description et ajouter vos photos.'],
   [IconCamera, 'Analyse standard de vos photos', 'Nalow reconnaît votre objet et rédige l’annonce.'],
   [IconMegaphone, 'Une publicité est affichée', 'Pour chaque annonce créée.'],
 ]
 const PLUS = [
-  [IconDoc, 'Jusqu’à 15 annonces par mois', 'Chacune avec un titre, une description et vos photos.'],
+  [IconDoc, 'Jusqu’à 10 annonces par mois', 'Chacune avec un titre, une description et vos photos.'],
   [IconCamera, 'Analyse approfondie de vos photos', 'Obtenez une estimation du prix de vente et la recherche des prix du marché.'],
   [IconCrown, 'Toutes les fonctionnalités Premium', 'Profitez de l’analyse avancée, des conseils et des outils exclusifs.'],
   [IconMegaphoneOff, 'Une application sans publicité', 'Pour une utilisation plus agréable.'],

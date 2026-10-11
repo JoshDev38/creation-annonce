@@ -508,7 +508,7 @@ export default function App() {
             {modaleQuota.formule === 'mensuel' || modaleQuota.formule === 'annuel' ? (
               <>
                 <h2 id="titre-quota" className="titre-m">
-                  Vos {modaleQuota.limite ?? 15} annonces du mois sont utilisées
+                  Vos {modaleQuota.limite ?? 10} annonces du mois sont utilisées
                 </h2>
                 <p>Votre compteur repart à zéro le 1er du mois prochain. Merci de votre fidélité !</p>
                 <button className="bouton bouton-principal" onClick={() => setModaleQuota(null)}>
@@ -518,10 +518,10 @@ export default function App() {
             ) : (
               <>
                 <h2 id="titre-quota" className="titre-m">
-                  Vos {modaleQuota.limite ?? 5} annonces gratuites du mois sont utilisées
+                  Vos {modaleQuota.limite ?? 2} annonces gratuites du mois sont utilisées
                 </h2>
                 <p>
-                  Passez à Nalow+ : 15 annonces par mois, avec l’estimation du prix de vente et sans publicité.
+                  Passez à Nalow+ : 10 annonces par mois, avec l’estimation du prix de vente et sans publicité.
                 </p>
                 <p className="petit">Sinon, votre compteur repart à zéro le 1er du mois prochain.</p>
                 <button

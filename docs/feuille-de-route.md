@@ -22,11 +22,11 @@ L'ancien nom « Malow » est une marque de l'Union européenne déjà enregistr�
 
 | Offre | Prix | Contenu |
 |---|---|---|
-| Nalow Gratuit | 0 € | 5 annonces / mois, analyse standard (sans estimation de prix ni recherche du marché), 1 pub par annonce |
-| Nalow+ Mensuel | 5,99 € / mois | 15 annonces / mois, analyse avancée, estimation du prix, recherche du marché, sans pub |
-| Nalow+ Annuel | 54,99 € / an (4,58 € / mois, −23 %) | Comme le mensuel |
+| Nalow Gratuit | 0 € | 2 annonces / mois (+ 2 Premium offertes à l'inscription), analyse standard (sans estimation de prix ni recherche du marché), 1 pub par annonce |
+| Nalow+ Mensuel | 7,99 € / mois | 10 annonces / mois, analyse avancée, estimation du prix, recherche du marché, sans pub |
+| Nalow+ Annuel | 74,99 € / an (6,25 € / mois, −22 %) | Comme le mensuel |
 
-- Plafond Premium retenu : **15 annonces par mois** (mensuel et annuel).
+- Plafond Premium retenu : **10 annonces par mois** (mensuel et annuel) ; gratuit : **2 par mois** (changé le 11 octobre 2026).
 - Conseil : mettre les « 2 annonces Premium offertes à l'inscription » sur la carte **Gratuit** plutôt que sur les cartes payantes.
 
 ## Coûts de l'IA
@@ -40,14 +40,14 @@ L'ancien nom « Malow » est une marque de l'Union européenne déjà enregistr�
 
 ## Rentabilité (après TVA 20 %, commission Google 15 %, cotisations micro-entreprise ≈ 22 %)
 
-| Par utilisateur et par mois | Usage moyen | Usage maximum |
+| Par utilisateur et par mois (coûts mesurés le 10 oct.) | Usage moyen | Usage maximum |
 |---|---|---|
-| Gratuit (3 ou 5 annonces, pub déduite) | −0,04 € | −0,07 € |
-| Mensuel (10 ou 15 annonces) | +2,11 € | +1,51 € |
-| Annuel (10 ou 15 annonces) | +1,33 € | +0,73 € |
+| Gratuit (2 annonces à 0,014 €, pub déduite) | −0,02 € | −0,02 € |
+| Mensuel 7,99 € (reste 4,41 € ; 6 ou 10 annonces à 0,12 €) | +3,69 € | +3,21 € |
+| Annuel 74,99 € (reste 3,45 €/mois ; 6 ou 10 annonces) | +2,73 € | +2,25 € |
+| Nouvel inscrit (2 annonces découverte, une fois) | −0,24 € | −0,24 € |
 
-- Exemple à 1 000 utilisateurs (800 gratuits, 150 mensuels, 50 annuels, 100 nouveaux inscrits) : bénéfice ≈ **281 € / mois** en usage moyen, ≈ **138 €** en usage maximum, avec 43 € de frais fixes.
-- Sans Vercel Pro ni Supabase Pro (voir plus bas) : ≈ **323 € / mois** en usage moyen.
+- Exemple à 1 000 utilisateurs (800 gratuits, 150 mensuels, 50 annuels, 100 nouveaux inscrits) : bénéfice ≈ **632 € / mois** en usage moyen, ≈ **536 €** en usage maximum, avec ≈ 18 € de frais fixes (Vercel Pro + domaine) ; ≈ 1 € après le départ de Vercel.
 - Chiffres fiscaux à faire valider par un comptable ou l'URSSAF.
 
 ## Hébergement : à faire plus tard
@@ -67,7 +67,7 @@ Déjà fait : écran Abonnements et rubrique d'aide, « Mon compte » (profil, n
 ### 1. Dans l'appli (Claude)
 - [x] Niveaux d'analyse : Premium = Opus 5.5 (effort medium) + recherche web classique (1 recherche si la référence est lisible, 2 sinon) + estimation du prix ; Gratuit = Sonnet 5.5, sans recherche ni prix
   - Mesures du 10/10/2026 : 2 recherches classiques ≈ 0,24 $ en 20 s ; recherche avec filtrage (web_search_20260209) ≈ 0,23-0,26 $ en 28-41 s, avec des échecs du filtrage → écartée
-- [x] Quotas côté serveur (table analyses_ia + fonctions reserver/valider/annuler_analyse, quota_analyses) : 2 annonces Premium « découverte » une seule fois, puis 5 / mois en gratuit ; 15 / mois en Nalow+ ; compteur sur l'écran de description et dans « Mon abonnement », fenêtre « quota atteint »
+- [x] Quotas côté serveur (table analyses_ia + fonctions reserver/valider/annuler_analyse, quota_analyses) : 2 annonces Premium « découverte » une seule fois, puis 2 / mois en gratuit ; 10 / mois en Nalow+ ; compteur sur l'écran de description et dans « Mon abonnement », fenêtre « quota atteint »
 - [ ] Mesurer le coût réel par annonce Premium et Gratuite (vue couts_par_jour) après quelques tests
 - [ ] Google Play Billing + RevenueCat : boutons « Choisir », formule mise à jour par le serveur, désabonnement
 - [ ] Pub AdMob (1 vidéo de 30 secondes par annonce en gratuit) avec consentement RGPD
