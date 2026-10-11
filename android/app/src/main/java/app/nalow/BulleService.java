@@ -390,7 +390,7 @@ public class BulleService extends Service {
         carte.addView(defilement, lpDef);
 
         TextView aide = new TextView(this);
-        aide.setText("Dans l’appli, touchez « Ajouter des photos » : elles sont en tête de votre galerie, dans cet ordre (album « Nalow »).");
+        aide.setText("Dans l’appli, touchez « Ajouter des photos » : elles sont en tête de vos photos récentes, dans cet ordre (et dans l’album « Nalow »).");
         aide.setTextColor(TEXTE);
         aide.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         aide.setPadding(0, dp(6), 0, 0);

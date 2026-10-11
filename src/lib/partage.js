@@ -133,12 +133,21 @@ async function albumNalow() {
 }
 
 // Renvoie les chemins des photos ajoutées à la galerie, dans l'ordre de l'annonce
-// ([] sur le site). Enregistrées de la dernière à la première : la photo 1 est
-// ainsi la plus récente, en tête de la galerie.
+// ([] sur le site). La photo 1 est la plus récente, en tête de la galerie.
+const Galerie = registerPlugin('Galerie')
+
 export async function rangerPhotosGalerie(photos, idAnnonce) {
   if (!estAppliNative() || !photos.length) return []
-  const albumIdentifier = await albumNalow()
   const prefixe = String(idAnnonce || Date.now()).slice(0, 8)
+  // Module Nalow : photos datées de maintenant, donc en tête des « Récents »
+  // quand la plateforme demande de choisir des photos (et dans l'album « Nalow »).
+  try {
+    const { chemins } = await Galerie.enregistrer({ photos: await Promise.all(photos.map(enBase64)), prefixe })
+    return chemins.filter(Boolean)
+  } catch (e) {
+    console.warn('Rangement natif impossible, enregistrement classique', e)
+  }
+  const albumIdentifier = await albumNalow()
   const chemins = []
   for (let i = photos.length - 1; i >= 0; i--) {
     const { filePath } = await Media.savePhoto({
@@ -151,11 +160,6 @@ export async function rangerPhotosGalerie(photos, idAnnonce) {
   return chemins.filter(Boolean)
 }
 
-const Plateforme = registerPlugin('Plateforme')
-
-// Dans l'appli Android : ouvre directement la page « déposer une annonce » de
-// la plateforme dans son appli (lien du site, ex. vinted.fr/items/new). Si
-// l'appli ne gère pas ce lien, on l'ouvre sur son accueil.
 export async function ouvrirPlateforme(cle) {
   const { paquet, site } = PLATEFORMES[cle]
   if (!estAppliNative()) {
@@ -163,13 +167,5 @@ export async function ouvrirPlateforme(cle) {
     return
   }
   const { value: installee } = await AppLauncher.canOpenUrl({ url: paquet }).catch(() => ({ value: false }))
-  if (installee) {
-    try {
-      await Plateforme.ouvrirCreation({ paquet, url: site })
-      return
-    } catch (e) {
-      console.warn('Page de dépôt non ouverte, accueil de l’appli à la place', e)
-    }
-  }
   await AppLauncher.openUrl({ url: installee ? paquet : site })
 }

@@ -116,10 +116,10 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
     notifier(etapes.length ? `${etapes.join(' · ')} : ouverture de ${nom}…` : `Ouverture de ${nom}…`)
     // Fidélité : points de publication (seulement pour une annonce sauvegardée dans le compte).
     gagnerPoints('annonce_publiee', annonce.id).catch(() => {})
-    // Laisse le temps de lire le message avant de quitter Nalow, puis ouvre la page
-    // de dépôt d'annonce ; les photos attendent en tête de l'album « Nalow ».
+    // Laisse le temps de lire le message avant de quitter Nalow ; les photos
+    // attendent en tête des « Récents » (et dans l'album « Nalow »).
     setTimeout(() => {
-      if (rangees.length) notifier('Photos prêtes : dans la galerie, ouvrez l’album « Nalow »')
+      if (rangees.length) notifier('Photos prêtes : en tête de vos photos récentes')
       ouvrirPlateforme(cle).catch((e) => notifier(`Impossible d’ouvrir ${nom} (${e?.message || e})`))
     }, 1400)
   }
@@ -223,7 +223,7 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
             </button>
             <p className="note-publication">
               {estAppliNative()
-                ? 'L’appli s’ouvre sur sa page « déposer une annonce », les photos vous attendent dans l’album « Nalow » de votre galerie, et la bulle Nalow garde le titre, la description et le prix à portée de main.'
+                ? 'Vos photos arrivent en tête de vos photos récentes (et dans l’album « Nalow » de votre galerie), et la bulle Nalow garde le titre, la description et le prix à portée de main.'
                 : 'La description est copiée : collez-la dans le formulaire du site.'}
             </p>
             {!estAppliNative() && (
