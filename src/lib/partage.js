@@ -151,23 +151,11 @@ export async function rangerPhotosGalerie(photos, idAnnonce) {
   return chemins.filter(Boolean)
 }
 
-const EnvoiPhotos = registerPlugin('EnvoiPhotos')
+const Plateforme = registerPlugin('Plateforme')
 
-// Envoie les photos (chemins renvoyés par rangerPhotosGalerie) directement à
-// l'appli de la plateforme, qui ouvre son formulaire avec les photos ajoutées.
-// Renvoie false si l'appli n'est pas installée ou n'accepte pas l'envoi.
-export async function envoyerPhotosPlateforme(cle, chemins) {
-  if (!estAppliNative() || !chemins.length) return false
-  const { paquet } = PLATEFORMES[cle]
-  try {
-    await EnvoiPhotos.envoyer({ paquet, chemins })
-    return true
-  } catch (e) {
-    console.warn('Envoi direct des photos impossible', e)
-    return false
-  }
-}
-
+// Dans l'appli Android : ouvre directement la page « déposer une annonce » de
+// la plateforme dans son appli (lien du site, ex. vinted.fr/items/new). Si
+// l'appli ne gère pas ce lien, on l'ouvre sur son accueil.
 export async function ouvrirPlateforme(cle) {
   const { paquet, site } = PLATEFORMES[cle]
   if (!estAppliNative()) {
@@ -175,5 +163,13 @@ export async function ouvrirPlateforme(cle) {
     return
   }
   const { value: installee } = await AppLauncher.canOpenUrl({ url: paquet }).catch(() => ({ value: false }))
+  if (installee) {
+    try {
+      await Plateforme.ouvrirCreation({ paquet, url: site })
+      return
+    } catch (e) {
+      console.warn('Page de dépôt non ouverte, accueil de l’appli à la place', e)
+    }
+  }
   await AppLauncher.openUrl({ url: installee ? paquet : site })
 }
