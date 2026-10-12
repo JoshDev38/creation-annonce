@@ -1,5 +1,6 @@
 // Profil de l'utilisateur (table « profils ») : pseudo, photo et formule d'abonnement.
 import { supabase } from './supabase.js'
+import { normaliserPreferences } from './preferences.js'
 
 const BUCKET = 'photos'
 export const PSEUDO_VALIDE = /^[\p{L}\p{N}_.\- ]{2,30}$/u
@@ -39,4 +40,18 @@ export async function changerAvatar(userId, dataUrl, ancien) {
   if (e2) throw e2
   if (ancien) await supabase.storage.from(BUCKET).remove([ancien])
   return chemin
+}
+
+// Préférences de vente (livraison, foyer, phrase de fin, plateformes).
+export async function lirePreferences(userId) {
+  const { data, error } = await supabase.from('profils').select('preferences').eq('id', userId).maybeSingle()
+  if (error) throw error
+  return normaliserPreferences(data?.preferences || {})
+}
+
+export async function enregistrerPreferences(userId, preferences) {
+  const { error } = await supabase
+    .from('profils')
+    .upsert({ id: userId, preferences: normaliserPreferences(preferences), updated_at: new Date().toISOString() })
+  if (error) throw error
 }

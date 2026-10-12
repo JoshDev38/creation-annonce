@@ -14,6 +14,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 import { SUPABASE_CLE_PUBLIQUE, SUPABASE_URL } from '../src/lib/configSupabase.js'
 import { paragraphes } from '../src/lib/paragraphes.js'
+import { appliquerPreferences } from '../src/lib/preferences.js'
 
 export const config = { maxDuration: 120 }
 
@@ -403,6 +404,14 @@ export default async function handler(req, res) {
       ({ error }) => error && console.error('Annulation impossible :', error.message),
     )
 
+  // Préférences de vente du vendeur (livraison, foyer, phrase de fin), lues pendant l'analyse.
+  const preferences = base
+    .from('profils')
+    .select('preferences')
+    .eq('id', utilisateur)
+    .maybeSingle()
+    .then(({ data }) => data?.preferences || {}, () => ({}))
+
   const client = new Anthropic()
   const compteur = nouveauCompteur(niveau.modele)
   const debut = Date.now()
@@ -468,7 +477,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       titre: a.titre,
       marque: a.marque || '',
-      description: nettoyerDescription(a.description),
+      description: appliquerPreferences(nettoyerDescription(a.description), await preferences),
       prix,
       explicationPrix,
       tags: a.tags,

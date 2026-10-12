@@ -11,6 +11,7 @@ import MesAnnonces from './screens/MesAnnonces.jsx'
 import Conseils from './screens/Conseils.jsx'
 import MonAbonnement from './screens/MonAbonnement.jsx'
 import MonProfil from './screens/MonProfil.jsx'
+import Preferences from './screens/Preferences.jsx'
 import Parametres from './screens/Parametres.jsx'
 import Profil from './screens/Profil.jsx'
 import Connexion from './screens/Connexion.jsx'
@@ -301,6 +302,7 @@ export default function App() {
       abonnements: abosDepuis,
       'mon-abonnement': 'profil',
       'mon-profil': 'profil',
+      preferences: 'profil',
       parametres: 'profil',
       connexion: connexion.retour,
     }
@@ -397,6 +399,7 @@ export default function App() {
           session={session}
           onConnexion={(mode) => exigerConnexion('', null, mode)}
           onMonProfil={() => setEcran('mon-profil')}
+          onPreferences={() => setEcran('preferences')}
           onFidelite={() => setEcran('fidelite')}
           onMonAbonnement={() => setEcran('mon-abonnement')}
           onParametres={() => setEcran('parametres')}
@@ -430,6 +433,9 @@ export default function App() {
           notifier={notifier}
         />
       )
+      break
+    case 'preferences':
+      contenu = <Preferences session={session} onRetour={() => setEcran('profil')} notifier={notifier} />
       break
     case 'parametres':
       contenu = (

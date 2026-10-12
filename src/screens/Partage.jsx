@@ -16,6 +16,8 @@ import {
 import { estAppliNative } from '../lib/cameraNative.js'
 import { afficherBulle, autoriserBulle, bulleAutorisee, iconesApplis } from '../lib/bulle.js'
 import { gagnerPoints } from '../lib/fidelite.js'
+import { lirePreferences } from '../lib/profil.js'
+import { supabase } from '../lib/supabase.js'
 
 const Badge = ({ lettres }) => <span className="badge-plateforme">{lettres}</span>
 
@@ -46,6 +48,18 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
   const [choixOuvert, setChoixOuvert] = useState(false)
   const [installees, setInstallees] = useState({})
   const [icones, setIcones] = useState({})
+
+  // Plateformes favorites (préférences de vente) : affichées en premier.
+  const [favoris, setFavoris] = useState([])
+  useEffect(() => {
+    supabase.auth
+      .getSession()
+      .then(({ data }) => data.session && lirePreferences(data.session.user.id))
+      .then((p) => p && setFavoris(p.plateformes))
+      .catch(() => {})
+  }, [])
+  const rang = (cle) => (favoris.includes(cle) ? favoris.indexOf(cle) : favoris.length)
+  const plateformesTriees = Object.entries(PLATEFORMES).sort(([a], [b]) => rang(a) - rang(b))
 
   useEffect(() => {
     applisInstallees().then(setInstallees).catch(() => {})
@@ -200,7 +214,7 @@ export default function Partage({ annonce, notifier, onSauvegarder, onNouvelle, 
           <div className="modale feuille-plateformes" onClick={(e) => e.stopPropagation()}>
             <h2 id="titre-choix" className="titre-m">Où publier ?</h2>
             <div className="grille-plateformes">
-              {Object.entries(PLATEFORMES).map(([cle, p]) => (
+              {plateformesTriees.map(([cle, p]) => (
                 <button key={cle} className="tuile-plateforme" onClick={() => choisir(() => choisirPlateforme(cle))}>
                   <span className="carre-icone icone-appli">
                     <IconePlateforme key={icones[p.paquet] ? 'appli' : 'site'} cle={cle} icone={icones[p.paquet]} />

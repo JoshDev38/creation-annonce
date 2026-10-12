@@ -4,13 +4,14 @@ import {
   IconCrownFilled,
   IconGearFilled,
   IconPawFilled,
+  IconTag,
   IconUserFilled,
 } from '../components/Icons.jsx'
 import { chargerFidelite } from '../lib/fidelite.js'
 import oursCompte from '../assets/compte/ours-compte.png'
 
 // Onglet « Profil » : le menu « Mon compte ».
-export default function Profil({ session, onConnexion, onMonProfil, onFidelite, onMonAbonnement, onParametres }) {
+export default function Profil({ session, onConnexion, onMonProfil, onPreferences, onFidelite, onMonAbonnement, onParametres }) {
   const [fidelite, setFidelite] = useState(null)
 
   useEffect(() => {
@@ -65,6 +66,17 @@ export default function Profil({ session, onConnexion, onMonProfil, onFidelite, 
           <span className="texte-compte">
             <strong>Mon profil</strong>
             <small>Voir et modifier mes informations</small>
+          </span>
+          <IconChevron width={22} height={22} />
+        </button>
+
+        <button onClick={onPreferences}>
+          <span className="pastille-compte">
+            <IconTag width={30} height={30} />
+          </span>
+          <span className="texte-compte">
+            <strong>Mes préférences de vente</strong>
+            <small>Livraison, foyer, phrase de fin</small>
           </span>
           <IconChevron width={22} height={22} />
         </button>

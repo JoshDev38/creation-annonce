@@ -1,7 +1,7 @@
 // Fonction Supabase (Edge Function) « analyser » : remplace /api/analyser de Vercel.
 // Elle reprend tel quel api/analyser.js (même code que sur Vercel) grâce à un petit
 // adaptateur requête/réponse. Au déploiement, les fichiers sont envoyés avec ces
-// chemins : index.ts, deno.json, api/analyser.js, src/lib/configSupabase.js,
+// chemins : index.ts, deno.json, api/analyser.js, src/lib/configSupabase.js, src/lib/preferences.js,
 // src/lib/paragraphes.js. Secret requis : ANTHROPIC_API_KEY (Edge Functions › Secrets).
 // Déployée sans vérification JWT par Supabase : la fonction vérifie elle-même la
 // session (et doit laisser passer la requête OPTIONS de l'appli, sans jeton).
