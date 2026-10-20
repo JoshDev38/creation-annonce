@@ -1,5 +1,5 @@
 """Génère le tatouage « Narsil & l'Anneau Unique » en SVG (fine line + dotwork)."""
-import math, random
+import json, math, os, random
 
 random.seed(7)
 W, H = 800, 1600
@@ -89,69 +89,12 @@ def halo_d(x, y):
     r = math.hypot(x - CX, (y - RING_CY) * 1.0)
     if r < 170 or r > 238:
         return 0
+    if y > RING_CY + 40:
+        return 0.5 * max(0, 1 - (y - RING_CY - 40) / 25) * max(0, 1 - abs(r - 186) / 52)
     return max(0, 1 - abs(r - 186) / 52) ** 1.8 * 0.7
 add(stipple("halo", (CX - 240, RING_CY - 240, CX + 240, RING_CY + 240), halo_d, 0.5, 1.2, 26000))
 add(f'<circle cx="{CX}" cy="{RING_CY}" r="170" fill="none" stroke="{INK}" stroke-width="1.1"/>')
 add(f'<circle cx="{CX}" cy="{RING_CY}" r="246" fill="none" stroke="{INK}" stroke-width="0.6" stroke-dasharray="1.5 6" stroke-linecap="round"/>')
-
-# ------------------------------------------------------------------ vignes elfiques (côtés supérieurs)
-def leaf(x, y, ang, L, Wd):
-    ca, sa = math.cos(ang), math.sin(ang)
-    tip = (x + ca * L, y + sa * L)
-    nx, ny = -sa, ca
-    m = (x + ca * L * 0.45, y + sa * L * 0.45)
-    c1 = (m[0] + nx * Wd, m[1] + ny * Wd)
-    c2 = (m[0] - nx * Wd, m[1] - ny * Wd)
-    d = (f"M{f(x)},{f(y)} Q{f(c1[0])},{f(c1[1])} {f(tip[0])},{f(tip[1])} "
-         f"Q{f(c2[0])},{f(c2[1])} {f(x)},{f(y)}Z")
-    half = (f"M{f(x)},{f(y)} Q{f(c1[0])},{f(c1[1])} {f(tip[0])},{f(tip[1])}Z")
-    return (f'<path d="{d}" fill="#fff" stroke="{INK}" stroke-width="1.1"/>'
-            f'<path d="{half}" fill="{INK}"/>')
-
-
-def vine(a, b, side, n_leaves):
-    """Tige ondulée parallèle à l'arête a→b, décalée vers l'intérieur."""
-    ex, ey = b[0] - a[0], b[1] - a[1]
-    Ln = math.hypot(ex, ey)
-    ux, uy = ex / Ln, ey / Ln
-    nx, ny = -uy * side, ux * side
-    path, P = [], []
-    for i in range(0, 121):
-        t = i / 120
-        wave = math.sin(t * math.pi * 4) * 4 * math.sin(t * math.pi)
-        off = 20 + wave
-        x = a[0] + ex * t + nx * off
-        y = a[1] + ey * t + ny * off
-        P.append((x, y, t))
-        path.append(f"{'M' if i == 0 else 'L'}{f(x)},{f(y)}")
-    taper = []
-    add(f'<path d="{" ".join(path)}" fill="none" stroke="{INK}" stroke-width="1.3" stroke-linecap="round"/>')
-    base = math.atan2(uy, ux)
-    for k in range(n_leaves):
-        t = (k + 0.7) / (n_leaves + 0.4)
-        x, y, _ = P[int(t * 120)]
-        s = 1 if k % 2 == 0 else -1
-        size = 15 + 9 * math.sin(t * math.pi)
-        add(leaf(x, y, base + s * 0.75 * side, size, size * 0.38))
-    # vrille terminale en spirale
-    x, y, _ = P[-1]
-    sp = []
-    for i in range(60):
-        th = i / 59 * 4.4
-        r = 11 * (1 - i / 66)
-        sp.append(f"{'M' if i == 0 else 'L'}{f(x + r*math.cos(th+base) - 11*math.cos(base))},{f(y + r*math.sin(th+base) - 11*math.sin(base))}")
-    add(f'<path d="{" ".join(sp)}" fill="none" stroke="{INK}" stroke-width="1" stroke-linecap="round"/>')
-    for k in range(5):
-        t = 1.05 + k * 0.035
-        add(f'<circle cx="{f(a[0]+ex*t+nx*20)}" cy="{f(a[1]+ey*t+ny*20)}" r="{1.6 - k*0.25:.2f}" fill="{INK}"/>')
-
-
-A_top = edge_point(inner[0], inner[3], 0.30)
-A_end = edge_point(inner[0], inner[3], 0.80)
-vine(A_top, A_end, -1, 6)
-B_top = edge_point(inner[0], inner[1], 0.30)
-B_end = edge_point(inner[0], inner[1], 0.80)
-vine(B_top, B_end, 1, 6)
 
 # lignes pointillées dégressives (côtés inférieurs)
 for a, b, side in ((inner[3], inner[2], 1), (inner[1], inner[2], -1)):
@@ -181,8 +124,84 @@ add(f'<circle cx="{CX}" cy="{SY}" r="27" fill="#fff" stroke="{INK}" stroke-width
 add(facet_star(CX, SY, 46, 22, 6.5, n=8))
 add(f'<circle cx="{CX}" cy="{SY}" r="2.6" fill="#fff"/>')
 
+# ------------------------------------------------------------------ Arbre Blanc du Gondor (la lame en est le tronc)
+def inscription_path(key, mapper, scale):
+    """Tracé de l'inscription (police Tengwar Annatar, voir inscription.json), déformé par mapper(u, v)."""
+    d = []
+    for sub in INSCRIPTION[key]["subs"]:
+        ptsw = [mapper(x * scale, (y + 8.5) * scale) for x, y in sub]
+        d.append("M" + " L".join(f"{f(x)},{f(y)}" for x, y in ptsw) + "Z")
+    return " ".join(d)
+
+
+INSCRIPTION = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "inscription.json")))
+trng = random.Random(42)
+defs.append(f'<clipPath id="disc"><circle cx="{CX}" cy="{RING_CY}" r="164"/></clipPath>')
+tree_parts, tips = [], []
+
+
+def branch(x, y, ang, ln, w, depth, bend):
+    ex, ey = x + ln * math.cos(ang), y + ln * math.sin(ang)
+    mx, my = (x + ex) / 2, (y + ey) / 2
+    cx_, cy_ = mx - bend * ln * math.sin(ang), my + bend * ln * math.cos(ang)
+    tree_parts.append(f'<path d="M{f(x)},{f(y)} Q{f(cx_)},{f(cy_)} {f(ex)},{f(ey)}" fill="none" '
+                      f'stroke="{INK}" stroke-width="{w:.2f}" stroke-linecap="round"/>')
+    end_ang = math.atan2(ey - cy_, ex - cx_)
+    if depth == 0:
+        tips.append((ex, ey, end_ang))
+        return
+    for da, k in ((-0.42, 0.7), (0.38, 0.62)):
+        branch(ex, ey, end_ang + da + trng.uniform(-0.08, 0.08), ln * k, w * 0.66, depth - 1, bend * 0.9)
+    # rameau secondaire au milieu de la branche
+    if depth >= 2:
+        branch(cx_ * 0.5 + mx * 0.5, cy_ * 0.5 + my * 0.5, ang - 0.7, ln * 0.4, w * 0.5, 0, 0.1)
+
+
+# couronne : trois maîtresses branches de chaque côté, qui s'arquent vers le haut puis retombent
+for (y0, ang, ln, w) in ((712, math.radians(-165), 60, 4.0),
+                         (690, math.radians(-138), 56, 3.6),
+                         (664, math.radians(-110), 46, 3.2)):
+    branch(CX - 26, y0, ang, ln, w, 3, -0.2)
+# racines sous l'anneau
+root_tip_start = len(tips)
+for (y0, ang, ln, w) in ((886, math.radians(165), 40, 2.6), (896, math.radians(132), 38, 2.3),
+                         (908, math.radians(106), 30, 2.0)):
+    branch(CX - 26, y0, ang, ln, w, 2, 0.15)
+root_tips = tips[root_tip_start:]
+crown_tips = tips[:root_tip_start]
+
+left = "".join(tree_parts)
+# fleurs blanches aux extrémités de la couronne
+flowers = []
+for (x, y, a) in crown_tips:
+    for p in range(5):
+        pa = a + p * 2 * math.pi / 5
+        flowers.append(f'<ellipse cx="{f(x + 3.2*math.cos(pa))}" cy="{f(y + 3.2*math.sin(pa))}" rx="2.9" ry="1.7" '
+                       f'transform="rotate({math.degrees(pa):.0f} {f(x + 3.2*math.cos(pa))} {f(y + 3.2*math.sin(pa))})" '
+                       f'fill="#fff" stroke="{INK}" stroke-width="0.8"/>')
+    flowers.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="1.3" fill="{INK}"/>')
+for (x, y, a) in root_tips:
+    flowers.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="1.2" fill="{INK}"/>')
+half = left + "".join(flowers)
+add(f'<g clip-path="url(#disc)">{half}<g transform="translate({2*CX},0) scale(-1,1)">{half}</g></g>')
+
+# Inscription (suite) en arc sous l'anneau : « ash nazg thrakatulûk · agh burzum-ishi krimpatul »
+S_ARC, R_ARC = 0.18, 204
+def arc_mapper(theta0):
+    def m(u, v):
+        th = theta0 - u / R_ARC
+        r = R_ARC + v
+        return CX + r * math.cos(th), RING_CY + r * math.sin(th)
+    return m
+wa = INSCRIPTION["side1"]["width"] * S_ARC
+wb = INSCRIPTION["side2"]["width"] * S_ARC
+gap_a = 120  # place pour la lame au centre
+th0 = math.pi / 2 + (wa + wb + gap_a) / 2 / R_ARC
+add(f'<path d="{inscription_path("side1", arc_mapper(th0), S_ARC)} '
+    f'{inscription_path("side2", arc_mapper(th0 - (wa + gap_a) / R_ARC), S_ARC)}" fill="{INK}"/>')
+
 # ------------------------------------------------------------------ Anneau (face arrière, derrière la lame)
-RX_, RY_, TH = 160, 50, 30        # demi-axes, épaisseur de la bande
+RX_, RY_, TH = 160, 50, 44        # demi-axes, épaisseur de la bande
 RIN_X, RIN_Y = 143, 40            # bord intérieur
 top_c = RING_CY - TH / 2
 bot_c = RING_CY + TH / 2
@@ -244,7 +263,7 @@ band = (arc(CX, top_c, RX_, RY_, 0, math.pi) + " " +
 defs.append(f'<clipPath id="band"><path d="{band}"/></clipPath>')
 add(f'<path d="{band}" fill="#fff" stroke="{INK}" stroke-width="2.4"/>')
 add(stipple("band", (CX-RX_, top_c, CX+RX_, bot_c+RY_),
-            lambda x, y: min(0.95, 0.85 * max(0, (abs(x - CX) / RX_ - 0.55) / 0.45) ** 1.5 + 0.5 * max(0, (y - (RING_CY + RY_*math.sqrt(max(0, 1-((x-CX)/RX_)**2))) - 8) / 10)), 0.5, 1.1, 12000))
+            lambda x, y: min(0.95, 0.6 * max(0, (abs(x - CX) / RX_ - 0.8) / 0.2) ** 1.5 + 0.5 * max(0, (y - (RING_CY + RY_*math.sqrt(max(0, 1-((x-CX)/RX_)**2))) - 8) / 10)), 0.5, 1.1, 12000))
 add(f'<path d="{rim_front}" fill="#fff" stroke="{INK}" stroke-width="1.6"/>')
 add(f'<path d="{arc(CX, top_c, RIN_X, RIN_Y, math.radians(25), math.radians(155))}" fill="none" stroke="{INK}" stroke-width="0.7" stroke-dasharray="0.5 3" stroke-linecap="round"/>')
 # côtés gauche/droit de la bande
@@ -275,44 +294,23 @@ def glyph(x, y, sx, h, kind):
     return g
 
 
-def elvish_script(a0, a1, seed):
-    """Écriture cursive façon tengwar : boucles enchaînées, hampes et tehtar, projetées sur la bande."""
-    rnd = random.Random(seed)
-    def P(a, eta):
-        return (CX + RX_ * math.cos(a), RING_CY + 1 + RY_ * math.sin(a) + eta)
-    n = 900
-    loops = int((a1 - a0) / math.radians(3.2))
-    amps = [rnd.uniform(0.55, 1.0) for _ in range(loops + 2)]
-    lw = [rnd.choice((0.2, 0.5, 1.0, 1.4, 1.7)) for _ in range(loops + 2)]
-    tall = {i: rnd.choice((-1, 1)) for i in range(loops) if rnd.random() < 0.22}
-    d = []
-    for i in range(n + 1):
-        u = i / n
-        k = u * loops
-        j = int(k)
-        ph = (k - j) * 2 * math.pi
-        a = a0 + (a1 - a0) * u + math.radians(1.25) * lw[j] * math.sin(ph)
-        amp = amps[j] * (1 - (k - j)) + amps[j + 1] * (k - j)
-        eta = -6.2 * amp * math.cos(ph)
-        if j in tall and math.cos(ph) > 0.6:
-            eta += tall[j] * 6 * (math.cos(ph) - 0.6) / 0.4
-        x, y = P(a, eta)
-        d.append(f"{'M' if i == 0 else 'L'}{f(x)},{f(y)}")
-    g = [f'<path d="{" ".join(d)}" fill="none" stroke="{INK}" stroke-width="1.05" stroke-linejoin="round" stroke-linecap="round"/>']
-    for j in range(loops):
-        if rnd.random() < 0.3:
-            a = a0 + (a1 - a0) * (j + 0.5) / loops
-            x, y = P(a, -10.5)
-            if rnd.random() < 0.5:
-                g.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="0.95" fill="{INK}"/>')
-            else:
-                w = 2.6 * max(0.3, math.sin(a))
-                g.append(f'<path d="M{f(x-w)},{f(y+1)} q{f(w)},-3 {f(2*w)},0" fill="none" stroke="{INK}" stroke-width="0.8"/>')
-    return "".join(g)
+# Sur l'anneau : « ash nazg durbatulûk · ash nazg gimbatul »
+S_RING, R_EFF, GAP = 0.155, 118, 34
+w1 = INSCRIPTION["ring1"]["width"] * S_RING
+w2 = INSCRIPTION["ring2"]["width"] * S_RING
+a_start = math.pi / 2 + (w1 + w2 + GAP) / 2 / R_EFF
 
 
-add(elvish_script(math.radians(12), math.radians(84), 3))
-add(elvish_script(math.radians(96), math.radians(168), 11))
+def ring_mapper(offset):
+    def m(u, v):
+        a = a_start - (offset + u) / R_EFF
+        return CX + RX_ * math.cos(a), RING_CY + RY_ * math.sin(a) + v
+    return m
+
+
+ring_txt = (inscription_path("ring1", ring_mapper(0), S_RING) + " " +
+            inscription_path("ring2", ring_mapper(w1 + GAP), S_RING))
+add(f'<g clip-path="url(#band)"><path d="{ring_txt}" fill="{INK}"/></g>')
 # petite étoile au centre de la bande
 add(facet_star(CX, RING_CY + RY_ + 1, 7, 7, 1.8, n=4, sw=0.8))
 
