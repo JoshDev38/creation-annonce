@@ -42,6 +42,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+        <!-- AdMob : identifiant de test Google, à remplacer par celui de l'appli Nalow -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
         <!-- Bulle flottante par-dessus Vinted / Leboncoin -->
         <service
             android:name=".BulleService"

@@ -22,6 +22,7 @@ import { genererAnnonce } from './lib/generateur.js'
 import { analyserAvecIA } from './lib/analyseIA.js'
 import { lireQuota } from './lib/quota.js'
 import { estAppliNative } from './lib/cameraNative.js'
+import { montrerPub } from './lib/pub.js'
 import { lireAnnonces, reduirePhoto, supprimerAnnonce } from './lib/stockage.js'
 import { supabase } from './lib/supabase.js'
 import { enregistrerAnnonceCloud } from './lib/annoncesCloud.js'
@@ -87,6 +88,7 @@ export default function App() {
   // Quota d'annonces IA : lu à l'écran de description, pour l'afficher et prévenir avant l'analyse.
   const [quota, setQuota] = useState(null)
   const [modaleQuota, setModaleQuota] = useState(null)
+  const [modalePub, setModalePub] = useState(null) // annonce gratuite : { texte, neuf } en attente de la pub
   const [analyseSansPrix, setAnalyseSansPrix] = useState(false)
   useEffect(() => {
     if (ecran !== 'detail' || !sessionRef.current) return
@@ -128,7 +130,7 @@ export default function App() {
     allerPhotos()
   }
 
-  const lancerAnalyse = (texte, neuf = false) => {
+  const lancerAnalyse = (texte, neuf = false, pubAcceptee = false) => {
     if (reserveeAppli()) return
     setInfos(texte)
     setObjetNeuf(neuf)
@@ -139,6 +141,11 @@ export default function App() {
     // Quota épuisé : on le dit tout de suite (le serveur vérifie aussi).
     if (quota && !quota.prochaine) {
       setModaleQuota(quota)
+      return
+    }
+    // Annonce gratuite dans l'appli : une courte vidéo, regardée pendant que l'IA rédige.
+    if (!pubAcceptee && quota?.prochaine === 'standard' && estAppliNative()) {
+      setModalePub({ texte, neuf })
       return
     }
     setAnalyseSansPrix(quota?.prochaine === 'standard')
@@ -512,6 +519,37 @@ export default function App() {
             <p className="petit">Sur le site, vous pouvez retrouver vos annonces sauvegardées et gérer votre compte.</p>
             <button className="bouton bouton-principal" onClick={() => setModaleAppli(false)}>
               J’ai compris
+            </button>
+          </div>
+        </div>
+      )}
+      {modalePub && (
+        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-pub" onClick={() => setModalePub(null)}>
+          <div className="modale" onClick={(e) => e.stopPropagation()}>
+            <img className="modale-logo" src="./icon-192.png" alt="" />
+            <h2 id="titre-pub" className="titre-m">
+              Votre annonce gratuite
+            </h2>
+            <p>Regardez une courte vidéo (environ 30 secondes) : Nalow rédige votre annonce pendant ce temps.</p>
+            <button
+              className="bouton bouton-principal"
+              onClick={() => {
+                const { texte, neuf } = modalePub
+                setModalePub(null)
+                lancerAnalyse(texte, neuf, true)
+                montrerPub()
+              }}
+            >
+              Regarder la vidéo
+            </button>
+            <button
+              className="bouton bouton-doux"
+              onClick={() => {
+                setModalePub(null)
+                ouvrirAbonnements('detail')
+              }}
+            >
+              Passer à Nalow+ (sans pub)
             </button>
           </div>
         </div>

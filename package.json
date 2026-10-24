@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
+    "@capacitor-community/admob": "^8.2.1",
     "@capacitor-community/camera-preview": "^8.0.2",
     "@capacitor-community/media": "^9.1.0",
     "@capacitor/app": "^8.1.1",
