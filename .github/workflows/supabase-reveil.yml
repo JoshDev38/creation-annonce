@@ -1,0 +1,20 @@
+name: Garder Supabase éveillé
+
+# L'offre gratuite de Supabase met le projet en pause après 7 jours sans activité
+# (l'appli ne marche plus : connexion, annonces, analyse IA). Une petite requête
+# tous les 3 jours suffit à l'éviter.
+on:
+  schedule:
+    - cron: '17 6 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  reveil:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Requête à la base
+        run: |
+          curl -fsS -X POST "https://kobvlojdzhxsvsqnjluj.supabase.co/rest/v1/rpc/pseudo_disponible" \
+            -H "apikey: sb_publishable_0LLK38nE5AGJxz4e2GDAGg_ISi-t8Au" \
+            -H "Content-Type: application/json" \
+            -d '{"p":"reveil-nalow"}'
