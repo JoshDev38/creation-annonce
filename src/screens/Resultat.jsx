@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Entete from '../components/Entete.jsx'
-import { IconCheck, IconCopy, IconSparkle } from '../components/Icons.jsx'
-import { texteAnnonce } from '../lib/generateur.js'
+import { IconCheck, IconCopy, IconSend, IconSparkle } from '../components/Icons.jsx'
 import { copierTexte } from '../lib/stockage.js'
 import { formaterDescription, paragraphes } from '../lib/paragraphes.js'
 
@@ -148,11 +147,6 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
 
   const copier = async (texte) => {
     if (await copierTexte(texte)) onCopie()
-  }
-
-  const copierAnnonce = async () => {
-    await copier(texteAnnonce(annonce))
-    onSuivant()
   }
 
   return (
@@ -355,8 +349,9 @@ export default function Resultat({ annonce, onChange, onCopie, onSuivant, onReto
           </button>
         ) : (
           <>
-            <button className="bouton bouton-principal" onClick={copierAnnonce}>
-              <IconCopy width={22} height={22} /> Copier l’annonce
+            {/* Pas de copie ici : « Publier » copie déjà ce qu'il faut pour la plateforme choisie. */}
+            <button className="bouton bouton-principal" onClick={onSuivant}>
+              <IconSend width={22} height={22} /> Publier mon annonce
             </button>
             <button
               className="bouton bouton-doux"
