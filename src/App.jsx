@@ -22,7 +22,7 @@ import { genererAnnonce } from './lib/generateur.js'
 import { analyserAvecIA } from './lib/analyseIA.js'
 import { lireQuota } from './lib/quota.js'
 import { estAppliNative } from './lib/cameraNative.js'
-import { montrerPub } from './lib/pub.js'
+import { chargerPub, regarderPub } from './lib/pub.js'
 import { lireAnnonces, reduirePhoto, supprimerAnnonce } from './lib/stockage.js'
 import { supabase } from './lib/supabase.js'
 import { enregistrerAnnonceCloud } from './lib/annoncesCloud.js'
@@ -88,7 +88,8 @@ export default function App() {
   // Quota d'annonces IA : lu à l'écran de description, pour l'afficher et prévenir avant l'analyse.
   const [quota, setQuota] = useState(null)
   const [modaleQuota, setModaleQuota] = useState(null)
-  const [modalePub, setModalePub] = useState(null) // annonce gratuite : { texte, neuf } en attente de la pub
+  const [modalePub, setModalePub] = useState(null) // annonce gratuite : { texte, neuf, etape } autour de la pub
+  const [pubVue, setPubVue] = useState(true) // false : l'annonce gratuite attend la fin de la vidéo
   const [analyseSansPrix, setAnalyseSansPrix] = useState(false)
   useEffect(() => {
     if (ecran !== 'detail' || !sessionRef.current) return
@@ -148,6 +149,7 @@ export default function App() {
       setModalePub({ texte, neuf })
       return
     }
+    if (!pubAcceptee) setPubVue(true) // pas de vidéo à attendre pour cette annonce
     setAnalyseSansPrix(quota?.prochaine === 'standard')
     setResultat(null)
     setEcran('analyse')
@@ -169,6 +171,30 @@ export default function App() {
         setQuota(null) // relu à la prochaine annonce
         if (r && numero === analyseEnCours.current) setResultat(r)
       })
+  }
+
+  // Annonce gratuite : la vidéo doit se charger avant de lancer l'IA, puis être regardée
+  // jusqu'au bout pour voir l'annonce (sinon un bloqueur de pub suffirait à l'éviter).
+  const accepterPub = async () => {
+    const { texte, neuf } = modalePub
+    setModalePub({ texte, neuf, etape: 'chargement' })
+    if (!(await chargerPub())) {
+      setModalePub({ texte, neuf, etape: 'erreur' })
+      return
+    }
+    setModalePub(null)
+    setPubVue(false)
+    lancerAnalyse(texte, neuf, true)
+    if (await regarderPub()) setPubVue(true)
+    else setModalePub({ texte, neuf, etape: 'incomplete' })
+  }
+
+  const revoirPub = async () => {
+    setModalePub((m) => ({ ...m, etape: 'chargement-revoir' }))
+    if ((await chargerPub()) && (await regarderPub())) {
+      setModalePub(null)
+      setPubVue(true)
+    } else setModalePub((m) => ({ ...m, etape: 'incomplete' }))
   }
 
   const analyseTerminee = () => {
@@ -363,7 +389,7 @@ export default function App() {
       )
       break
     case 'analyse':
-      contenu = <Analyse pret={Boolean(resultat)} onFini={analyseTerminee} sansPrix={analyseSansPrix} />
+      contenu = <Analyse pret={Boolean(resultat) && pubVue} onFini={analyseTerminee} sansPrix={analyseSansPrix} />
       break
     case 'resultat':
       contenu = (
@@ -524,33 +550,51 @@ export default function App() {
         </div>
       )}
       {modalePub && (
-        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-pub" onClick={() => setModalePub(null)}>
-          <div className="modale" onClick={(e) => e.stopPropagation()}>
+        <div className="fond-modale" role="dialog" aria-modal="true" aria-labelledby="titre-pub">
+          <div className="modale">
             <img className="modale-logo" src="./icon-192.png" alt="" />
-            <h2 id="titre-pub" className="titre-m">
-              Votre annonce gratuite
-            </h2>
-            <p>Regardez une courte vidéo (environ 30 secondes) : Nalow rédige votre annonce pendant ce temps.</p>
-            <button
-              className="bouton bouton-principal"
-              onClick={() => {
-                const { texte, neuf } = modalePub
-                setModalePub(null)
-                lancerAnalyse(texte, neuf, true)
-                montrerPub()
-              }}
-            >
-              Regarder la vidéo
-            </button>
-            <button
-              className="bouton bouton-doux"
-              onClick={() => {
-                setModalePub(null)
-                ouvrirAbonnements('detail')
-              }}
-            >
-              Passer à Nalow+ (sans pub)
-            </button>
+            {modalePub.etape === 'incomplete' || modalePub.etape === 'chargement-revoir' ? (
+              <>
+                <h2 id="titre-pub" className="titre-m">
+                  Encore un petit effort !
+                </h2>
+                <p>Votre annonce est prête : regardez la vidéo jusqu’au bout pour la découvrir.</p>
+                <button className="bouton bouton-principal" onClick={revoirPub} disabled={modalePub.etape === 'chargement-revoir'}>
+                  {modalePub.etape === 'chargement-revoir' ? 'Chargement…' : 'Revoir la vidéo'}
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 id="titre-pub" className="titre-m">
+                  Votre annonce gratuite
+                </h2>
+                {modalePub.etape === 'erreur' ? (
+                  <p className="erreur">
+                    La vidéo ne se charge pas. Vérifiez votre connexion internet (et désactivez un éventuel bloqueur de
+                    publicité), puis réessayez.
+                  </p>
+                ) : (
+                  <p>Regardez une courte vidéo (environ 30 secondes) : Nalow rédige votre annonce pendant ce temps.</p>
+                )}
+                <button className="bouton bouton-principal" onClick={accepterPub} disabled={modalePub.etape === 'chargement'}>
+                  {modalePub.etape === 'chargement' ? 'Chargement…' : modalePub.etape === 'erreur' ? 'Réessayer' : 'Regarder la vidéo'}
+                </button>
+                <button className="bouton bouton-doux" onClick={() => setModalePub(null)}>
+                  Annuler
+                </button>
+              </>
+            )}
+            {!['incomplete', 'chargement-revoir'].includes(modalePub.etape) && (
+              <button
+                className="bouton-lien"
+                onClick={() => {
+                  setModalePub(null)
+                  ouvrirAbonnements('detail')
+                }}
+              >
+                Passer à Nalow+ (sans pub)
+              </button>
+            )}
           </div>
         </div>
       )}
