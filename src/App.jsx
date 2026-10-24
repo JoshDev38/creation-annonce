@@ -222,6 +222,15 @@ export default function App() {
       sessionRef.current = data.session
       setSession(data.session)
       setEcran((e) => (e === 'chargement' ? (data.session ? 'accueil' : 'bienvenue') : e))
+      // Session gardée sur le téléphone d'un compte supprimé (ou révoqué) : on déconnecte,
+      // sinon plus rien ne s'enregistre. Une simple coupure réseau ne déconnecte pas.
+      if (data.session)
+        supabase.auth.getUser().then(({ error }) => {
+          if (error && [401, 403, 404].includes(error.status)) {
+            supabase.auth.signOut({ scope: 'local' })
+            setEcran('bienvenue')
+          }
+        })
     })
     const { data } = supabase.auth.onAuthStateChange((evenement, s) => {
       sessionRef.current = s
